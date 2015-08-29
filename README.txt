@@ -9,9 +9,11 @@ relies on Minizip (http://www.winimage.com/zLibDll/minizip.html).
 
 To install:
 
-1. Copy qlZipInfo.qlgenerator to ~/Library/QuickLook
+1. Create the directory ~/Library/QuickLook if it doesn't exist
 
-2. Restart QuickLook: 
+2. Copy qlZipInfo.qlgenerator to ~/Library/QuickLook
+
+3. Restart QuickLook: 
 
    /usr/bin/qlmanage -r 
    /usr/bin/qlmanage -r cache
