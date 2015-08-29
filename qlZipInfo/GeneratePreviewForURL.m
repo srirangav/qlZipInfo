@@ -305,7 +305,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         isFolder = fileNameInZip[strlen(fileNameInZip) - 1] == '/' ? TRUE : FALSE;
         
         /*
-            generate the table row for this file (with alternating colors)
+            start the table row for this file (with alternating colors)
          
             [size] [% compression] [date] [time] [type] [name]
          */
@@ -314,21 +314,21 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                               i % 2 == 0 ? gTableRowEvenColor : gTableRowOddColor];
    
         /*
-         add an icon depending on whether the entry is a file or a
-         directory.
+            add an icon depending on whether the entry is a file or a
+            directory.
          
-         based on: http://apps.timwhitlock.info/emoji/tables/unicode
-         http://www.unicode.org/emoji/charts/full-emoji-list.html
-         https://stackoverflow.com/questions/10580186/how-to-display-emoji-char-in-html
+            based on: http://apps.timwhitlock.info/emoji/tables/unicode
+                      http://www.unicode.org/emoji/charts/full-emoji-list.html
+                      https://stackoverflow.com/questions/10580186/how-to-display-emoji-char-in-html
          */
         
         [qlHtml appendFormat: @"<td align=\"center\">%@</td>",
          isFolder == TRUE ? gFolderIcon : gFileIcon];
         
         /*
-         print the file name and force it to wrap
+            print the file name and force it to wrap
          
-         based on: https://stackoverflow.com/questions/1258416/word-wrap-in-an-html-table
+            based on: https://stackoverflow.com/questions/1258416/word-wrap-in-an-html-table
          
          */
         
@@ -386,31 +386,9 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         [qlHtml appendFormat: @"<td align=\"center\">%2.2lu:%2.2lu</td>",
                               (uLong)fileInfoInZip.tmu_date.tm_hour,
                               (uLong)fileInfoInZip.tmu_date.tm_min];
-#ifdef FILENAMELAST
-        /*
-           add an icon depending on whether the entry is a file or a
-           directory.
-         
-           based on: http://apps.timwhitlock.info/emoji/tables/unicode
-                     http://www.unicode.org/emoji/charts/full-emoji-list.html
-                     https://stackoverflow.com/questions/10580186/how-to-display-emoji-char-in-html
-         */
-        
-        [qlHtml appendFormat: @"<td align=\"center\">%@</td>",
-                                isFolder == TRUE ? gFolderIcon : gFileIcon];
 
-        /* 
-            print the file name and force it to wrap
-         
-            based on: https://stackoverflow.com/questions/1258416/word-wrap-in-an-html-table
+        /* close the row */
         
-         */
-        
-        [qlHtml appendString: @"<td><div style=\"display:block; "];
-        [qlHtml appendFormat: @"word-wrap: break-word; width: %dpx;\">%s</div></td>",
-                              (gColFileName - (gColPadding*2)),
-                              fileNameInZip];
-#endif
         [qlHtml appendString:@"</tr>\n"];
 
         /* update the total compressed and uncompressed sizes */
