@@ -7,6 +7,7 @@
     v. 0.1.0 (08/19/2015) - Initial Release
     v. 0.1.1 (08/27/2015) - Add icon support, file sizes in B, KB,
                             MB, GB, and TB, and compression ratio
+    v. 0.1.2 (09/16/2015) - Localize the date output
  
     Copyright (c) 2015 Sriranga R. Veeraraghavan <ranga@calalum.org>
  
@@ -107,8 +108,12 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                                CFStringRef contentTypeUTI,
                                CFDictionaryRef options)
 {
-    NSMutableString *qlHtml = nil;
     NSMutableDictionary *qlHtmlProps = nil;
+    NSMutableString *qlHtml = nil;
+    NSMutableString *fileDateStringInZip = nil;
+    NSDateFormatter *fileDateFormatterInZip = nil;
+    NSDateFormatter *fileLocalDateFormatterInZip = nil;
+    NSDate *fileDateInZip = nil;
     CFStringRef zipFileName = NULL;
     const char *zipFileNameStr = NULL;
     unzFile zipFile = NULL;
@@ -374,19 +379,77 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
             }
         }
     
-        /* print out the modified date and time for the file */
+        /* 
+            print out the modified date and time for the file in the local format
          
-        /* TODO: localize date & time format */
+            based on: https://stackoverflow.com/questions/9676435/how-do-i-format-the-current-date-for-the-users-locale
+                      https://stackoverflow.com/questions/4895697/nsdateformatter-datefromstring
+                      http://unicode.org/reports/tr35/tr35-4.html#Date_Format_Patterns
+         */
         
-        [qlHtml appendFormat: @"<td align=\"center\">%2.2lu-%2.2lu-%2.2lu</td>",
-                              (uLong)fileInfoInZip.tmu_date.tm_mon + 1,
-                              (uLong)fileInfoInZip.tmu_date.tm_mday,
-                              (uLong)fileInfoInZip.tmu_date.tm_year % 100];
+        /* init the date string (if needed) and clear it */
+         
+        if (fileDateStringInZip == nil) {
+            fileDateStringInZip = [[NSMutableString alloc] initWithString: @""];
+        } else {
+            [fileDateStringInZip setString: @""];
+        }
 
-        [qlHtml appendFormat: @"<td align=\"center\">%2.2lu:%2.2lu</td>",
-                              (uLong)fileInfoInZip.tmu_date.tm_hour,
-                              (uLong)fileInfoInZip.tmu_date.tm_min];
+        /* initialize the date formatter corresponding to this file's date, as 
+           stored in the zip file */
+        
+        if (fileDateFormatterInZip == nil) {
+            fileDateFormatterInZip = [[NSDateFormatter alloc] init];
+            [fileDateFormatterInZip setDateFormat:@"MM-dd-yy HH:mm"];
+        }
+        
+        /* initialize the date formatter for the local date format */
+        
+        if (fileLocalDateFormatterInZip == nil) {
+            fileLocalDateFormatterInZip = [[NSDateFormatter alloc] init];
+        }
+        
+        /* create a string that holds the date for this file */
+        
+        [fileDateStringInZip appendFormat: @"%2.2lu-%2.2lu-%2.2lu %2.2lu:%2.2lu",
+                                           (uLong)fileInfoInZip.tmu_date.tm_mon + 1,
+                                           (uLong)fileInfoInZip.tmu_date.tm_mday,
+                                           (uLong)fileInfoInZip.tmu_date.tm_year % 100,
+                                           (uLong)fileInfoInZip.tmu_date.tm_hour,
+                                           (uLong)fileInfoInZip.tmu_date.tm_min];
 
+        /* get a date object for the file's date */
+        
+        fileDateInZip = [fileDateFormatterInZip dateFromString: fileDateStringInZip];
+        
+        /* if the date object is not nil, print out one table cell corresponding
+           to the date and another table cell corresponding to the time, both in
+           the local format; but if the date is nil, use a default format */
+         
+        if (fileDateInZip != nil) {
+            
+            [fileLocalDateFormatterInZip setDateStyle: NSDateFormatterShortStyle];
+            [fileLocalDateFormatterInZip setTimeStyle: NSDateFormatterNoStyle];
+            [qlHtml appendFormat: @"<td align=\"right\">%@</td>",
+                                  [fileLocalDateFormatterInZip stringFromDate:
+                                                               fileDateInZip]];
+
+            [fileLocalDateFormatterInZip setDateStyle: NSDateFormatterNoStyle];
+            [fileLocalDateFormatterInZip setTimeStyle: NSDateFormatterShortStyle];
+            [qlHtml appendFormat: @"<td align=\"right\">%@</td>",
+                                  [fileLocalDateFormatterInZip stringFromDate:
+                                                               fileDateInZip]];
+        } else {
+            [qlHtml appendFormat: @"<td align=\"center\">%2.2lu-%2.2lu-%2.2lu</td>",
+                                  (uLong)fileInfoInZip.tmu_date.tm_mon + 1,
+                                  (uLong)fileInfoInZip.tmu_date.tm_mday,
+                                  (uLong)fileInfoInZip.tmu_date.tm_year % 100];
+            
+            [qlHtml appendFormat: @"<td align=\"center\">%2.2lu:%2.2lu</td>",
+                                  (uLong)fileInfoInZip.tmu_date.tm_hour,
+                                  (uLong)fileInfoInZip.tmu_date.tm_min];
+        }
+        
         /* close the row */
         
         [qlHtml appendString:@"</tr>\n"];
