@@ -20,6 +20,7 @@ To install:
 
 History:
 
-v1.0.3 - localize the date and fix compression reporting
+v1.0.3 - localize the date, change compression reporting, and escape any
+         HTML characters in file / folder names
 v1.0.2 - add icons, display file compression, size in B, KB, MB, etc.
 v1.0.1 - initial release

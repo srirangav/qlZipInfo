@@ -15,6 +15,9 @@
 		26CA45EB1B84624200B08F29 /* ioapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 26CA45E71B84624200B08F29 /* ioapi.h */; };
 		26CA45EC1B84624200B08F29 /* unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 26CA45E81B84624200B08F29 /* unzip.c */; settings = {COMPILER_FLAGS = "-DNOUNCRYPT"; }; };
 		26CA45ED1B84624200B08F29 /* unzip.h in Headers */ = {isa = PBXBuildFile; fileRef = 26CA45E91B84624200B08F29 /* unzip.h */; };
+		26D414431BA9E23200216180 /* GTMDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 26D414401BA9E23200216180 /* GTMDefines.h */; };
+		26D414441BA9E23200216180 /* GTMNSString+HTML.h in Headers */ = {isa = PBXBuildFile; fileRef = 26D414411BA9E23200216180 /* GTMNSString+HTML.h */; };
+		26D414451BA9E23200216180 /* GTMNSString+HTML.m in Sources */ = {isa = PBXBuildFile; fileRef = 26D414421BA9E23200216180 /* GTMNSString+HTML.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +32,10 @@
 		26CA45E81B84624200B08F29 /* unzip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = unzip.c; sourceTree = "<group>"; };
 		26CA45E91B84624200B08F29 /* unzip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = unzip.h; sourceTree = "<group>"; };
 		26CA45FA1B86991600B08F29 /* unzip11.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = unzip11.zip; path = Sources/unzip11.zip; sourceTree = "<group>"; };
+		26D414401BA9E23200216180 /* GTMDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTMDefines.h; sourceTree = "<group>"; };
+		26D414411BA9E23200216180 /* GTMNSString+HTML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "GTMNSString+HTML.h"; sourceTree = "<group>"; };
+		26D414421BA9E23200216180 /* GTMNSString+HTML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "GTMNSString+HTML.m"; sourceTree = "<group>"; };
+		26D414461BA9E6AA00216180 /* google-toolbox-for-mac-google-toolbox-for-mac-1.6.0.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = "google-toolbox-for-mac-google-toolbox-for-mac-1.6.0.zip"; path = "Sources/google-toolbox-for-mac-google-toolbox-for-mac-1.6.0.zip"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -64,6 +71,7 @@
 		26CA45D51B8461BA00B08F29 /* qlZipInfo */ = {
 			isa = PBXGroup;
 			children = (
+				26D4143F1BA9E23200216180 /* GTM */,
 				26CA45E51B84624200B08F29 /* minizip */,
 				26CA45D81B8461BA00B08F29 /* GenerateThumbnailForURL.m */,
 				26CA45DA1B8461BA00B08F29 /* GeneratePreviewForURL.m */,
@@ -95,9 +103,20 @@
 		26CA45F11B84630200B08F29 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				26D414461BA9E6AA00216180 /* google-toolbox-for-mac-google-toolbox-for-mac-1.6.0.zip */,
 				26CA45FA1B86991600B08F29 /* unzip11.zip */,
 			);
 			name = Sources;
+			sourceTree = "<group>";
+		};
+		26D4143F1BA9E23200216180 /* GTM */ = {
+			isa = PBXGroup;
+			children = (
+				26D414401BA9E23200216180 /* GTMDefines.h */,
+				26D414411BA9E23200216180 /* GTMNSString+HTML.h */,
+				26D414421BA9E23200216180 /* GTMNSString+HTML.m */,
+			);
+			path = GTM;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -107,7 +126,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				26D414441BA9E23200216180 /* GTMNSString+HTML.h in Headers */,
 				26CA45EB1B84624200B08F29 /* ioapi.h in Headers */,
+				26D414431BA9E23200216180 /* GTMDefines.h in Headers */,
 				26CA45ED1B84624200B08F29 /* unzip.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -184,6 +205,7 @@
 				26CA45DB1B8461BA00B08F29 /* GeneratePreviewForURL.m in Sources */,
 				26CA45EA1B84624200B08F29 /* ioapi.c in Sources */,
 				26CA45DD1B8461BA00B08F29 /* main.c in Sources */,
+				26D414451BA9E23200216180 /* GTMNSString+HTML.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

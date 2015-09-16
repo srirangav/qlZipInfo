@@ -7,7 +7,8 @@
     v. 0.1.0 (08/19/2015) - Initial Release
     v. 0.1.1 (08/27/2015) - Add icon support, file sizes in B, KB,
                             MB, GB, and TB, and compression ratio
-    v. 0.1.2 (09/16/2015) - Localize the date output, fix compression reporting
+    v. 0.1.2 (09/16/2015) - Localize the date output, fix compression reporting,
+                            and escape any HTML characters in filenames
 
     Copyright (c) 2015 Sriranga R. Veeraraghavan <ranga@calalum.org>
  
@@ -39,6 +40,7 @@
 #include <sys/syslimits.h>
 
 #include "unzip.h"
+#import "GTMNSString+HTML.h"
 
 /* structs */
 
@@ -120,6 +122,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     unz_global_info zipFileInfo;
     unz_file_info fileInfoInZip;
     char fileNameInZip[PATH_MAX];
+    NSString *fileNameInZipEscaped = nil;
     int zipErr = UNZ_OK;
     uLong i = 0;
     uLong totalSize = 0;
@@ -307,13 +310,11 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
             break;
         }
         
-        isFolder = fileNameInZip[strlen(fileNameInZip) - 1] == '/' ? TRUE : FALSE;
+        /* check if this entry is a file or a folder */
         
-        /*
-            start the table row for this file (with alternating colors)
-         
-            [size] [% compression] [date] [time] [type] [name]
-         */
+        isFolder = (fileNameInZip[strlen(fileNameInZip) - 1] == '/') ? TRUE : FALSE;
+        
+        /* start the table row for this file (with alternating colors) */
         
         [qlHtml appendFormat: @"<tr bgcolor=\"%@\">",
                               i % 2 == 0 ? gTableRowEvenColor : gTableRowOddColor];
@@ -331,16 +332,19 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
          isFolder == TRUE ? gFolderIcon : gFileIcon];
         
         /*
-            print the file name and force it to wrap
+            HTML escape the file name, print it out, and force it to wrap
          
             based on: https://stackoverflow.com/questions/1258416/word-wrap-in-an-html-table
-         
+                      https://stackoverflow.com/questions/659602/objective-c-html-escape-unescape
          */
         
+        fileNameInZipEscaped = [[NSString stringWithUTF8String: fileNameInZip]
+                                          gtm_stringByEscapingForHTML];
+        
         [qlHtml appendString: @"<td><div style=\"display:block; "];
-        [qlHtml appendFormat: @"word-wrap: break-word; width: %dpx;\">%s</div></td>",
-         (gColFileName - (gColPadding*2)),
-         fileNameInZip];
+        [qlHtml appendFormat: @"word-wrap: break-word; width: %dpx;\">%@</div></td>",
+                              (gColFileName - (gColPadding*2)),
+                              fileNameInZipEscaped];
 
         /* if the entry is a folder, don't print out its size, which is always 0 */
         
@@ -371,7 +375,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                 compression = getCompression((Float64)fileInfoInZip.uncompressed_size,
                                              (Float64)fileInfoInZip.compressed_size);
                 [qlHtml appendFormat:
-                        @"<td align=\"right\"><pre>(%2.0f%%)</pre></td>",
+                        @"<td align=\"right\"><pre>(%3.0f%%)</pre></td>",
                         compression];
             } else {
                 [qlHtml appendString:
@@ -498,7 +502,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         compression = getCompression((Float64)totalSize,
                                      (Float64)totalCompressedSize);
         [qlHtml appendFormat:
-                @"<td align=\"right\"><pre>(%2.0f%%)</pre></td>",
+                @"<td align=\"right\"><pre>(%3.0f%%)</pre></td>",
                 compression];
     } else {
         [qlHtml appendString:
