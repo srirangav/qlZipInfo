@@ -15,7 +15,6 @@
 		26CA45EB1B84624200B08F29 /* ioapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 26CA45E71B84624200B08F29 /* ioapi.h */; };
 		26CA45EC1B84624200B08F29 /* unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 26CA45E81B84624200B08F29 /* unzip.c */; settings = {COMPILER_FLAGS = "-DNOUNCRYPT"; }; };
 		26CA45ED1B84624200B08F29 /* unzip.h in Headers */ = {isa = PBXBuildFile; fileRef = 26CA45E91B84624200B08F29 /* unzip.h */; };
-		26CA45FB1B86991600B08F29 /* unzip11.zip in Resources */ = {isa = PBXBuildFile; fileRef = 26CA45FA1B86991600B08F29 /* unzip11.zip */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -170,7 +169,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				26CA45FB1B86991600B08F29 /* unzip11.zip in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -7,8 +7,8 @@
     v. 0.1.0 (08/19/2015) - Initial Release
     v. 0.1.1 (08/27/2015) - Add icon support, file sizes in B, KB,
                             MB, GB, and TB, and compression ratio
-    v. 0.1.2 (09/16/2015) - Localize the date output
- 
+    v. 0.1.2 (09/16/2015) - Localize the date output, fix compression reporting
+
     Copyright (c) 2015 Sriranga R. Veeraraghavan <ranga@calalum.org>
  
     Permission is hereby granted, free of charge, to any person obtaining
@@ -604,7 +604,7 @@ static float getCompression(Float64 uncompressedSize, Float64 compressedSize)
     Float64 compression = 0.0;
 
     if (uncompressedSize > 0) {
-        compression = 100 *  (1.0 - (compressedSize / uncompressedSize));
+        compression = 100 *  (compressedSize / uncompressedSize);
     }
     
     if (compression <= 0) {
