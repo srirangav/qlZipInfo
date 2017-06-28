@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		268A0C391BBB6F7700996C17 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 268A0C381BBB6F7700996C17 /* libz.tbd */; };
 		26CA45D91B8461BA00B08F29 /* GenerateThumbnailForURL.m in Sources */ = {isa = PBXBuildFile; fileRef = 26CA45D81B8461BA00B08F29 /* GenerateThumbnailForURL.m */; };
 		26CA45DB1B8461BA00B08F29 /* GeneratePreviewForURL.m in Sources */ = {isa = PBXBuildFile; fileRef = 26CA45DA1B8461BA00B08F29 /* GeneratePreviewForURL.m */; };
 		26CA45DD1B8461BA00B08F29 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 26CA45DC1B8461BA00B08F29 /* main.c */; };
-		26CA45E41B84620600B08F29 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 26CA45E31B84620600B08F29 /* libz.dylib */; };
 		26CA45EA1B84624200B08F29 /* ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 26CA45E61B84624200B08F29 /* ioapi.c */; settings = {COMPILER_FLAGS = "-DUSE_FILE32API"; }; };
 		26CA45EB1B84624200B08F29 /* ioapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 26CA45E71B84624200B08F29 /* ioapi.h */; };
 		26CA45EC1B84624200B08F29 /* unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 26CA45E81B84624200B08F29 /* unzip.c */; settings = {COMPILER_FLAGS = "-DNOUNCRYPT"; }; };
@@ -21,12 +21,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		268A0C381BBB6F7700996C17 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		26CA45D31B8461BA00B08F29 /* qlZipInfo.qlgenerator */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = qlZipInfo.qlgenerator; sourceTree = BUILT_PRODUCTS_DIR; };
 		26CA45D71B8461BA00B08F29 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		26CA45D81B8461BA00B08F29 /* GenerateThumbnailForURL.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GenerateThumbnailForURL.m; sourceTree = "<group>"; };
 		26CA45DA1B8461BA00B08F29 /* GeneratePreviewForURL.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GeneratePreviewForURL.m; sourceTree = "<group>"; };
 		26CA45DC1B8461BA00B08F29 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
-		26CA45E31B84620600B08F29 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		26CA45E61B84624200B08F29 /* ioapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ioapi.c; sourceTree = "<group>"; };
 		26CA45E71B84624200B08F29 /* ioapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ioapi.h; sourceTree = "<group>"; };
 		26CA45E81B84624200B08F29 /* unzip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = unzip.c; sourceTree = "<group>"; };
@@ -43,7 +43,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				26CA45E41B84620600B08F29 /* libz.dylib in Frameworks */,
+				268A0C391BBB6F7700996C17 /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,7 +53,7 @@
 		26CA45C91B8461BA00B08F29 = {
 			isa = PBXGroup;
 			children = (
-				26CA45E31B84620600B08F29 /* libz.dylib */,
+				268A0C381BBB6F7700996C17 /* libz.tbd */,
 				26CA45D51B8461BA00B08F29 /* qlZipInfo */,
 				26CA45F11B84630200B08F29 /* Sources */,
 				26CA45D41B8461BA00B08F29 /* Products */,
@@ -160,7 +160,7 @@
 		26CA45CA1B8461BA00B08F29 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0640;
+				LastUpgradeCheck = 0700;
 				ORGANIZATIONNAME = "Sriranga Veeraraghavan";
 				TargetAttributes = {
 					26CA45D21B8461BA00B08F29 = {
@@ -232,6 +232,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -295,6 +296,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = qlZipInfo/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.calalum.ranga.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = qlgenerator;
 			};
@@ -306,6 +308,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = qlZipInfo/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
+				PRODUCT_BUNDLE_IDENTIFIER = "org.calalum.ranga.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = qlgenerator;
 			};
