@@ -1,7 +1,7 @@
 README
 ------
 
-qlZipInfo v1.0.4
+qlZipInfo v1.0.5
 By Sriranga Veeraraghavan <ranga@calalum.org>
 
 qlZipInfo is a QuickLook generator for Zip and Jar files.  qlZipInfo
@@ -20,8 +20,13 @@ To install:
 
 History:
 
+v1.0.5 - internal updates
 v1.0.4 - internal updates
 v1.0.3 - localize the date, change compression reporting, and escape any
          HTML characters in file / folder names
 v1.0.2 - add icons, display file compression, size in B, KB, MB, etc.
 v1.0.1 - initial release
+
+License: 
+
+Please see LICENSE.txt
