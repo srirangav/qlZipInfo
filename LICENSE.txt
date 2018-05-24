@@ -1,8 +1,11 @@
 qlZipInfo Licenses
 ------------------
 
-Portions Copyright (c) 2015 Sriranga Veeraraghavan <ranga@calalum.org>.
+Portions Copyright (c) 2015-2018 Sriranga Veeraraghavan <ranga@calalum.org>.
 All rights reserved.
+ 
+For those portions Copyright (c) Sriranga Veeraraghavan, the following license
+applies:
  
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the "Software"),
@@ -22,7 +25,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 
-Minizip
+For other portions, the following licenses / terms apply:
+
+Minizip:
 
 Copyright (c) 1998-2010 - by Gilles Vollant - version 1.1 64 bits from Mathias 
 Svensson
@@ -47,7 +52,7 @@ Condition of use and distribution are the same than zlib:
      misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
 
-Google Toolbox For Mac
+Google Toolbox For Mac:
 
 Copyright 2006-2008 Google Inc.
 

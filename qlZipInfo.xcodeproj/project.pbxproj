@@ -35,7 +35,9 @@
 		26D414401BA9E23200216180 /* GTMDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTMDefines.h; sourceTree = "<group>"; };
 		26D414411BA9E23200216180 /* GTMNSString+HTML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "GTMNSString+HTML.h"; sourceTree = "<group>"; };
 		26D414421BA9E23200216180 /* GTMNSString+HTML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "GTMNSString+HTML.m"; sourceTree = "<group>"; };
-		26D414461BA9E6AA00216180 /* google-toolbox-for-mac-google-toolbox-for-mac-1.6.0.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = "google-toolbox-for-mac-google-toolbox-for-mac-1.6.0.zip"; path = "Sources/google-toolbox-for-mac-google-toolbox-for-mac-1.6.0.zip"; sourceTree = "<group>"; };
+		26EE1BCD20B695D40023D0C3 /* google-toolbox-for-mac-1.6.0.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = "google-toolbox-for-mac-1.6.0.zip"; path = "Sources/google-toolbox-for-mac-1.6.0.zip"; sourceTree = "<group>"; };
+		26EE1BCE20B695D40023D0C3 /* google-toolbox-for-mac-2.1.4.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = "google-toolbox-for-mac-2.1.4.zip"; path = "Sources/google-toolbox-for-mac-2.1.4.zip"; sourceTree = "<group>"; };
+		26EE1BD120B699EA0023D0C3 /* zlib-1.2.11.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; name = "zlib-1.2.11.tar.gz"; path = "Sources/zlib-1.2.11.tar.gz"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,8 +105,10 @@
 		26CA45F11B84630200B08F29 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				26D414461BA9E6AA00216180 /* google-toolbox-for-mac-google-toolbox-for-mac-1.6.0.zip */,
+				26EE1BCD20B695D40023D0C3 /* google-toolbox-for-mac-1.6.0.zip */,
+				26EE1BCE20B695D40023D0C3 /* google-toolbox-for-mac-2.1.4.zip */,
 				26CA45FA1B86991600B08F29 /* unzip11.zip */,
+				26EE1BD120B699EA0023D0C3 /* zlib-1.2.11.tar.gz */,
 			);
 			name = Sources;
 			sourceTree = "<group>";
@@ -160,7 +164,7 @@
 		26CA45CA1B8461BA00B08F29 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0830;
+				LastUpgradeCheck = 0930;
 				ORGANIZATIONNAME = "Sriranga Veeraraghavan";
 				TargetAttributes = {
 					26CA45D21B8461BA00B08F29 = {
@@ -220,14 +224,22 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -265,14 +277,22 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
