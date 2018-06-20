@@ -464,6 +464,10 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         totalCompressedSize += fileInfoInZip.compressed_size;
     }
 
+    /* close the zip file */
+    
+    unzClose(zipFile);
+
     /* close the table body */
     
     [qlHtml appendString: @"</tbody>\n"];
@@ -528,10 +532,6 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     [qlHtml appendString: @"</font>\n</body>\n</html>\n"];
     
-    /* close the zip file */
-    
-    unzClose(zipFile);
-
     QLPreviewRequestSetDataRepresentation(preview,
                                           (__bridge CFDataRef)[qlHtml dataUsingEncoding:
                                                                 NSUTF8StringEncoding],
