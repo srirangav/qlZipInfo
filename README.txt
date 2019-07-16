@@ -1,7 +1,7 @@
 README
 ------
 
-qlZipInfo v1.0.5
+qlZipInfo v1.0.6
 By Sriranga Veeraraghavan <ranga@calalum.org>
 
 qlZipInfo is a QuickLook generator for Zip and Jar files.  qlZipInfo
@@ -20,6 +20,7 @@ To install:
 
 History:
 
+v1.0.6 - updates for Xcode 10.2
 v1.0.5 - internal updates
 v1.0.4 - internal updates
 v1.0.3 - localize the date, change compression reporting, and escape any
@@ -30,3 +31,4 @@ v1.0.1 - initial release
 License: 
 
 Please see LICENSE.txt
+

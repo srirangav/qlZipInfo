@@ -164,20 +164,23 @@
 		26CA45CA1B8461BA00B08F29 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0930;
+				LastUpgradeCheck = 1020;
 				ORGANIZATIONNAME = "Sriranga Veeraraghavan";
 				TargetAttributes = {
 					26CA45D21B8461BA00B08F29 = {
 						CreatedOnToolsVersion = 6.4;
+						DevelopmentTeam = CLN8R9E6QM;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
 			buildConfigurationList = 26CA45CD1B8461BA00B08F29 /* Build configuration list for PBXProject "qlZipInfo" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 26CA45C91B8461BA00B08F29;
 			productRefGroup = 26CA45D41B8461BA00B08F29 /* Products */;
@@ -220,6 +223,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -273,6 +277,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -317,11 +322,15 @@
 		26CA45E11B8461BA00B08F29 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = CLN8R9E6QM;
 				INFOPLIST_FILE = qlZipInfo/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.calalum.ranga.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				WRAPPER_EXTENSION = qlgenerator;
 			};
 			name = Debug;
@@ -329,11 +338,15 @@
 		26CA45E21B8461BA00B08F29 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = CLN8R9E6QM;
 				INFOPLIST_FILE = qlZipInfo/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.calalum.ranga.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				WRAPPER_EXTENSION = qlgenerator;
 			};
 			name = Release;
