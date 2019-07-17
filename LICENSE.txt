@@ -1,7 +1,7 @@
 qlZipInfo Licenses
 ------------------
 
-Portions Copyright (c) 2015-2018 Sriranga Veeraraghavan <ranga@calalum.org>.
+Portions Copyright (c) 2015-2019 Sriranga Veeraraghavan <ranga@calalum.org>.
 All rights reserved.
  
 For those portions Copyright (c) Sriranga Veeraraghavan, the following license
@@ -28,6 +28,11 @@ DEALINGS IN THE SOFTWARE.
 For other portions, the following licenses / terms apply:
 
 Minizip:
+
+Copyright (C) 2010-2017 Nathan Moinvaziri - version 1.2 
+     
+https://github.com/nmoinvaz/minizip
+https://github.com/nmoinvaz/minizip/blob/1.2/LICENSE
 
 Copyright (c) 1998-2010 - by Gilles Vollant - version 1.1 64 bits from Mathias 
 Svensson

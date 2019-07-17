@@ -13,6 +13,7 @@
 			<array>
 				<string>com.pkware.zip-archive</string>
 				<string>com.sun.java-archive</string>
+				<string>com.winzip.zipx-archive</string>
 			</array>
 		</dict>
 	</array>
@@ -25,7 +26,7 @@
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.6</string>
+	<string>1.0.7</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
@@ -49,7 +50,7 @@
 	<key>CFPlugInUnloadFunction</key>
 	<string></string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Portions Copyright © 2015-2018 Sriranga Veeraraghavan. All rights reserved.</string>
+	<string>Portions Copyright © 2015-2019 Sriranga Veeraraghavan. All rights reserved.</string>
 	<key>QLNeedsToBeRunInMainThread</key>
 	<false/>
 	<key>QLPreviewHeight</key>

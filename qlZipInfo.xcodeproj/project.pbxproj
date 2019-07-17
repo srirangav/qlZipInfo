@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		261EB60E22DD6C5100B38AE0 /* minishared.h in Headers */ = {isa = PBXBuildFile; fileRef = 261EB60C22DD6C5100B38AE0 /* minishared.h */; };
+		261EB60F22DD6C5100B38AE0 /* minishared.c in Sources */ = {isa = PBXBuildFile; fileRef = 261EB60D22DD6C5100B38AE0 /* minishared.c */; };
 		268A0C391BBB6F7700996C17 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 268A0C381BBB6F7700996C17 /* libz.tbd */; };
 		26CA45D91B8461BA00B08F29 /* GenerateThumbnailForURL.m in Sources */ = {isa = PBXBuildFile; fileRef = 26CA45D81B8461BA00B08F29 /* GenerateThumbnailForURL.m */; };
 		26CA45DB1B8461BA00B08F29 /* GeneratePreviewForURL.m in Sources */ = {isa = PBXBuildFile; fileRef = 26CA45DA1B8461BA00B08F29 /* GeneratePreviewForURL.m */; };
@@ -21,6 +23,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		261EB60C22DD6C5100B38AE0 /* minishared.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = minishared.h; sourceTree = "<group>"; };
+		261EB60D22DD6C5100B38AE0 /* minishared.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = minishared.c; sourceTree = "<group>"; };
 		268A0C381BBB6F7700996C17 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		26CA45D31B8461BA00B08F29 /* qlZipInfo.qlgenerator */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = qlZipInfo.qlgenerator; sourceTree = BUILT_PRODUCTS_DIR; };
 		26CA45D71B8461BA00B08F29 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -96,6 +100,8 @@
 			children = (
 				26CA45E61B84624200B08F29 /* ioapi.c */,
 				26CA45E71B84624200B08F29 /* ioapi.h */,
+				261EB60D22DD6C5100B38AE0 /* minishared.c */,
+				261EB60C22DD6C5100B38AE0 /* minishared.h */,
 				26CA45E81B84624200B08F29 /* unzip.c */,
 				26CA45E91B84624200B08F29 /* unzip.h */,
 			);
@@ -134,6 +140,7 @@
 				26CA45EB1B84624200B08F29 /* ioapi.h in Headers */,
 				26D414431BA9E23200216180 /* GTMDefines.h in Headers */,
 				26CA45ED1B84624200B08F29 /* unzip.h in Headers */,
+				261EB60E22DD6C5100B38AE0 /* minishared.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -208,6 +215,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				26CA45D91B8461BA00B08F29 /* GenerateThumbnailForURL.m in Sources */,
+				261EB60F22DD6C5100B38AE0 /* minishared.c in Sources */,
 				26CA45EC1B84624200B08F29 /* unzip.c in Sources */,
 				26CA45DB1B8461BA00B08F29 /* GeneratePreviewForURL.m in Sources */,
 				26CA45EA1B84624200B08F29 /* ioapi.c in Sources */,
