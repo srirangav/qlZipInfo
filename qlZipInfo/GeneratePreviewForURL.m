@@ -52,8 +52,8 @@ typedef struct fileSizeSpec {
 } fileSizeSpec_t;
 
 /* 
-    Default error code (MacOS extractErr error code from MacErrors.h)
-    See:  https://opensource.apple.com/source/CarbonHeaders/CarbonHeaders-18.1/MacErrors.h
+    Default error code (MacOS extractErr error code from MacErrors.h) See:
+    https://opensource.apple.com/source/CarbonHeaders/CarbonHeaders-18.1/MacErrors.h
  */
 
 enum {
@@ -126,8 +126,11 @@ static const NSString *gCompressMethodStored           = @"S";
 static const NSString *gCompressMethodShrunk           = @"H";
 static const NSString *gCompressMethodImploded         = @"I";
 static const NSString *gCompressMethodTokenized        = @"T";
-static const NSString *gCompressMethodDeflate64        = @"64";
-static const NSString *gCompressMethodDeflateLevel0    = @"N";
+static const NSString *gCompressMethodDeflate64        = @"6";
+static const NSString *gCompressMethodDeflateLevel0    = @"";
+/*
+ static const NSString *gCompressMethodDeflateLevel0    = @"N";
+ */
 static const NSString *gCompressMethodDeflateLevel1    = @"M";
 static const NSString *gCompressMethodDeflateLevel2    = @"F";
 static const NSString *gCompressMethodDeflateLevel3    = @"X";
@@ -135,22 +138,13 @@ static const NSString *gCompressMethodReducedLevel1    = @"1";
 static const NSString *gCompressMethodReducedLevel2    = @"2";
 static const NSString *gCompressMethodReducedLevel3    = @"3";
 static const NSString *gCompressMethodReducedLevel4    = @"4";
-static const NSString *gCompressMethodOldTerse         = @"OT";
-static const NSString *gCompressMethodNewTerse         = @"NT";
+static const NSString *gCompressMethodOldTerse         = @"O";
+static const NSString *gCompressMethodNewTerse         = @"N";
 static const NSString *gCompressMethodBZ2              = @"B";
 static const NSString *gCompressMethodLMZA             = @"L";
-static const NSString *gCompressMethodLZ77             = @"77";
+static const NSString *gCompressMethodLZ77             = @"7";
 static const NSString *gCompressMethodPPMd             = @"P";
 static const NSString *gCompressMethodUnknown          = @"U";
-
-/*
- else if (fileInfoInZip.compression_method == 98)
- {
- [qlHtml appendFormat: @"%@</td>", gCompressMethodPPMd];
- }
-
- */
-
 
 /* prototypes */
 
@@ -163,11 +157,7 @@ void CancelPreviewGeneration(void *thisInterface, QLPreviewRequestRef preview);
 static int getFileSizeSpec(uLong fileSizeInBytes, fileSizeSpec_t *fileSpec);
 static float getCompression(Float64 uncompressedSize, Float64 compressedSize);
 
-/* -----------------------------------------------------------------------------
-   Generate a preview for file
-
-   This function's job is to create preview for designated file
-   ----------------------------------------------------------------------------- */
+/* GeneratePreviewForURL - generate a zip file's preview */
 
 OSStatus GeneratePreviewForURL(void *thisInterface,
                                QLPreviewRequestRef preview,
@@ -268,7 +258,6 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     /*
         put a border around the table only
-     
         based on: https://stackoverflow.com/questions/10131729/removing-border-from-table-cell
      */
     
@@ -286,7 +275,6 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     /* 
         borders for table row top, bottom, and sides
-     
         based on: http://webdesign.about.com/od/tables/ht/how-to-add-internal-lines-in-a-table-with-CSS.htm
      */
     
@@ -313,7 +301,6 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     /* 
        start the table
-       
        based on: http://www.w3.org/TR/html4/struct/tables.html
      */
 
@@ -396,7 +383,6 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         /*
             add an icon depending on whether the entry is a file or a
             directory.
-         
             based on: http://apps.timwhitlock.info/emoji/tables/unicode
                       http://www.unicode.org/emoji/charts/full-emoji-list.html
                       https://stackoverflow.com/questions/10580186/how-to-display-emoji-char-in-html
@@ -407,14 +393,11 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         
         /*
             HTML escape the file name, print it out, and force it to wrap
-         
             based on: https://stackoverflow.com/questions/1258416/word-wrap-in-an-html-table
                       https://stackoverflow.com/questions/659602/objective-c-html-escape-unescape
          
             For encyrpted files, print a '*' after the file name.  See:
-
             https://github.com/nmoinvaz/minizip/blob/1.2/miniunz.c
-         
          */
         
         fileNameInZipEscaped = [[NSString stringWithUTF8String: fileNameInZip]
@@ -464,7 +447,6 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
             
             /*
                 print out the compression method for this file. See:
-             
                 https://pkware.cachefly.net/webdocs/APPNOTE/APPNOTE-6.3.0.TXT
                 https://github.com/nmoinvaz/minizip/blob/1.2/miniunz.c
              */
@@ -569,7 +551,6 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
         /* 
             print out the modified date and time for the file in the local format
-         
             based on: https://stackoverflow.com/questions/9676435/how-do-i-format-the-current-date-for-the-users-locale
                       https://stackoverflow.com/questions/4895697/nsdateformatter-datefromstring
                       http://unicode.org/reports/tr35/tr35-4.html#Date_Format_Patterns
@@ -731,9 +712,7 @@ void CancelPreviewGeneration(void *thisInterface, QLPreviewRequestRef preview)
 {
 }
 
-/*
-    getFileSizeSpec - return a string corresponding to the size of the file
- */
+/* getFileSizeSpec - return a string corresponding to the size of the file */
 
 static int getFileSizeSpec(uLong fileSizeInBytes, fileSizeSpec_t *fileSpec)
 {
@@ -785,9 +764,7 @@ static int getFileSizeSpec(uLong fileSizeInBytes, fileSizeSpec_t *fileSpec)
     return err;
 }
 
-/*
-    getCompression - calculate the % that a particular file has been compressed 
- */
+/* getCompression - calculate the % a particular file has been compressed */
 
 static float getCompression(Float64 uncompressedSize, Float64 compressedSize)
 {

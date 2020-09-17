@@ -14,6 +14,8 @@
 				<string>com.pkware.zip-archive</string>
 				<string>com.sun.java-archive</string>
 				<string>com.winzip.zipx-archive</string>
+				<string>public.zip-archive</string>
+				<string>dyn.ah62d4rv4ge8xc6byp77gw6a</string>
 			</array>
 		</dict>
 	</array>
@@ -26,7 +28,7 @@
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.7</string>
+	<string>1.0.8</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
