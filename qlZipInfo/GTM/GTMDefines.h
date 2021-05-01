@@ -105,7 +105,7 @@
 //
 // To replace this system, just provide different macro definitions in your
 // prefix header.  Remember, any implementation you provide *must* be thread
-// safe since this could be called by anything in what ever situtation it has
+// safe since this could be called by anything in what ever situation it has
 // been placed in.
 //
 
@@ -130,11 +130,16 @@
 #if !defined(NS_BLOCK_ASSERTIONS)
   #define _GTMDevAssert(condition, ...)                                       \
     do {                                                                      \
-      if (!(condition)) {                                                     \
+      if (__builtin_expect(!(condition), 0)) {                                \
+        NSString *__assert_func_name__ =                                      \
+            [NSString stringWithUTF8String:__PRETTY_FUNCTION__];              \
+        __assert_func_name__ = __assert_func_name__ ?: @"<Unknown Function>"; \
+        NSString *__assert_file_name__ =                                      \
+            [NSString stringWithUTF8String:__FILE__];                         \
+        __assert_file_name__ = __assert_file_name__ ?: @"<Unknown File>";     \
         [[NSAssertionHandler currentHandler]                                  \
-            handleFailureInFunction:(NSString *)                              \
-                                        [NSString stringWithUTF8String:__PRETTY_FUNCTION__] \
-                               file:(NSString *)[NSString stringWithUTF8String:__FILE__]  \
+            handleFailureInFunction:__assert_func_name__                      \
+                               file:__assert_file_name__                      \
                          lineNumber:__LINE__                                  \
                         description:__VA_ARGS__];                             \
       }                                                                       \
@@ -334,29 +339,6 @@
 #if !defined (GTM_NSSTRINGIFY)
   #define GTM_NSSTRINGIFY_INNER(x) @#x
   #define GTM_NSSTRINGIFY(x) GTM_NSSTRINGIFY_INNER(x)
-#endif
-
-// Macro to allow fast enumeration when building for 10.5 or later, and
-// reliance on NSEnumerator for 10.4.  Remember, NSDictionary w/ FastEnumeration
-// does keys, so pick the right thing, nothing is done on the FastEnumeration
-// side to be sure you're getting what you wanted.
-#ifndef GTM_FOREACH_OBJECT
-  #if TARGET_OS_IPHONE || !(MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5)
-    #define GTM_FOREACH_ENUMEREE(element, enumeration) \
-      for (element in enumeration)
-    #define GTM_FOREACH_OBJECT(element, collection) \
-      for (element in collection)
-    #define GTM_FOREACH_KEY(element, collection) \
-      for (element in collection)
-  #else
-    #define GTM_FOREACH_ENUMEREE(element, enumeration) \
-      for (NSEnumerator *_ ## element ## _enum = enumeration; \
-           (element = [_ ## element ## _enum nextObject]) != nil; )
-    #define GTM_FOREACH_OBJECT(element, collection) \
-      GTM_FOREACH_ENUMEREE(element, [collection objectEnumerator])
-    #define GTM_FOREACH_KEY(element, collection) \
-      GTM_FOREACH_ENUMEREE(element, [collection keyEnumerator])
-  #endif
 #endif
 
 // ============================================================================
