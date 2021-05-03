@@ -1,35 +1,38 @@
 /*
     GeneratePreviewForURL - generate a preview of a zip file
-    $Id: GeneratePreviewForURL.c 1435 2015-08-14 16:48:34Z ranga $
  
     History:
  
     v. 0.1.0 (08/19/2015) - Initial Release
     v. 0.1.1 (08/27/2015) - Add icon support, file sizes in B, KB,
                             MB, GB, and TB, and compression ratio
-    v. 0.1.2 (09/16/2015) - Localize the date output, fix compression reporting,
-                            and escape any HTML characters in filenames
-    v. 0.1.3 (07/16/2019) - Update to use minizip 1.2, show compression method
+    v. 0.1.2 (09/16/2015) - Localize the date output, fix compression
+                            reporting, and escape any HTML characters
+                            in filenames
+    v. 0.1.3 (07/16/2019) - Update to use minizip 1.2, show compression
+                            method
+    v. 0.1.4 (05/03/2021) - Add darkmode support
 
-    Copyright (c) 2015 Sriranga R. Veeraraghavan <ranga@calalum.org>
+    Copyright (c) 2015-2021 Sriranga R. Veeraraghavan <ranga@calalum.org>
  
     Permission is hereby granted, free of charge, to any person obtaining
-    a copy of this software and associated documentation files (the "Software"),
-    to deal in the Software without restriction, including without limitation
-    the rights to use, copy, modify, merge, publish, distribute, sublicense,
-    and/or sell copies of the Software, and to permit persons to whom the
-    Software is furnished to do so, subject to the following conditions:
+    a copy of this software and associated documentation files (the
+    "Software") to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject
+    to the following conditions:
  
-    The above copyright notice and this permission notice shall be included
-    in all copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
  
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-    DEALINGS IN THE SOFTWARE.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+    IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+    CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+    TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 @import Foundation;
@@ -109,11 +112,9 @@ enum
 static const NSString *gTableHeaderName   = @"Name";
 static const NSString *gTableHeaderSize   = @"Size";
 static const NSString *gTableHeaderDate   = @"Modified";
-static const NSString *gBackgroundColor   = @"#F6F6F6";
-static const NSString *gTableHeaderColor  = @"#F4F4F4";
-static const NSString *gTableRowEvenColor = @"#F0F0F0";
-static const NSString *gTableRowOddColor  = @"#FFFFFF";
+static const NSString *gTableRowEvenColor = @"#8C8C8C";
 static const NSString *gTableBorderColor  = @"#CCCCCC";
+static const NSString *gDarkModeBackground = @"#262626";
 static const NSString *gFolderIcon        = @"&#x1F4C1";
 static const NSString *gFileIcon          = @"&#x1F4C4";
 static const NSString *gFontFace          = @"sans-serif";
@@ -153,9 +154,12 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                                CFURLRef url,
                                CFStringRef contentTypeUTI,
                                CFDictionaryRef options);
-void CancelPreviewGeneration(void *thisInterface, QLPreviewRequestRef preview);
-static int getFileSizeSpec(uLong fileSizeInBytes, fileSizeSpec_t *fileSpec);
-static float getCompression(Float64 uncompressedSize, Float64 compressedSize);
+void CancelPreviewGeneration(void *thisInterface,
+                             QLPreviewRequestRef preview);
+static int getFileSizeSpec(uLong fileSizeInBytes,
+                           fileSizeSpec_t *fileSpec);
+static float getCompression(Float64 uncompressedSize,
+                            Float64 compressedSize);
 
 /* GeneratePreviewForURL - generate a zip file's preview */
 
@@ -201,7 +205,8 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     /* covert the file system path to a c string */
     
-    zipFileNameStr = CFStringGetCStringPtr(zipFileName, kCFStringEncodingUTF8);
+    zipFileNameStr = CFStringGetCStringPtr(zipFileName,
+                                           kCFStringEncodingUTF8);
     if (zipFileName == NULL) {
         return zipQLFailed;
     }
@@ -247,14 +252,21 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     /* start html header */
     
     [qlHtml appendString: @"<!DOCTYPE html>\n"];
-    [qlHtml appendString: @"<html xmlns=\"http://www.w3.org/1999/xhtml\">\n"];
+    [qlHtml appendString: @"<html>\n"];
     [qlHtml appendString: @"<head>\n"];
-    [qlHtml appendString: @"<meta http-equiv=\"Content-Type\" content=\"text/html; "];
+    [qlHtml appendString:
+        @"<meta http-equiv=\"Content-Type\" content=\"text/html; "];
     [qlHtml appendString: @"charset=utf-8\" />\n"];
     
     /* start the style sheet */
     
     [qlHtml appendString: @"<style>\n"];
+    
+    [qlHtml appendString:
+        @"@media (prefers-color-scheme: dark) { "];
+    [qlHtml appendFormat:
+        @"body { background-color: %@; color: white; }}\n",
+        gDarkModeBackground];
     
     /*
         put a border around the table only
@@ -269,21 +281,30 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                           (gColFileName + gColPadding)),
                           gBorder,
                           gTableBorderColor];
-    [qlHtml appendString: @"table-layout: fixed; border-collapse: collapse; }\n"];
+    [qlHtml appendString:
+        @"table-layout: fixed; border-collapse: collapse; }\n"];
     [qlHtml appendString: @"td { border: none; }\n"];
-    [qlHtml appendFormat: @"th { background: %@}\n", gTableHeaderColor];
-    
+    [qlHtml appendFormat:
+        @"tr:nth-child(even) { background-color: %@ ; color: black; }\n",
+        gTableRowEvenColor];
+        
     /* 
         borders for table row top, bottom, and sides
         based on: http://webdesign.about.com/od/tables/ht/how-to-add-internal-lines-in-a-table-with-CSS.htm
      */
     
-    [qlHtml appendFormat: @".border-top { border-top: solid %dpx %@; }\n",
-                          gBorder, gTableBorderColor];
-    [qlHtml appendFormat: @".border-bottom { border-bottom: solid %dpx %@; }\n",
-                          gBorder, gTableBorderColor];
-    [qlHtml appendFormat: @".border-side { border-right: solid %dpx %@;\n",
-                          gBorder, gTableBorderColor];
+    [qlHtml appendFormat:
+        @".border-top { border-top: solid %dpx %@; }\n",
+        gBorder,
+        gTableBorderColor];
+    [qlHtml appendFormat:
+        @".border-bottom { border-bottom: solid %dpx %@; }\n",
+        gBorder,
+        gTableBorderColor];
+    [qlHtml appendFormat:
+        @".border-side { border-right: solid %dpx %@; }\n",
+        gBorder,
+        gTableBorderColor];
     
     /* close the style sheet */
     
@@ -295,7 +316,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
     /* start the html body */
 
-    [qlHtml appendFormat: @"<body bgcolor=\"%@\">\n", gBackgroundColor];
+    [qlHtml appendFormat: @"<body>\n"];
     [qlHtml appendFormat: @"<font size=\"%d\" face=\"%@\">\n",
                           gFontSize, gFontFace];
     
@@ -373,13 +394,13 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         
         /* check if this entry is a file or a folder */
         
-        isFolder = (fileNameInZip[strlen(fileNameInZip) - 1] == '/') ? TRUE : FALSE;
+        isFolder =
+            (fileNameInZip[strlen(fileNameInZip) - 1] == '/') ? TRUE : FALSE;
         
-        /* start the table row for this file (with alternating colors) */
-        
-        [qlHtml appendFormat: @"<tr bgcolor=\"%@\">",
-                              i % 2 == 0 ? gTableRowEvenColor : gTableRowOddColor];
-   
+        /* start the table row for this file */
+
+        [qlHtml appendFormat: @"<tr>"];
+
         /*
             add an icon depending on whether the entry is a file or a
             directory.
@@ -404,12 +425,16 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                                           gtm_stringByEscapingForHTML];
         
         [qlHtml appendString: @"<td><div style=\"display:block; "];
-        [qlHtml appendFormat: @"word-wrap: break-word; width: %dpx;\">%@%@</div></td>",
-                              (gColFileName - (gColPadding*2)),
-                              fileNameInZipEscaped,
-                              ((fileInfoInZip.flag & 1) != 0) ? @"*" : @""];
+        [qlHtml appendFormat:
+            @"word-wrap: break-word; width: %dpx;\">%@%@</div></td>",
+            (gColFileName - (gColPadding*2)),
+            fileNameInZipEscaped,
+            ((fileInfoInZip.flag & 1) != 0) ? @"*" : @""];
 
-        /* if the entry is a folder, don't print out its size, which is always 0 */
+        /*
+            if the entry is a folder, don't print out its size,
+            which is always 0
+         */
         
         if (isFolder == TRUE) {
             [qlHtml appendString:
@@ -435,8 +460,9 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
             /* print out the % compression for this file */
             
             if (fileInfoInZip.uncompressed_size > 0) {
-                compression = getCompression((Float64)fileInfoInZip.uncompressed_size,
-                                             (Float64)fileInfoInZip.compressed_size);
+                compression =
+                    getCompression((Float64)fileInfoInZip.uncompressed_size,
+                                   (Float64)fileInfoInZip.compressed_size);
                 [qlHtml appendFormat:
                         @"<td align=\"right\"><pre>(%3.0f%%) ",
                         compression];
@@ -524,19 +550,24 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                 switch (compressLevel)
                 {
                     case 0:
-                        [qlHtml appendFormat: @"%@", gCompressMethodDeflateLevel0];
+                        [qlHtml appendFormat: @"%@",
+                                              gCompressMethodDeflateLevel0];
                         break;
                     case 1:
-                        [qlHtml appendFormat: @"%@", gCompressMethodDeflateLevel1];
+                        [qlHtml appendFormat: @"%@",
+                                              gCompressMethodDeflateLevel1];
                         break;
                     case 2:
-                        [qlHtml appendFormat: @"%@", gCompressMethodDeflateLevel2];
+                        [qlHtml appendFormat: @"%@",
+                                              gCompressMethodDeflateLevel2];
                         break;
                     case 3:
-                        [qlHtml appendFormat: @"%@", gCompressMethodDeflateLevel3];
+                        [qlHtml appendFormat: @"%@",
+                                              gCompressMethodDeflateLevel3];
                         break;
                     default:
-                        [qlHtml appendFormat: @"%@", gCompressMethodUnknown];
+                        [qlHtml appendFormat: @"%@",
+                                              gCompressMethodUnknown];
                         break;
                 }
             }
@@ -550,8 +581,8 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         }
     
         /* 
-            print out the modified date and time for the file in the local format
-            based on: https://stackoverflow.com/questions/9676435/how-do-i-format-the-current-date-for-the-users-locale
+            print out the modified date and time for the file in the local
+            format. based on: https://stackoverflow.com/questions/9676435/how-do-i-format-the-current-date-for-the-users-locale
                       https://stackoverflow.com/questions/4895697/nsdateformatter-datefromstring
                       http://unicode.org/reports/tr35/tr35-4.html#Date_Format_Patterns
          */
@@ -559,13 +590,16 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         /* init the date string (if needed) and clear it */
          
         if (fileDateStringInZip == nil) {
-            fileDateStringInZip = [[NSMutableString alloc] initWithString: @""];
+            fileDateStringInZip =
+                [[NSMutableString alloc] initWithString: @""];
         } else {
             [fileDateStringInZip setString: @""];
         }
 
-        /* initialize the date formatter corresponding to this file's date, as 
-           stored in the zip file */
+        /*
+            initialize the date formatter corresponding to this file's
+            date, as stored in the zip file
+         */
         
         if (fileDateFormatterInZip == nil) {
             fileDateFormatterInZip = [[NSDateFormatter alloc] init];
@@ -582,43 +616,54 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         
         dosdate_to_tm(fileInfoInZip.dos_date, &tmu_date);
         
-        [fileDateStringInZip appendFormat: @"%2.2lu-%2.2lu-%2.2lu %2.2lu:%2.2lu",
-                                           (uLong)tmu_date.tm_mon + 1,
-                                           (uLong)tmu_date.tm_mday,
-                                           (uLong)tmu_date.tm_year % 100,
-                                           (uLong)tmu_date.tm_hour,
-                                           (uLong)tmu_date.tm_min];
+        [fileDateStringInZip appendFormat:
+            @"%2.2lu-%2.2lu-%2.2lu %2.2lu:%2.2lu",
+            (uLong)tmu_date.tm_mon + 1,
+            (uLong)tmu_date.tm_mday,
+            (uLong)tmu_date.tm_year % 100,
+            (uLong)tmu_date.tm_hour,
+            (uLong)tmu_date.tm_min];
 
         /* get a date object for the file's date */
         
-        fileDateInZip = [fileDateFormatterInZip dateFromString: fileDateStringInZip];
+        fileDateInZip =
+            [fileDateFormatterInZip dateFromString: fileDateStringInZip];
         
-        /* if the date object is not nil, print out one table cell corresponding
-           to the date and another table cell corresponding to the time, both in
-           the local format; but if the date is nil, use a default format */
+        /*
+            if the date object is not nil, print out one table cell
+            corresponding to the date and another table cell corresponding
+            to the time, both in the local format; but if the date is nil,
+            use a default format
+         */
          
         if (fileDateInZip != nil) {
             
-            [fileLocalDateFormatterInZip setDateStyle: NSDateFormatterShortStyle];
-            [fileLocalDateFormatterInZip setTimeStyle: NSDateFormatterNoStyle];
-            [qlHtml appendFormat: @"<td align=\"right\">%@</td>",
-                                  [fileLocalDateFormatterInZip stringFromDate:
-                                                               fileDateInZip]];
+            [fileLocalDateFormatterInZip setDateStyle:
+                NSDateFormatterShortStyle];
+            [fileLocalDateFormatterInZip setTimeStyle:
+                NSDateFormatterNoStyle];
+            [qlHtml appendFormat:
+                @"<td align=\"right\">%@</td>",
+                [fileLocalDateFormatterInZip stringFromDate: fileDateInZip]];
 
-            [fileLocalDateFormatterInZip setDateStyle: NSDateFormatterNoStyle];
-            [fileLocalDateFormatterInZip setTimeStyle: NSDateFormatterShortStyle];
-            [qlHtml appendFormat: @"<td align=\"right\">%@</td>",
-                                  [fileLocalDateFormatterInZip stringFromDate:
-                                                               fileDateInZip]];
+            [fileLocalDateFormatterInZip setDateStyle:
+                NSDateFormatterNoStyle];
+            [fileLocalDateFormatterInZip setTimeStyle:
+                NSDateFormatterShortStyle];
+            [qlHtml appendFormat:
+                @"<td align=\"right\">%@</td>",
+                [fileLocalDateFormatterInZip stringFromDate: fileDateInZip]];
         } else {
-            [qlHtml appendFormat: @"<td align=\"center\">%2.2lu-%2.2lu-%2.2lu</td>",
-                                  (uLong)tmu_date.tm_mon + 1,
-                                  (uLong)tmu_date.tm_mday,
-                                  (uLong)tmu_date.tm_year % 100];
+            [qlHtml appendFormat:
+                @"<td align=\"center\">%2.2lu-%2.2lu-%2.2lu</td>",
+                (uLong)tmu_date.tm_mon + 1,
+                (uLong)tmu_date.tm_mday,
+                (uLong)tmu_date.tm_year % 100];
             
-            [qlHtml appendFormat: @"<td align=\"center\">%2.2lu:%2.2lu</td>",
-                                  (uLong)tmu_date.tm_hour,
-                                  (uLong)tmu_date.tm_min];
+            [qlHtml appendFormat:
+                @"<td align=\"center\">%2.2lu:%2.2lu</td>",
+                (uLong)tmu_date.tm_hour,
+                (uLong)tmu_date.tm_min];
         }
         
         /* close the row */
@@ -639,17 +684,20 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     [qlHtml appendString: @"</tbody>\n"];
     
-    /* start the summary row for the zip file - [total size] [blank] [ no. of files] */
+    /*
+        start the summary row for the zip file -
+        [total size] [blank] [ no. of files]
+     */
 
     [qlHtml appendString: @"<tbody>\n"];
-    [qlHtml appendFormat: @"<tr class=\"border-top\" style=\"background: %@;\">",
-                          gTableHeaderColor];
+    [qlHtml appendFormat: @"<tr class=\"border-top\" ;\">"];
     
     /* print out the total number of files in the zip file */
     
-    [qlHtml appendFormat: @"<td align=\"center\" colspan=\"2\">%lu file%s</td>\n",
-                          (unsigned long)zipFileInfo.number_entry,
-                          (zipFileInfo.number_entry > 1 ? "s" : "")];
+    [qlHtml appendFormat:
+        @"<td align=\"center\" colspan=\"2\">%lu file%s</td>\n",
+        (unsigned long)zipFileInfo.number_entry,
+        (zipFileInfo.number_entry > 1 ? "s" : "")];
 
     /* clear the file size spec */
     
@@ -701,7 +749,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     QLPreviewRequestSetDataRepresentation(preview,
                                           (__bridge CFDataRef)[qlHtml dataUsingEncoding:
-                                                                NSUTF8StringEncoding],
+                                                NSUTF8StringEncoding],
                                           kUTTypeHTML,
                                           (__bridge CFDictionaryRef)qlHtmlProps);
     
