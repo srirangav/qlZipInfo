@@ -7,9 +7,10 @@ By Sriranga Veeraraghavan <ranga@calalum.org>
 qlZipInfo is a QuickLook generator for Zip and Jar files.  qlZipInfo
 relies on Minizip 1.2 (https://github.com/nmoinvaz/minizip/tree/1.2).
 
-Information for each file in a zip file is displayed in the following format:
+Information for each file in a zip file is displayed in the following 
+format:
 
-    Filename | Size (Compression ratio) Compression Method | Date Modified
+    Filename | Size (Compression ratio) Method | Date Modified
 
 If a file is encrypted a * is displayed after the filename.
 
@@ -60,9 +61,10 @@ History:
     v1.0.6  - updates for Xcode 10.2
     v1.0.5  - internal updates
     v1.0.4  - internal updates
-    v1.0.3  - localize the date, change compression reporting, and escape
-              any HTML characters in file / folder names
-    v1.0.2  - add icons, display file compression, size in B, KB, MB, etc.
+    v1.0.3  - localize the date, change compression reporting, and 
+              escape any HTML characters in file / folder names
+    v1.0.2  - add icons, display file compression, size in B, KB, MB, 
+              etc.
     v1.0.1  - initial release
 
 License:
