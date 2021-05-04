@@ -272,6 +272,8 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     [qlHtml appendString: @"<style>\n"];
 
+    /* dark and light mode styles */
+    
     [qlHtml appendString:
         @"@media (prefers-color-scheme: dark) { "];
     [qlHtml appendFormat:
@@ -301,16 +303,6 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         based on: https://stackoverflow.com/questions/10131729/removing-border-from-table-cell
      */
 
-    /*
-    [qlHtml appendFormat: @"table { width: %dpx; border: %dpx solid %@; ",
-                          ((gColFileSize + gColPadding) +
-                          (gColFileCompress + gColPadding) +
-                          (gColFileModDate + gColPadding) +
-                          (gColFileModTime + gColPadding) +
-                          (gColFileName + gColPadding)),
-                          gBorder,
-                          gTableBorderColor];
-     */
     [qlHtml appendFormat: @"table { width: 100%%; border: %dpx solid %@; ",
                           gBorder,
                           gTableBorderColor];
@@ -354,8 +346,6 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     /* start the html body */
 
     [qlHtml appendFormat: @"<body>\n"];
-    //[qlHtml appendFormat: @"<font size=\"%d\" face=\"%@\">\n",
-    //                      gFontSize, gFontFace];
 
     [qlHtml appendFormat: @"<font face=\"%@\">\n", gFontFace];
 
@@ -449,7 +439,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
          */
         
         [qlHtml appendFormat: @"<td align=\"center\">%@</td>",
-         isFolder == TRUE ? gFolderIcon : gFileIcon];
+                              isFolder == TRUE ? gFolderIcon : gFileIcon];
         
         /*
             HTML escape the file name, print it out, and force it to wrap
@@ -464,17 +454,10 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                                           gtm_stringByEscapingForHTML];
         
         [qlHtml appendString: @"<td><div style=\"display:block; "];
-/*        [qlHtml appendFormat:
-            @"word-wrap: break-word; width: %dpx;\">%@%@</div></td>",
-            (gColFileName - (gColPadding*2)),
-            fileNameInZipEscaped,
-            ((fileInfoInZip.flag & 1) != 0) ? @"*" : @""];
-*/
         
-        [qlHtml appendFormat:
-            @"word-wrap: break-word;\">%@%@</div></td>",
-            fileNameInZipEscaped,
-            ((fileInfoInZip.flag & 1) != 0) ? @"*" : @""];
+        [qlHtml appendFormat: @"word-wrap: break-word;\">%@%@</div></td>",
+                              fileNameInZipEscaped,
+                              ((fileInfoInZip.flag & 1) != 0) ? @"*" : @""];
 
         /*
             if the entry is a folder, don't print out its size,
@@ -650,7 +633,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         
         if (fileDateFormatterInZip == nil) {
             fileDateFormatterInZip = [[NSDateFormatter alloc] init];
-            [fileDateFormatterInZip setDateFormat:@"MM-dd-yy HH:mm"];
+            [fileDateFormatterInZip setDateFormat: @"MM-dd-yy HH:mm"];
         }
         
         /* initialize the date formatter for the local date format */
