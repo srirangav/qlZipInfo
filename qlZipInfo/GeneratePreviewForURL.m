@@ -112,9 +112,19 @@ enum
 static const NSString *gTableHeaderName   = @"Name";
 static const NSString *gTableHeaderSize   = @"Size";
 static const NSString *gTableHeaderDate   = @"Modified";
-static const NSString *gTableRowEvenColor = @"#8C8C8C";
+static const NSString *gDarkModeTableRowEvenBackgroundColor
+                                          = @"grey";
+static const NSString *gDarkModeTableRowEvenForegroundColor
+                                          = @"white";
+static const NSString *gLightModeTableRowEvenBackgroundColor
+                                          = @"lightgrey";
+static const NSString *gLightModeTableRowEvenForegroundColor
+                                          = @"black";
 static const NSString *gTableBorderColor  = @"#CCCCCC";
 static const NSString *gDarkModeBackground = @"#262626";
+static const NSString *gDarkModeForeground = @"lightgrey";
+static const NSString *gLightModeBackground = @"white";
+static const NSString *gLightModeForeground = @"black";
 static const NSString *gFolderIcon        = @"&#x1F4C1";
 static const NSString *gFileIcon          = @"&#x1F4C4";
 static const NSString *gFontFace          = @"sans-serif";
@@ -190,7 +200,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     fileSizeSpec_t fileSizeSpecInZip;
     Float64 compression = 0;
     struct tm tmu_date = { 0 };
-    uint16_t compressLevel = 0;
+    //uint16_t compressLevel = 0;
     
     if (url == NULL) {
         return zipQLFailed;
@@ -261,18 +271,37 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     /* start the style sheet */
     
     [qlHtml appendString: @"<style>\n"];
-    
+
     [qlHtml appendString:
         @"@media (prefers-color-scheme: dark) { "];
     [qlHtml appendFormat:
-        @"body { background-color: %@; color: white; }}\n",
-        gDarkModeBackground];
-    
+        @"body { background-color: %@; color: %@; }\n",
+        gDarkModeBackground,
+        gDarkModeForeground];
+    [qlHtml appendFormat:
+        @"tr:nth-child(even) { background-color: %@ ; color: %@; }\n",
+        gDarkModeTableRowEvenBackgroundColor,
+        gDarkModeTableRowEvenForegroundColor];
+    [qlHtml appendString: @"}\n"];
+    [qlHtml appendString:
+        @"@media (prefers-color-scheme: light) { "];
+    [qlHtml appendFormat:
+        @"body { background-color: %@; color: %@; }\n",
+        gLightModeBackground,
+        gLightModeForeground];
+    [qlHtml appendFormat:
+        @"tr:nth-child(even) { background-color: %@ ; color: %@; }\n",
+        gLightModeTableRowEvenBackgroundColor,
+        gLightModeTableRowEvenForegroundColor];
+    [qlHtml appendString: @"}\n"];
+
+
     /*
         put a border around the table only
         based on: https://stackoverflow.com/questions/10131729/removing-border-from-table-cell
      */
-    
+
+    /*
     [qlHtml appendFormat: @"table { width: %dpx; border: %dpx solid %@; ",
                           ((gColFileSize + gColPadding) +
                           (gColFileCompress + gColPadding) +
@@ -281,12 +310,13 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                           (gColFileName + gColPadding)),
                           gBorder,
                           gTableBorderColor];
+     */
+    [qlHtml appendFormat: @"table { width: 100%%; border: %dpx solid %@; ",
+                          gBorder,
+                          gTableBorderColor];
     [qlHtml appendString:
         @"table-layout: fixed; border-collapse: collapse; }\n"];
     [qlHtml appendString: @"td { border: none; }\n"];
-    [qlHtml appendFormat:
-        @"tr:nth-child(even) { background-color: %@ ; color: black; }\n",
-        gTableRowEvenColor];
         
     /* 
         borders for table row top, bottom, and sides
@@ -306,6 +336,13 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         gBorder,
         gTableBorderColor];
     
+    /*
+        style for preventing wrapping in table cells, based on:
+        https://stackoverflow.com/questions/300220/how-to-prevent-text-in-a-table-cell-from-wrapping
+     */
+    
+    [qlHtml appendString: @".nowrap { white-space: nowrap; }\n"];
+    
     /* close the style sheet */
     
     [qlHtml appendString: @"</style>\n"];
@@ -317,9 +354,11 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     /* start the html body */
 
     [qlHtml appendFormat: @"<body>\n"];
-    [qlHtml appendFormat: @"<font size=\"%d\" face=\"%@\">\n",
-                          gFontSize, gFontFace];
-    
+    //[qlHtml appendFormat: @"<font size=\"%d\" face=\"%@\">\n",
+    //                      gFontSize, gFontFace];
+
+    [qlHtml appendFormat: @"<font face=\"%@\">\n", gFontFace];
+
     /* 
        start the table
        based on: http://www.w3.org/TR/html4/struct/tables.html
@@ -425,9 +464,15 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                                           gtm_stringByEscapingForHTML];
         
         [qlHtml appendString: @"<td><div style=\"display:block; "];
-        [qlHtml appendFormat:
+/*        [qlHtml appendFormat:
             @"word-wrap: break-word; width: %dpx;\">%@%@</div></td>",
             (gColFileName - (gColPadding*2)),
+            fileNameInZipEscaped,
+            ((fileInfoInZip.flag & 1) != 0) ? @"*" : @""];
+*/
+        
+        [qlHtml appendFormat:
+            @"word-wrap: break-word;\">%@%@</div></td>",
             fileNameInZipEscaped,
             ((fileInfoInZip.flag & 1) != 0) ? @"*" : @""];
 
@@ -453,7 +498,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
             /* print out the file's size in B, K, M, G, or T */
             
             [qlHtml appendFormat:
-                    @"<td align=\"right\"><pre>%-.1f %-1s</pre></td>",
+                    @"<td align=\"right\">%-.1f %-1s</td>",
                     fileSizeSpecInZip.size,
                     fileSizeSpecInZip.spec];
             
@@ -464,13 +509,14 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                     getCompression((Float64)fileInfoInZip.uncompressed_size,
                                    (Float64)fileInfoInZip.compressed_size);
                 [qlHtml appendFormat:
-                        @"<td align=\"right\"><pre>(%3.0f%%) ",
+                        @"<td align=\"right\" class=\"nowrap\">(%3.0f%%) ",
                         compression];
             } else {
                 [qlHtml appendString:
-                        @"<td align=\"right\"><pre>&nbsp;"];
+                        @"<td align=\"right\">&nbsp;"];
             }
-            
+
+#ifdef PRINT_COMPRESSION_METHOD
             /*
                 print out the compression method for this file. See:
                 https://pkware.cachefly.net/webdocs/APPNOTE/APPNOTE-6.3.0.TXT
@@ -575,8 +621,9 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
             {
                 [qlHtml appendFormat: @"%@", gCompressMethodUnknown];
             }
+#endif /* PRINT_COMPRESSION_METHOD */
             
-            [qlHtml appendString: @"</pre></td>"];
+            [qlHtml appendString: @"</td>"];
 
         }
     
@@ -711,7 +758,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     /* print out the zip file's total size in B, K, M, G, or T */
     
     [qlHtml appendFormat:
-            @"<td align=\"right\"><pre>%-.1f %-1s</pre></td>",
+            @"<td align=\"right\">%-.1f %-1s</td>",
             fileSizeSpecInZip.size,
             fileSizeSpecInZip.spec];
 
@@ -721,7 +768,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         compression = getCompression((Float64)totalSize,
                                      (Float64)totalCompressedSize);
         [qlHtml appendFormat:
-                @"<td align=\"right\"><pre>(%3.0f%%)</pre></td>",
+                @"<td align=\"right\">(%3.0f%%)</td>",
                 compression];
     } else {
         [qlHtml appendString:
