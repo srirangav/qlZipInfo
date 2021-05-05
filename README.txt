@@ -10,31 +10,9 @@ relies on Minizip 1.2 (https://github.com/nmoinvaz/minizip/tree/1.2).
 Information for each file in a zip file is displayed in the following 
 format:
 
-    Filename | Size (Compression ratio) Method | Date Modified
+    Filename | Size (Compression ratio) | Date Modified
 
 If a file is encrypted a * is displayed after the filename.
-
-The compression methods are abbreviated as follows:
-
-    B  - BZip2
-    F  - Fast Deflate
-    H  - Shrunk
-    I  - Imploded
-    L  - LMZA
-    M  - Maximum Compression Deflate (slowest)
-    N  - New Terse
-    O  - Old Terse
-    P  - PPMd
-    S  - Stored (no compression)
-    T  - Tokenized
-    U  - Unknown
-    X  - Fastest Deflate
-    1  - Reduced Level 1
-    2  - Reduced Level 2
-    3  - Reduced Level 3
-    4  - Reduced Level 4
-    6  - Deflate64
-    7  - LZ77 / PFS
 
 Install:
 
