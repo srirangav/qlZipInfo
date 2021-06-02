@@ -113,7 +113,7 @@ static const NSString *gTableHeaderName   = @"Name";
 static const NSString *gTableHeaderSize   = @"Size";
 static const NSString *gTableHeaderDate   = @"Modified";
 static const NSString *gDarkModeTableRowEvenBackgroundColor
-                                          = @"grey";
+                                          = @"#313131";
 static const NSString *gDarkModeTableRowEvenForegroundColor
                                           = @"white";
 static const NSString *gLightModeTableRowEvenBackgroundColor
@@ -121,7 +121,7 @@ static const NSString *gLightModeTableRowEvenBackgroundColor
 static const NSString *gLightModeTableRowEvenForegroundColor
                                           = @"black";
 static const NSString *gTableBorderColor  = @"#CCCCCC";
-static const NSString *gDarkModeBackground = @"#262626";
+static const NSString *gDarkModeBackground = @"#232323";
 static const NSString *gDarkModeForeground = @"lightgrey";
 static const NSString *gLightModeBackground = @"white";
 static const NSString *gLightModeForeground = @"black";
@@ -185,12 +185,13 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     NSDateFormatter *fileDateFormatterInZip = nil;
     NSDateFormatter *fileLocalDateFormatterInZip = nil;
     NSDate *fileDateInZip = nil;
-    CFStringRef zipFileName = NULL;
+    CFMutableStringRef zipFileName = NULL;
     const char *zipFileNameStr = NULL;
     unzFile zipFile = NULL;
     unz_global_info64 zipFileInfo;
     unz_file_info64 fileInfoInZip;
     char fileNameInZip[PATH_MAX];
+    char zipFileNameCStr[PATH_MAX];
     NSString *fileNameInZipEscaped = nil;
     int zipErr = UNZ_OK;
     uLong i = 0;
@@ -208,19 +209,41 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     /* get the local file system path for the specified file */
     
-    zipFileName = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
+    zipFileName =
+        (CFMutableStringRef)CFURLCopyFileSystemPath(url,
+                                                    kCFURLPOSIXPathStyle);
     if (zipFileName == NULL) {
         return zipQLFailed;
     }
+    
+    /* normalize the file name */
+    
+    CFStringNormalize(zipFileName, kCFStringNormalizationFormC);
     
     /* covert the file system path to a c string */
     
     zipFileNameStr = CFStringGetCStringPtr(zipFileName,
                                            kCFStringEncodingUTF8);
-    if (zipFileName == NULL) {
-        return zipQLFailed;
+    if (zipFileNameStr == NULL) {
+        
+        /*
+            if CFStringGetCStringPtr returns NULL, try to get the
+            file path using CFStringGetCString() b/c the file path
+            might have non-UTF8 characters, see:
+            https://developer.apple.com/documentation/corefoundation/1542133-cfstringgetcstringptr
+         */
+        
+        if (CFStringGetCString(zipFileName,
+                               zipFileNameCStr,
+                               PATH_MAX - 1,
+                               kCFStringEncodingUTF8) != true)
+        {
+            return zipQLFailed;
+        }
+        
+        zipFileNameStr = zipFileNameCStr;
     }
-
+    
     /*  exit if the user canceled the preview */
     
     if (QLPreviewRequestIsCancelled(preview)) {

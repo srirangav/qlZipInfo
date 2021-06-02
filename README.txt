@@ -1,7 +1,7 @@
 README
 ------
 
-qlZipInfo v1.0.10
+qlZipInfo v1.0.11
 By Sriranga Veeraraghavan <ranga@calalum.org>
 
 qlZipInfo is a QuickLook generator for Zip and Jar files.  qlZipInfo
@@ -32,6 +32,7 @@ Supported MacOSX versions:
 
 History:
 
+    v1.0.11 - add support for non-UTF8 filenames
     v1.0.10 - add darkmode support
     v1.0.9  - build on Big Sur (11.x)
     v1.0.8  - add support for 1Password backups
