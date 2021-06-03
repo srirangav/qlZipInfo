@@ -32,7 +32,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>CFPlugInDynamicRegisterFunction</key>
 	<string></string>
 	<key>CFPlugInDynamicRegistration</key>
@@ -52,7 +52,7 @@
 	<key>CFPlugInUnloadFunction</key>
 	<string></string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Portions Copyright © 2015-2019 Sriranga Veeraraghavan. All rights reserved.</string>
+	<string>Portions Copyright © 2015-2021 Sriranga Veeraraghavan. All rights reserved.</string>
 	<key>QLNeedsToBeRunInMainThread</key>
 	<false/>
 	<key>QLPreviewHeight</key>
