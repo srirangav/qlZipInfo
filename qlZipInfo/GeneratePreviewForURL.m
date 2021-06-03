@@ -15,6 +15,7 @@
     v. 0.1.5 (06/02/2021) - Add support for zipfiles with non-UTF8
                             characters in their filenames; increase size
                             for displaying the compressed size
+    v. 0.1.6 (06/03/2021) - make sure days and months are zero prefixed
  
     Copyright (c) 2015-2021 Sriranga R. Veeraraghavan <ranga@calalum.org>
  
@@ -67,7 +68,7 @@ enum {
 };
 
 /* 
-    Default values for output
+    Default values for spacing of the output
  */
 
 enum
@@ -79,10 +80,10 @@ enum
     gColPadding      = 8,
     gColFileSize     = 72,
     gColFileCompress = 46,
-    gColFileModDate  = 56,
+    gColFileModDate  = 58,
     gColFileModTime  = 56,
     gColFileType     = 24,
-    gColFileName     = 290,
+    gColFileName     = 288,
 };
 
 /*
@@ -697,19 +698,42 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
          */
          
         if (fileDateInZip != nil) {
+
+            /*
+                Make sure the days and months are zero prefixed.
+                Based on:
+
+                https://nsdateformatter.com/
+                https://developer.apple.com/documentation/foundation/nsdateformatter/1417087-setlocalizeddateformatfromtempla?language=objc
+             */
             
+            [fileLocalDateFormatterInZip setLocale:
+                [NSLocale currentLocale]];
+
+            [fileLocalDateFormatterInZip
+                setLocalizedDateFormatFromTemplate: @"MM-dd-yyyy"];
+            
+            /*
             [fileLocalDateFormatterInZip setDateStyle:
                 NSDateFormatterShortStyle];
             [fileLocalDateFormatterInZip setTimeStyle:
                 NSDateFormatterNoStyle];
+            */
+            
             [qlHtml appendFormat:
                 @"<td align=\"right\">%@</td>",
                 [fileLocalDateFormatterInZip stringFromDate: fileDateInZip]];
 
+            /*
             [fileLocalDateFormatterInZip setDateStyle:
                 NSDateFormatterNoStyle];
             [fileLocalDateFormatterInZip setTimeStyle:
                 NSDateFormatterShortStyle];
+            */
+            
+            [fileLocalDateFormatterInZip
+                setLocalizedDateFormatFromTemplate: @"HH:mm"];
+
             [qlHtml appendFormat:
                 @"<td align=\"right\">%@</td>",
                 [fileLocalDateFormatterInZip stringFromDate: fileDateInZip]];
