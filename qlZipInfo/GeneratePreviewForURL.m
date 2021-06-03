@@ -12,7 +12,10 @@
     v. 0.1.3 (07/16/2019) - Update to use minizip 1.2, show compression
                             method
     v. 0.1.4 (05/03/2021) - Add darkmode support
-
+    v. 0.1.5 (06/02/2021) - Add support for zipfiles with non-UTF8
+                            characters in their filenames; increase size
+                            for displaying the compressed size
+ 
     Copyright (c) 2015-2021 Sriranga R. Veeraraghavan <ranga@calalum.org>
  
     Permission is hereby granted, free of charge, to any person obtaining
@@ -75,11 +78,11 @@ enum
     gIconWidth       = 16,
     gColPadding      = 8,
     gColFileSize     = 72,
-    gColFileCompress = 44,
+    gColFileCompress = 46,
     gColFileModDate  = 56,
     gColFileModTime  = 56,
     gColFileType     = 24,
-    gColFileName     = 292,
+    gColFileName     = 290,
 };
 
 /*
@@ -87,6 +90,7 @@ enum
     https://pkware.cachefly.net/webdocs/APPNOTE/APPNOTE-6.3.0.TXT
  */
 
+#ifdef PRINT_COMPRESSION_METHOD
 enum
 {
     gZipStored    = 0,
@@ -106,6 +110,7 @@ enum
     gZipLZ77      = 19,
     gZipPPMd      = 98,
 };
+#endif /* PRINT_COMPRESSION_METHOD */
 
 /* constants */
 
@@ -133,6 +138,8 @@ static const char     *gFileSizeKiloBytes = "K";
 static const char     *gFileSizeMegaBytes = "M";
 static const char     *gFileSizeGigaBytes = "G";
 static const char     *gFileSizeTeraBytes = "T";
+
+#ifdef PRINT_COMPRESSION_METHOD
 static const NSString *gCompressMethodStored           = @"S";
 static const NSString *gCompressMethodShrunk           = @"H";
 static const NSString *gCompressMethodImploded         = @"I";
@@ -156,6 +163,7 @@ static const NSString *gCompressMethodLMZA             = @"L";
 static const NSString *gCompressMethodLZ77             = @"7";
 static const NSString *gCompressMethodPPMd             = @"P";
 static const NSString *gCompressMethodUnknown          = @"U";
+#endif /* PRINT_COMPRESSION_METHOD */
 
 /* prototypes */
 
@@ -319,7 +327,6 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         gLightModeTableRowEvenBackgroundColor,
         gLightModeTableRowEvenForegroundColor];
     [qlHtml appendString: @"}\n"];
-
 
     /*
         put a border around the table only
