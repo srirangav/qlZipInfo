@@ -1,7 +1,7 @@
 README
 ------
 
-qlZipInfo v1.0.13
+qlZipInfo v1.0.14
 By Sriranga Veeraraghavan <ranga@calalum.org>
 
 qlZipInfo is a QuickLook generator for Zip and Jar files.  qlZipInfo
@@ -32,6 +32,7 @@ Supported MacOSX versions:
 
 History:
 
+    v1.0.14 - fixes for darkmode
     v1.0.13 - make sure days and months are zero prefixed
     v1.0.12 - increase size used to display the compressed
               file size; disable showing the compression
