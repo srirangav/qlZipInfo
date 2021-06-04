@@ -16,6 +16,8 @@
                             characters in their filenames; increase size
                             for displaying the compressed size
     v. 0.1.6 (06/03/2021) - make sure days and months are zero prefixed
+    v. 0.1.7 (06/04/2021) - separate constants for dark and light mode
+                            styles
  
     Copyright (c) 2015-2021 Sriranga R. Veeraraghavan <ranga@calalum.org>
  
@@ -53,7 +55,8 @@
 
 /* structs */
 
-typedef struct fileSizeSpec {
+typedef struct fileSizeSpec
+{
     char spec[3];
     Float64 size;
 } fileSizeSpec_t;
@@ -63,7 +66,8 @@ typedef struct fileSizeSpec {
     https://opensource.apple.com/source/CarbonHeaders/CarbonHeaders-18.1/MacErrors.h
  */
 
-enum {
+enum
+{
     zipQLFailed = -3104,
 };
 
@@ -115,55 +119,74 @@ enum
 
 /* constants */
 
+/* table headings */
+
 static const NSString *gTableHeaderName   = @"Name";
 static const NSString *gTableHeaderSize   = @"Size";
 static const NSString *gTableHeaderDate   = @"Modified";
-static const NSString *gDarkModeTableRowEvenBackgroundColor
-                                          = @"#313131";
-static const NSString *gDarkModeTableRowEvenForegroundColor
-                                          = @"white";
-static const NSString *gLightModeTableRowEvenBackgroundColor
-                                          = @"lightgrey";
-static const NSString *gLightModeTableRowEvenForegroundColor
-                                          = @"black";
-static const NSString *gTableBorderColor  = @"#CCCCCC";
+
+/* darkmode styles */
+
 static const NSString *gDarkModeBackground = @"#232323";
 static const NSString *gDarkModeForeground = @"lightgrey";
+static const NSString *gDarkModeTableRowEvenBackgroundColor
+                                           = @"#313131";
+static const NSString *gDarkModeTableRowEvenForegroundColor
+                                           = @"white";
+static const NSString *gDarkModeTableBorderColor
+                                           = @"#232323";
+
+/* light mode styles */
+
 static const NSString *gLightModeBackground = @"white";
 static const NSString *gLightModeForeground = @"black";
-static const NSString *gFolderIcon        = @"&#x1F4C1";
-static const NSString *gFileIcon          = @"&#x1F4C4";
-static const NSString *gFontFace          = @"sans-serif";
+static const NSString *gLightModeTableRowEvenBackgroundColor
+                                            = @"lightgrey";
+static const NSString *gLightModeTableRowEvenForegroundColor
+                                            = @"black";
+static const NSString *gLightModeTableBorderColor
+                                            = @"#CCCCCC";
+
+/* icons */
+
+static const NSString *gFolderIcon = @"&#x1F4C1";
+static const NSString *gFileIcon   = @"&#x1F4C4";
+
+/* default font style - sans serif */
+
+static const NSString *gFontFace = @"sans-serif";
+
+/* filesize abbreviations */
+
 static const char     *gFileSizeBytes     = "B";
 static const char     *gFileSizeKiloBytes = "K";
 static const char     *gFileSizeMegaBytes = "M";
 static const char     *gFileSizeGigaBytes = "G";
 static const char     *gFileSizeTeraBytes = "T";
 
+/* compression methods */
+
 #ifdef PRINT_COMPRESSION_METHOD
-static const NSString *gCompressMethodStored           = @"S";
-static const NSString *gCompressMethodShrunk           = @"H";
-static const NSString *gCompressMethodImploded         = @"I";
-static const NSString *gCompressMethodTokenized        = @"T";
-static const NSString *gCompressMethodDeflate64        = @"6";
-static const NSString *gCompressMethodDeflateLevel0    = @"";
-/*
- static const NSString *gCompressMethodDeflateLevel0    = @"N";
- */
-static const NSString *gCompressMethodDeflateLevel1    = @"M";
-static const NSString *gCompressMethodDeflateLevel2    = @"F";
-static const NSString *gCompressMethodDeflateLevel3    = @"X";
-static const NSString *gCompressMethodReducedLevel1    = @"1";
-static const NSString *gCompressMethodReducedLevel2    = @"2";
-static const NSString *gCompressMethodReducedLevel3    = @"3";
-static const NSString *gCompressMethodReducedLevel4    = @"4";
-static const NSString *gCompressMethodOldTerse         = @"O";
-static const NSString *gCompressMethodNewTerse         = @"N";
-static const NSString *gCompressMethodBZ2              = @"B";
-static const NSString *gCompressMethodLMZA             = @"L";
-static const NSString *gCompressMethodLZ77             = @"7";
-static const NSString *gCompressMethodPPMd             = @"P";
-static const NSString *gCompressMethodUnknown          = @"U";
+static const NSString *gCompressMethodStored        = @"S";
+static const NSString *gCompressMethodShrunk        = @"H";
+static const NSString *gCompressMethodImploded      = @"I";
+static const NSString *gCompressMethodTokenized     = @"T";
+static const NSString *gCompressMethodDeflate64     = @"6";
+static const NSString *gCompressMethodDeflateLevel0 = @"";
+static const NSString *gCompressMethodDeflateLevel1 = @"M";
+static const NSString *gCompressMethodDeflateLevel2 = @"F";
+static const NSString *gCompressMethodDeflateLevel3 = @"X";
+static const NSString *gCompressMethodReducedLevel1 = @"1";
+static const NSString *gCompressMethodReducedLevel2 = @"2";
+static const NSString *gCompressMethodReducedLevel3 = @"3";
+static const NSString *gCompressMethodReducedLevel4 = @"4";
+static const NSString *gCompressMethodOldTerse      = @"O";
+static const NSString *gCompressMethodNewTerse      = @"N";
+static const NSString *gCompressMethodBZ2           = @"B";
+static const NSString *gCompressMethodLMZA          = @"L";
+static const NSString *gCompressMethodLZ77          = @"7";
+static const NSString *gCompressMethodPPMd          = @"P";
+static const NSString *gCompressMethodUnknown       = @"U";
 #endif /* PRINT_COMPRESSION_METHOD */
 
 /* prototypes */
@@ -304,7 +327,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     [qlHtml appendString: @"<style>\n"];
 
-    /* dark and light mode styles */
+    /* darkmode styles */
     
     [qlHtml appendString:
         @"@media (prefers-color-scheme: dark) { "];
@@ -316,18 +339,54 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         @"tr:nth-child(even) { background-color: %@ ; color: %@; }\n",
         gDarkModeTableRowEvenBackgroundColor,
         gDarkModeTableRowEvenForegroundColor];
+ 
+    /*
+        put a border around the table only
+        based on: https://stackoverflow.com/questions/10131729/removing-border-from-table-cell
+     */
+
+    [qlHtml appendFormat: @"table { width: 100%%; border: %dpx solid %@; ",
+                          gBorder,
+                          gDarkModeTableBorderColor];
+    [qlHtml appendString:
+        @"table-layout: fixed; border-collapse: collapse; }\n"];
+    [qlHtml appendString: @"td { border: none; }\n"];
+        
+    /*
+        borders for table row top, bottom, and sides
+        based on: http://webdesign.about.com/od/tables/ht/how-to-add-internal-lines-in-a-table-with-CSS.htm
+     */
+    
+    [qlHtml appendFormat:
+        @".border-top { border-top: solid %dpx %@; }\n",
+        gBorder,
+        gDarkModeTableBorderColor];
+    [qlHtml appendFormat:
+        @".border-bottom { border-bottom: solid %dpx %@; }\n",
+        gBorder,
+        gDarkModeTableBorderColor];
+    [qlHtml appendFormat:
+        @".border-side { border-right: solid %dpx %@; }\n",
+        gBorder,
+        gDarkModeTableBorderColor];
+
+    /* close darkmode styles */
+    
     [qlHtml appendString: @"}\n"];
+
+    /* light mode styles */
+    
     [qlHtml appendString:
         @"@media (prefers-color-scheme: light) { "];
     [qlHtml appendFormat:
         @"body { background-color: %@; color: %@; }\n",
         gLightModeBackground,
         gLightModeForeground];
+
     [qlHtml appendFormat:
         @"tr:nth-child(even) { background-color: %@ ; color: %@; }\n",
         gLightModeTableRowEvenBackgroundColor,
         gLightModeTableRowEvenForegroundColor];
-    [qlHtml appendString: @"}\n"];
 
     /*
         put a border around the table only
@@ -336,7 +395,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
     [qlHtml appendFormat: @"table { width: 100%%; border: %dpx solid %@; ",
                           gBorder,
-                          gTableBorderColor];
+                          gLightModeTableBorderColor];
     [qlHtml appendString:
         @"table-layout: fixed; border-collapse: collapse; }\n"];
     [qlHtml appendString: @"td { border: none; }\n"];
@@ -349,21 +408,25 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     [qlHtml appendFormat:
         @".border-top { border-top: solid %dpx %@; }\n",
         gBorder,
-        gTableBorderColor];
+        gLightModeTableBorderColor];
     [qlHtml appendFormat:
         @".border-bottom { border-bottom: solid %dpx %@; }\n",
         gBorder,
-        gTableBorderColor];
+        gLightModeTableBorderColor];
     [qlHtml appendFormat:
         @".border-side { border-right: solid %dpx %@; }\n",
         gBorder,
-        gTableBorderColor];
+        gLightModeTableBorderColor];
+
+    /* close light mode styles */
     
+    [qlHtml appendString: @"}\n"];
+
     /*
         style for preventing wrapping in table cells, based on:
         https://stackoverflow.com/questions/300220/how-to-prevent-text-in-a-table-cell-from-wrapping
      */
-    
+
     [qlHtml appendString: @".nowrap { white-space: nowrap; }\n"];
     
     /* close the style sheet */
@@ -840,7 +903,10 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     return (zipErr == UNZ_OK ? noErr : zipQLFailed);
 }
 
-void CancelPreviewGeneration(void *thisInterface, QLPreviewRequestRef preview)
+/* CancelPreviewGeneration - handle a user canceling the preview */
+
+void CancelPreviewGeneration(void *thisInterface,
+                             QLPreviewRequestRef preview)
 {
 }
 
