@@ -134,18 +134,21 @@ static const NSString *gDarkModeTableRowEvenBackgroundColor
 static const NSString *gDarkModeTableRowEvenForegroundColor
                                            = @"white";
 static const NSString *gDarkModeTableBorderColor
-                                           = @"#232323";
-
+                                            = @"#232323";
+static const NSString *gDarkModeTableHeaderBorderColor
+                                            = @"#555555";
 /* light mode styles */
 
 static const NSString *gLightModeBackground = @"white";
 static const NSString *gLightModeForeground = @"black";
 static const NSString *gLightModeTableRowEvenBackgroundColor
-                                            = @"lightgrey";
+                                            = @"#F5F5F5";
 static const NSString *gLightModeTableRowEvenForegroundColor
                                             = @"black";
 static const NSString *gLightModeTableBorderColor
-                                            = @"#CCCCCC";
+                                            = @"white";
+static const NSString *gLightModeTableHeaderBorderColor
+                                            = @"#E7E7E7";
 
 /* icons */
 
@@ -331,17 +334,17 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     [qlHtml appendString:
         @"@media (prefers-color-scheme: dark) { "];
+
+    /* set darkmode background and foreground colors */
+    
     [qlHtml appendFormat:
         @"body { background-color: %@; color: %@; }\n",
         gDarkModeBackground,
         gDarkModeForeground];
-    [qlHtml appendFormat:
-        @"tr:nth-child(even) { background-color: %@ ; color: %@; }\n",
-        gDarkModeTableRowEvenBackgroundColor,
-        gDarkModeTableRowEvenForegroundColor];
- 
+    
     /*
-        put a border around the table only
+        put a border around the table only, but make it the same color
+        as the background to better match the BigSur finder
         based on: https://stackoverflow.com/questions/10131729/removing-border-from-table-cell
      */
 
@@ -350,26 +353,27 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                           gDarkModeTableBorderColor];
     [qlHtml appendString:
         @"table-layout: fixed; border-collapse: collapse; }\n"];
-    [qlHtml appendString: @"td { border: none; }\n"];
-        
-    /*
-        borders for table row top, bottom, and sides
-        based on: http://webdesign.about.com/od/tables/ht/how-to-add-internal-lines-in-a-table-with-CSS.htm
-     */
+
+    /* set the darkmode colors for the even rows of the table */
     
     [qlHtml appendFormat:
-        @".border-top { border-top: solid %dpx %@; }\n",
-        gBorder,
-        gDarkModeTableBorderColor];
-    [qlHtml appendFormat:
-        @".border-bottom { border-bottom: solid %dpx %@; }\n",
-        gBorder,
-        gDarkModeTableBorderColor];
-    [qlHtml appendFormat:
-        @".border-side { border-right: solid %dpx %@; }\n",
-        gBorder,
-        gDarkModeTableBorderColor];
+        @"tr:nth-child(even) { background-color: %@ ; color: %@; }\n",
+        gDarkModeTableRowEvenBackgroundColor,
+        gDarkModeTableRowEvenForegroundColor];
 
+    /* disable internal borders for table cells */
+    
+    [qlHtml appendString: @"td { border: none; }\n"];
+
+    /*
+        add a bottom border for the header row items only, to better
+        match the BigSur finder
+     */
+    
+    [qlHtml appendFormat: @"th { border-bottom: %dpx solid %@; }\n",
+                          gBorder,
+                          gDarkModeTableHeaderBorderColor];
+            
     /* close darkmode styles */
     
     [qlHtml appendString: @"}\n"];
@@ -378,15 +382,13 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     [qlHtml appendString:
         @"@media (prefers-color-scheme: light) { "];
+    
+    /* light mode background and foreground colors */
+    
     [qlHtml appendFormat:
         @"body { background-color: %@; color: %@; }\n",
         gLightModeBackground,
         gLightModeForeground];
-
-    [qlHtml appendFormat:
-        @"tr:nth-child(even) { background-color: %@ ; color: %@; }\n",
-        gLightModeTableRowEvenBackgroundColor,
-        gLightModeTableRowEvenForegroundColor];
 
     /*
         put a border around the table only
@@ -398,13 +400,21 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                           gLightModeTableBorderColor];
     [qlHtml appendString:
         @"table-layout: fixed; border-collapse: collapse; }\n"];
+
+    /* no internal borders */
+    
     [qlHtml appendString: @"td { border: none; }\n"];
-        
+
+    [qlHtml appendFormat: @"th { border-bottom: %dpx solid %@; }\n",
+                          gBorder,
+                          gLightModeTableHeaderBorderColor];
+
     /* 
         borders for table row top, bottom, and sides
         based on: http://webdesign.about.com/od/tables/ht/how-to-add-internal-lines-in-a-table-with-CSS.htm
      */
-    
+
+    /*
     [qlHtml appendFormat:
         @".border-top { border-top: solid %dpx %@; }\n",
         gBorder,
@@ -417,7 +427,15 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         @".border-side { border-right: solid %dpx %@; }\n",
         gBorder,
         gLightModeTableBorderColor];
-
+     */
+    
+    /* colors for the even rows */
+    
+    [qlHtml appendFormat:
+        @"tr:nth-child(even) { background-color: %@ ; color: %@; }\n",
+        gLightModeTableRowEvenBackgroundColor,
+        gLightModeTableRowEvenForegroundColor];
+    
     /* close light mode styles */
     
     [qlHtml appendString: @"}\n"];

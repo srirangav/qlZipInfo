@@ -32,7 +32,8 @@ Supported MacOSX versions:
 
 History:
 
-    v1.0.14 - fixes for darkmode
+    v1.0.14 - fixes to make darkmode and light mode better
+              match the BigSur Finder
     v1.0.13 - make sure days and months are zero prefixed
     v1.0.12 - increase size used to display the compressed
               file size; disable showing the compression
