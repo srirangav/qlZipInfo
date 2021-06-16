@@ -410,26 +410,6 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     [qlHtml appendFormat: @"th { border-bottom: %dpx solid %@; }\n",
                           gBorder,
                           gLightModeTableHeaderBorderColor];
-
-    /* 
-        borders for table row top, bottom, and sides
-        based on: http://webdesign.about.com/od/tables/ht/how-to-add-internal-lines-in-a-table-with-CSS.htm
-     */
-
-    /*
-    [qlHtml appendFormat:
-        @".border-top { border-top: solid %dpx %@; }\n",
-        gBorder,
-        gLightModeTableBorderColor];
-    [qlHtml appendFormat:
-        @".border-bottom { border-bottom: solid %dpx %@; }\n",
-        gBorder,
-        gLightModeTableBorderColor];
-    [qlHtml appendFormat:
-        @".border-side { border-right: solid %dpx %@; }\n",
-        gBorder,
-        gLightModeTableBorderColor];
-     */
     
     /* colors for the even rows */
     
@@ -545,11 +525,13 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         [qlHtml appendFormat: @"<tr>"];
 
         /*
-            add an icon depending on whether the entry is a file or a
-            directory.
+            add an icon depending on whether the entry is a file,
+            folder/directory, or encrypted.
+         
             based on: http://apps.timwhitlock.info/emoji/tables/unicode
                       http://www.unicode.org/emoji/charts/full-emoji-list.html
                       https://stackoverflow.com/questions/10580186/how-to-display-emoji-char-in-html
+                      https://github.com/nmoinvaz/minizip/blob/1.2/miniunz.c
          */
         
         qlEntryIcon = (NSString *)gFileIcon;
@@ -560,36 +542,19 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         }
         else if ((fileInfoInZip.flag & 1) != 0)
         {
-            /*
-                For encyrpted files, use a lock icon.  See:
-                https://github.com/nmoinvaz/minizip/blob/1.2/miniunz.c
-             */
-            
             qlEntryIcon = (NSString *)gFileEncyrptedIcon;
         }
         
         [qlHtml appendFormat: @"<td align=\"center\">%@</td>",
                               qlEntryIcon];
         
-        /*
-            HTML escape the file name, print it out, and force it to wrap
-            based on: https://stackoverflow.com/questions/1258416/word-wrap-in-an-html-table
-                      https://stackoverflow.com/questions/659602/objective-c-html-escape-unescape
-         
-            For encyrpted files, print a '*' after the file name.  See:
-            https://github.com/nmoinvaz/minizip/blob/1.2/miniunz.c
-         */
+        /* output the filename with HTML escaping */
         
-        fileNameInZipEscaped = [[NSString stringWithUTF8String: fileNameInZip]
-                                          gtm_stringByEscapingForHTML];
+        fileNameInZipEscaped =
+            [[NSString stringWithUTF8String: fileNameInZip]
+                                             gtm_stringByEscapingForHTML];
         
         [qlHtml appendString: @"<td><div style=\"display:block; "];
-
-        /*
-        [qlHtml appendFormat: @"word-wrap: break-word;\">%@%@</div></td>",
-                              fileNameInZipEscaped,
-                              ((fileInfoInZip.flag & 1) != 0) ? @"*" : @""];
-         */
 
         [qlHtml appendFormat: @"word-wrap: break-word;\">%@</div></td>",
                               fileNameInZipEscaped];
@@ -816,24 +781,10 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
             [fileLocalDateFormatterInZip
                 setLocalizedDateFormatFromTemplate: @"MM-dd-yyyy"];
-            
-            /*
-            [fileLocalDateFormatterInZip setDateStyle:
-                NSDateFormatterShortStyle];
-            [fileLocalDateFormatterInZip setTimeStyle:
-                NSDateFormatterNoStyle];
-            */
-            
+                        
             [qlHtml appendFormat:
                 @"<td align=\"right\">%@</td>",
                 [fileLocalDateFormatterInZip stringFromDate: fileDateInZip]];
-
-            /*
-            [fileLocalDateFormatterInZip setDateStyle:
-                NSDateFormatterNoStyle];
-            [fileLocalDateFormatterInZip setTimeStyle:
-                NSDateFormatterShortStyle];
-            */
             
             [fileLocalDateFormatterInZip
                 setLocalizedDateFormatFromTemplate: @"HH:mm"];
