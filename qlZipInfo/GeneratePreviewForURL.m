@@ -152,8 +152,9 @@ static const NSString *gLightModeTableHeaderBorderColor
 
 /* icons */
 
-static const NSString *gFolderIcon = @"&#x1F4C1";
-static const NSString *gFileIcon   = @"&#x1F4C4";
+static const NSString *gFolderIcon        = @"&#x1F4C1";
+static const NSString *gFileIcon          = @"&#x1F4C4";
+static const NSString *gFileEncyrptedIcon = @"&#x1F512";
 
 /* default font style - sans serif */
 
@@ -215,6 +216,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                                CFDictionaryRef options)
 {
     NSMutableDictionary *qlHtmlProps = nil;
+    NSString *qlEntryIcon = nil;
     NSMutableString *qlHtml = nil;
     NSMutableString *fileDateStringInZip = nil;
     NSDateFormatter *fileDateFormatterInZip = nil;
@@ -550,8 +552,24 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                       https://stackoverflow.com/questions/10580186/how-to-display-emoji-char-in-html
          */
         
+        qlEntryIcon = (NSString *)gFileIcon;
+        
+        if (isFolder == TRUE)
+        {
+            qlEntryIcon = (NSString *)gFolderIcon;
+        }
+        else if ((fileInfoInZip.flag & 1) != 0)
+        {
+            /*
+                For encyrpted files, use a lock icon.  See:
+                https://github.com/nmoinvaz/minizip/blob/1.2/miniunz.c
+             */
+            
+            qlEntryIcon = (NSString *)gFileEncyrptedIcon;
+        }
+        
         [qlHtml appendFormat: @"<td align=\"center\">%@</td>",
-                              isFolder == TRUE ? gFolderIcon : gFileIcon];
+                              qlEntryIcon];
         
         /*
             HTML escape the file name, print it out, and force it to wrap
@@ -566,11 +584,16 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                                           gtm_stringByEscapingForHTML];
         
         [qlHtml appendString: @"<td><div style=\"display:block; "];
-        
+
+        /*
         [qlHtml appendFormat: @"word-wrap: break-word;\">%@%@</div></td>",
                               fileNameInZipEscaped,
                               ((fileInfoInZip.flag & 1) != 0) ? @"*" : @""];
+         */
 
+        [qlHtml appendFormat: @"word-wrap: break-word;\">%@</div></td>",
+                              fileNameInZipEscaped];
+        
         /*
             if the entry is a folder, don't print out its size,
             which is always 0

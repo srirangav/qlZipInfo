@@ -1,7 +1,7 @@
 README
 ------
 
-qlZipInfo v1.0.14
+qlZipInfo v1.0.15
 By Sriranga Veeraraghavan <ranga@calalum.org>
 
 qlZipInfo is a QuickLook generator for Zip and Jar files.  qlZipInfo
@@ -10,9 +10,10 @@ relies on Minizip 1.2 (https://github.com/nmoinvaz/minizip/tree/1.2).
 Information for each file in a zip file is displayed in the following 
 format:
 
-    Filename | Size (Compression ratio) | Date Modified
+    Icon | Filename | Size (Compression ratio) | Date Modified
 
-If a file is encrypted a * is displayed after the filename.
+A folder icon is display for folders / directories, a file icon is 
+shown for regular files, and a lock icon is shown for encypted files.
 
 Install:
 
@@ -32,6 +33,7 @@ Supported MacOSX versions:
 
 History:
 
+    v1.0.15 - show a lock icon for encrypted files
     v1.0.14 - fixes to make darkmode and light mode better
               match the BigSur Finder
     v1.0.13 - make sure days and months are zero prefixed
