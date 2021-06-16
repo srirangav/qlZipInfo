@@ -12,7 +12,7 @@ format:
 
     Icon | Filename | Size (Compression ratio) | Date Modified
 
-A folder icon is display for folders / directories, a file icon is 
+A folder icon is shown for folders / directories, a file icon is 
 shown for regular files, and a lock icon is shown for encypted files.
 
 Install:
