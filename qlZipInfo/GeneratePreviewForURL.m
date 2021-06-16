@@ -18,6 +18,7 @@
     v. 0.1.6 (06/03/2021) - make sure days and months are zero prefixed
     v. 0.1.7 (06/04/2021) - separate constants for dark and light mode
                             styles
+    v. 0.1.8 (06/15/2021) - add icon for encrypted files
  
     Copyright (c) 2015-2021 Sriranga R. Veeraraghavan <ranga@calalum.org>
  
