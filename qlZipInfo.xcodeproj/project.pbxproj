@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		261EB60E22DD6C5100B38AE0 /* minishared.h in Headers */ = {isa = PBXBuildFile; fileRef = 261EB60C22DD6C5100B38AE0 /* minishared.h */; };
-		261EB60F22DD6C5100B38AE0 /* minishared.c in Sources */ = {isa = PBXBuildFile; fileRef = 261EB60D22DD6C5100B38AE0 /* minishared.c */; };
 		26909ED5267B374C000272C5 /* archive.h in Headers */ = {isa = PBXBuildFile; fileRef = 26909ED4267B374C000272C5 /* archive.h */; };
 		26909ED7267B3797000272C5 /* archive_read.c in Sources */ = {isa = PBXBuildFile; fileRef = 26909ED6267B3797000272C5 /* archive_read.c */; settings = {COMPILER_FLAGS = "-D HAVE_CONFIG_H"; }; };
 		26909ED9267B37BB000272C5 /* archive_platform.h in Headers */ = {isa = PBXBuildFile; fileRef = 26909ED8267B37BB000272C5 /* archive_platform.h */; };
@@ -125,9 +124,7 @@
 		26CA45D91B8461BA00B08F29 /* GenerateThumbnailForURL.m in Sources */ = {isa = PBXBuildFile; fileRef = 26CA45D81B8461BA00B08F29 /* GenerateThumbnailForURL.m */; };
 		26CA45DB1B8461BA00B08F29 /* GeneratePreviewForURL.m in Sources */ = {isa = PBXBuildFile; fileRef = 26CA45DA1B8461BA00B08F29 /* GeneratePreviewForURL.m */; };
 		26CA45DD1B8461BA00B08F29 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 26CA45DC1B8461BA00B08F29 /* main.c */; };
-		26CA45EA1B84624200B08F29 /* ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 26CA45E61B84624200B08F29 /* ioapi.c */; settings = {COMPILER_FLAGS = "-DUSE_FILE32API"; }; };
 		26CA45EB1B84624200B08F29 /* ioapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 26CA45E71B84624200B08F29 /* ioapi.h */; };
-		26CA45EC1B84624200B08F29 /* unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 26CA45E81B84624200B08F29 /* unzip.c */; settings = {COMPILER_FLAGS = "-DNOUNCRYPT"; }; };
 		26CA45ED1B84624200B08F29 /* unzip.h in Headers */ = {isa = PBXBuildFile; fileRef = 26CA45E91B84624200B08F29 /* unzip.h */; };
 		26D414431BA9E23200216180 /* GTMDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 26D414401BA9E23200216180 /* GTMDefines.h */; };
 		26D414441BA9E23200216180 /* GTMNSString+HTML.h in Headers */ = {isa = PBXBuildFile; fileRef = 26D414411BA9E23200216180 /* GTMNSString+HTML.h */; };
@@ -615,9 +612,6 @@
 				26D414451BA9E23200216180 /* GTMNSString+HTML.m in Sources */,
 				26CA45D91B8461BA00B08F29 /* GenerateThumbnailForURL.m in Sources */,
 				26CA45DB1B8461BA00B08F29 /* GeneratePreviewForURL.m in Sources */,
-				261EB60F22DD6C5100B38AE0 /* minishared.c in Sources */,
-				26CA45EA1B84624200B08F29 /* ioapi.c in Sources */,
-				26CA45EC1B84624200B08F29 /* unzip.c in Sources */,
 				26909F26267B407B000272C5 /* archive_read_support_filter_xz.c in Sources */,
 				26909F91267C074E000272C5 /* archive_read_disk_entry_from_file.c in Sources */,
 				26909F31267B407B000272C5 /* archive_read_support_format_raw.c in Sources */,
