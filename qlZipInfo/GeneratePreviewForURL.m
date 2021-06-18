@@ -49,9 +49,14 @@
 #include <CoreServices/CoreServices.h>
 #include <QuickLook/QuickLook.h>
 #include <sys/syslimits.h>
+#include <sys/stat.h>
+#include <math.h>
 
 #include "unzip.h"
 #include "minishared.h"
+#include "config.h"
+#include "archive.h"
+#include "archive_entry.h"
 #import "GTMNSString+HTML.h"
 
 /* structs */
@@ -156,6 +161,8 @@ static const NSString *gLightModeTableHeaderBorderColor
 static const NSString *gFolderIcon        = @"&#x1F4C1";
 static const NSString *gFileIcon          = @"&#x1F4C4";
 static const NSString *gFileEncyrptedIcon = @"&#x1F512";
+static const NSString *gFileLinkIcon      = @"&#x1F4D1";
+static const NSString *gFileSpecialIcon   = @"&#x2699";
 
 /* default font style - sans serif */
 
@@ -205,8 +212,8 @@ void CancelPreviewGeneration(void *thisInterface,
                              QLPreviewRequestRef preview);
 static int getFileSizeSpec(uLong fileSizeInBytes,
                            fileSizeSpec_t *fileSpec);
-static float getCompression(Float64 uncompressedSize,
-                            Float64 compressedSize);
+static float getCompression(off_t uncompressedSize,
+                            off_t compressedSize);
 
 /* GeneratePreviewForURL - generate a zip file's preview */
 
@@ -225,20 +232,29 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     NSDate *fileDateInZip = nil;
     CFMutableStringRef zipFileName = NULL;
     const char *zipFileNameStr = NULL;
+    char zipFileNameCStr[PATH_MAX];
+    NSString *fileNameInZipEscaped = nil;
+#ifdef USE_MINIZIP
+    char fileNameInZip[PATH_MAX];
     unzFile zipFile = NULL;
     unz_global_info64 zipFileInfo;
     unz_file_info64 fileInfoInZip;
-    char fileNameInZip[PATH_MAX];
-    char zipFileNameCStr[PATH_MAX];
-    NSString *fileNameInZipEscaped = nil;
     int zipErr = UNZ_OK;
+    struct tm tmu_date = { 0 };
+#else
+    const char *fileNameInZip;
+    struct archive *a;
+    struct archive_entry *entry;
+    int r = 0;
+    int zipErr = 0;
+    struct stat fileStats;
+#endif /* USE_MINIZIP */
     uLong i = 0;
-    uLong totalSize = 0;
-    uLong totalCompressedSize = 0;
+    off_t totalSize = 0;
+    off_t totalCompressedSize = 0;
+    Float64 compression = 0;
     bool isFolder = FALSE;
     fileSizeSpec_t fileSizeSpecInZip;
-    Float64 compression = 0;
-    struct tm tmu_date = { 0 };
     //uint16_t compressLevel = 0;
     
     if (url == NULL) {
@@ -287,7 +303,8 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     if (QLPreviewRequestIsCancelled(preview)) {
         return noErr;
     }
-    
+
+#ifdef USE_MINIZIP
     /* open the zip file */
     
     zipFile = unzOpen64(zipFileNameStr);
@@ -302,11 +319,35 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         unzClose(zipFile);
         return zipQLFailed;
     }
+#else
+    a = archive_read_new();
 
+    archive_read_support_format_tar(a);
+    archive_read_support_format_zip(a);
+    archive_read_support_filter_compress(a);
+    archive_read_support_filter_gzip(a);
+    archive_read_support_filter_bzip2(a);
+
+    /*
+    archive_read_support_filter_xz(a);
+    archive_read_support_format_7zip(a);
+    */
+    
+    if ((r = archive_read_open_filename(a, zipFileNameStr, 10240)))
+    {
+        return zipQLFailed;
+    }
+#endif /* USE_MINIZIP */
+    
     /*  exit if the user canceled the preview */
     
     if (QLPreviewRequestIsCancelled(preview)) {
+#ifdef USE_MINIZIP
         unzClose(zipFile);
+#else
+        archive_read_close(a);
+        archive_read_free(a);
+#endif /* USE_MINIZIP */
         return noErr;
     }
     
@@ -480,23 +521,42 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     [qlHtml appendString: @"<tbody>\n"];
     
     /* list the files in the zip file */
-    
-    for (i=0; i <= zipFileInfo.number_entry; i++) {
-
+#ifdef USE_MINIZIP
+    for (i = 0; i <= zipFileInfo.number_entry; i++)
+#else
+    for (i = 0; i >= 0; i++)
+#endif /* USE_MINIZIP */
+    {
         /* look up the next file in the zip file */
 
+#ifdef USE_MINIZIP
         if (i > 0) {
             zipErr = unzGoToNextFile(zipFile);
             if (zipErr != UNZ_OK) {
                 break;
             }
         }
+#else
+        r = archive_read_next_header(a, &entry);
+        if (r == ARCHIVE_EOF)
+        {
+            break;
+        }
+        
+        if (r != ARCHIVE_OK)
+        {
+            zipErr = zipQLFailed;
+            break;
+        }
+#endif /* USE_MINIZIP */
         
         /*  stop listing files if the user canceled the preview */
         
         if (QLPreviewRequestIsCancelled(preview)) {
             break;
         }
+
+#ifdef USE_MINIZIP
 
         /* clear the file name */
         
@@ -520,7 +580,11 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         
         isFolder =
             (fileNameInZip[strlen(fileNameInZip) - 1] == '/') ? TRUE : FALSE;
-        
+#else
+        fileNameInZip = archive_entry_pathname(entry);
+        isFolder = archive_entry_filetype(entry) == AE_IFDIR ? TRUE : FALSE;
+#endif /* USE_MINIZIP */
+
         /* start the table row for this file */
 
         [qlHtml appendFormat: @"<tr>"];
@@ -541,10 +605,24 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         {
             qlEntryIcon = (NSString *)gFolderIcon;
         }
+#ifdef USE_MINIZIP
         else if ((fileInfoInZip.flag & 1) != 0)
+#else
+        else if (archive_entry_is_encrypted(entry))
+#endif /* USE_MINIZIP */
         {
             qlEntryIcon = (NSString *)gFileEncyrptedIcon;
         }
+#ifndef USE_MINIZIP
+        else if (archive_entry_filetype(entry) == AE_IFLNK)
+        {
+            qlEntryIcon = (NSString *)gFileLinkIcon;
+        }
+        else if (archive_entry_filetype(entry) != AE_IFREG)
+        {
+            qlEntryIcon = (NSString *)gFileSpecialIcon;
+        }
+#endif /* ! USE_MINIZIP */
         
         [qlHtml appendFormat: @"<td align=\"center\">%@</td>",
                               qlEntryIcon];
@@ -575,9 +653,14 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
             memset(&fileSizeSpecInZip, 0, sizeof(fileSizeSpec_t));
 
             /* get the file's size spec */
-            
+
+#ifdef USE_MINIZIP
             getFileSizeSpec(fileInfoInZip.uncompressed_size,
                             &fileSizeSpecInZip);
+#else
+            getFileSizeSpec(archive_entry_size(entry),
+                            &fileSizeSpecInZip);
+#endif /* USE_MINIZIP */
             
             /* print out the file's size in B, K, M, G, or T */
             
@@ -585,7 +668,8 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                     @"<td align=\"right\">%-.1f %-1s</td>",
                     fileSizeSpecInZip.size,
                     fileSizeSpecInZip.spec];
-            
+
+#ifdef USE_MINIZIP
             /* print out the % compression for this file */
             
             if (fileInfoInZip.uncompressed_size > 0) {
@@ -599,7 +683,11 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                 [qlHtml appendString:
                         @"<td align=\"right\">&nbsp;"];
             }
-
+#else
+            [qlHtml appendString:
+                    @"<td align=\"right\">&nbsp;"];
+#endif /* USE_MINIZIP */
+            
 #ifdef PRINT_COMPRESSION_METHOD
             /*
                 print out the compression method for this file. See:
@@ -744,7 +832,8 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         }
         
         /* create a string that holds the date for this file */
-        
+
+#ifdef USE_MINIZIP
         dosdate_to_tm(fileInfoInZip.dos_date, &tmu_date);
         
         [fileDateStringInZip appendFormat:
@@ -759,6 +848,11 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         
         fileDateInZip =
             [fileDateFormatterInZip dateFromString: fileDateStringInZip];
+#else
+        fileDateInZip =
+            [NSDate dateWithTimeIntervalSince1970:
+             archive_entry_mtime(entry)];
+#endif /* USE_MINIZIP */
         
         /*
             if the date object is not nil, print out one table cell
@@ -794,6 +888,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                 @"<td align=\"right\">%@</td>",
                 [fileLocalDateFormatterInZip stringFromDate: fileDateInZip]];
         } else {
+#ifdef USE_MINIZIP
             [qlHtml appendFormat:
                 @"<td align=\"center\">%2.2lu-%2.2lu-%2.2lu</td>",
                 (uLong)tmu_date.tm_mon + 1,
@@ -804,6 +899,10 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                 @"<td align=\"center\">%2.2lu:%2.2lu</td>",
                 (uLong)tmu_date.tm_hour,
                 (uLong)tmu_date.tm_min];
+#else
+            [qlHtml appendFormat:
+                @"<td align=\"center\">&nbsp;</td>"];
+#endif /* USE_MINIZIP */
         }
         
         /* close the row */
@@ -811,15 +910,24 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         [qlHtml appendString:@"</tr>\n"];
 
         /* update the total compressed and uncompressed sizes */
-        
+
+#ifdef USE_MINIZIP
         totalSize += fileInfoInZip.uncompressed_size;
         totalCompressedSize += fileInfoInZip.compressed_size;
+#else
+        totalSize += archive_entry_size(entry);
+#endif /* USE_MINIZIP */
     }
 
     /* close the zip file */
-    
-    unzClose(zipFile);
 
+#ifdef USE_MINIZIP
+    unzClose(zipFile);
+#else
+    archive_read_close(a);
+    archive_read_free(a);
+#endif /* USE_MINIZIP */
+    
     /* close the table body */
     
     [qlHtml appendString: @"</tbody>\n"];
@@ -833,12 +941,19 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     [qlHtml appendFormat: @"<tr class=\"border-top\" ;\">"];
     
     /* print out the total number of files in the zip file */
-    
+
+#ifdef USE_MINIZIP
     [qlHtml appendFormat:
         @"<td align=\"center\" colspan=\"2\">%lu file%s</td>\n",
         (unsigned long)zipFileInfo.number_entry,
         (zipFileInfo.number_entry > 1 ? "s" : "")];
-
+#else
+    [qlHtml appendFormat:
+        @"<td align=\"center\" colspan=\"2\">%lu item%s</td>\n",
+        i,
+        (i > 1 ? "s" : "")];
+#endif /* USE_MINIZIP */
+    
     /* clear the file size spec */
     
     memset(&fileSizeSpecInZip, 0, sizeof(fileSizeSpec_t));
@@ -855,11 +970,18 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
             fileSizeSpecInZip.size,
             fileSizeSpecInZip.spec];
 
+#ifndef USE_MINIZIP
+    if (stat(zipFileNameStr, &fileStats) == 0)
+    {
+        totalCompressedSize = fileStats.st_size;
+    }
+#endif /* ! USE_MINIZIP */
+    
     /* print out the % compression for the whole zip file */
 
-    if (totalSize > 0) {
-        compression = getCompression((Float64)totalSize,
-                                     (Float64)totalCompressedSize);
+    if (totalSize > 0 && totalCompressedSize > 0) {
+        compression = getCompression(totalSize,
+                                     totalCompressedSize);
         [qlHtml appendFormat:
                 @"<td align=\"right\">(%3.0f%%)</td>",
                 compression];
@@ -892,8 +1014,11 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                                                 NSUTF8StringEncoding],
                                           kUTTypeHTML,
                                           (__bridge CFDictionaryRef)qlHtmlProps);
-    
+#ifdef USE_MINIZIP
     return (zipErr == UNZ_OK ? noErr : zipQLFailed);
+#else
+    return (zipErr == 0 ? noErr : zipQLFailed);
+#endif /* USE_MINIZIP */
 }
 
 /* CancelPreviewGeneration - handle a user canceling the preview */
@@ -957,15 +1082,22 @@ static int getFileSizeSpec(uLong fileSizeInBytes, fileSizeSpec_t *fileSpec)
 
 /* getCompression - calculate the % a particular file has been compressed */
 
-static float getCompression(Float64 uncompressedSize, Float64 compressedSize)
+static float getCompression(off_t uncompressedSize,
+                            off_t compressedSize)
 {
     Float64 compression = 0.0;
-
-    if (uncompressedSize > 0) {
-        compression = 100 *  (compressedSize / uncompressedSize);
+    
+    if (uncompressedSize > 0)
+    {
+        compression = uncompressedSize / (Float64)(compressedSize);
+        if (compression >= 1.0) {
+            compression = 1.0 / compression;
+        }
+        compression = 100.0 * (1.0 - compression);
     }
     
-    if (compression <= 0) {
+    if (compression <= 0 || compression >= 99.9)
+    {
         compression = 0.0;
     }
     

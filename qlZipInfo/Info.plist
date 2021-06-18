@@ -16,6 +16,11 @@
 				<string>com.winzip.zipx-archive</string>
 				<string>public.zip-archive</string>
 				<string>dyn.ah62d4rv4ge8xc6byp77gw6a</string>
+				<string>org.gnu.gnu-zip-archive</string>
+				<string>public.tar-archive</string>
+				<string>org.gnu.gnu-tar-archive</string>
+				<string>public.z-archive</string>
+				<string>public.bzip2-archive</string>
 			</array>
 		</dict>
 	</array>
