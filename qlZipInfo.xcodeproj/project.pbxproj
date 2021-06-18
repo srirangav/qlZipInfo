@@ -250,6 +250,8 @@
 		26909FB1267C0AB4000272C5 /* archive_getdate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = archive_getdate.h; sourceTree = "<group>"; };
 		26909FB6267D2BCA000272C5 /* libbz2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.tbd; path = usr/lib/libbz2.tbd; sourceTree = SDKROOT; };
 		26909FB8267D2CF0000272C5 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		26909FC0267D3B1A000272C5 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
+		26909FC1267D3B1A000272C5 /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
 		26CA45D31B8461BA00B08F29 /* qlZipInfo.qlgenerator */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = qlZipInfo.qlgenerator; sourceTree = BUILT_PRODUCTS_DIR; };
 		26CA45D71B8461BA00B08F29 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		26CA45D81B8461BA00B08F29 /* GenerateThumbnailForURL.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GenerateThumbnailForURL.m; sourceTree = "<group>"; };
@@ -408,11 +410,21 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		26909FBF267D3B09000272C5 /* Docs */ = {
+			isa = PBXGroup;
+			children = (
+				26909FC0267D3B1A000272C5 /* LICENSE.txt */,
+				26909FC1267D3B1A000272C5 /* README.txt */,
+			);
+			name = Docs;
+			sourceTree = "<group>";
+		};
 		26CA45C91B8461BA00B08F29 = {
 			isa = PBXGroup;
 			children = (
 				26CA45D51B8461BA00B08F29 /* qlZipInfo */,
 				26909FB5267D2BCA000272C5 /* Frameworks */,
+				26909FBF267D3B09000272C5 /* Docs */,
 				26CA45F11B84630200B08F29 /* Sources */,
 				26CA45D41B8461BA00B08F29 /* Products */,
 			);

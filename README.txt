@@ -1,16 +1,16 @@
 README
 ------
 
-qlZipInfo v1.0.15
+qlZipInfo v1.1.0
 By Sriranga Veeraraghavan <ranga@calalum.org>
 
-qlZipInfo is a QuickLook generator for Zip and Jar files.  qlZipInfo
-relies on Minizip 1.2 (https://github.com/nmoinvaz/minizip/tree/1.2).
+qlZipInfo is a QuickLook generator for zip, jar, tar, tar.gz (.tgz), 
+and tar.bz2 (.tbz2) files.  It uses libarchive (https://libarchive.org/).
 
-Information for each file in a zip file is displayed in the following 
+Information for each file in an archive is displayed in the following 
 format:
 
-    Icon | Filename | Size (Compression ratio) | Date Modified
+    Icon | Filename | Size | Date Modified
 
 A folder icon is shown for folders / directories, a file icon is 
 shown for regular files, and a lock icon is shown for encypted files.
@@ -33,6 +33,8 @@ Supported MacOSX versions:
 
 History:
 
+    v1.1.0  - switch to libarchive and add support for .tar,
+              .tar.gz (.tgz), and .tar.bz2 (tbz2) files
     v1.0.15 - show a lock icon for encrypted files
     v1.0.14 - fixes to make darkmode and light mode better
               match the BigSur Finder
