@@ -51,10 +51,11 @@ History:
     v1.0.6  - updates for Xcode 10.2
     v1.0.5  - internal updates
     v1.0.4  - internal updates
-    v1.0.3  - localize the date, change compression reporting, and 
-              escape any HTML characters in file / folder names
-    v1.0.2  - add icons, display file compression, size in B, KB, MB, 
-              etc.
+    v1.0.3  - localize the date, change compression reporting, 
+              and escape any HTML characters in file / folder 
+              names
+    v1.0.2  - add icons, display file compression, size in B, 
+              KB, MB, etc.
     v1.0.1  - initial release
 
 License:
