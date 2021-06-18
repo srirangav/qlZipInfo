@@ -18,7 +18,8 @@ shown for regular files, and a lock icon is shown for encypted files.
 
 Install:
 
-    1. Create the directory ~/Library/QuickLook if it doesn't exist
+    1. Create the directory ~/Library/QuickLook if it doesn't 
+       exist
 
     2. Copy qlZipInfo.qlgenerator to ~/Library/QuickLook
 
