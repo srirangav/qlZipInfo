@@ -27,7 +27,7 @@ applies:
 
 For other portions, the following licenses / terms apply:
 
-Minizip:
+Minizip (used in qlZipInfo v1.0.15 and earlier):
 
     Copyright (C) 2010-2017 Nathan Moinvaziri - version 1.2 
      
@@ -142,3 +142,4 @@ s
     THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
     THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
