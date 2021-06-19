@@ -20,6 +20,7 @@
                             styles
     v. 0.1.8 (06/15/2021) - add icon for encrypted files
     v. 0.2.0 (06/18/2021) - switch to using libarchive
+    v. 0.2.1 (06/18/2021) - add support for xar / pkg files
  
     Copyright (c) 2015-2021 Sriranga R. Veeraraghavan <ranga@calalum.org>
  
@@ -49,6 +50,7 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreServices/CoreServices.h>
 #include <QuickLook/QuickLook.h>
+#import <CommonCrypto/CommonDigest.h>
 #include <sys/syslimits.h>
 #include <sys/stat.h>
 #include <math.h>
@@ -148,31 +150,6 @@ static const char     *gFileSizeMegaBytes = "M";
 static const char     *gFileSizeGigaBytes = "G";
 static const char     *gFileSizeTeraBytes = "T";
 
-/* compression methods */
-
-#ifdef PRINT_COMPRESSION_METHOD
-static const NSString *gCompressMethodStored        = @"S";
-static const NSString *gCompressMethodShrunk        = @"H";
-static const NSString *gCompressMethodImploded      = @"I";
-static const NSString *gCompressMethodTokenized     = @"T";
-static const NSString *gCompressMethodDeflate64     = @"6";
-static const NSString *gCompressMethodDeflateLevel0 = @"";
-static const NSString *gCompressMethodDeflateLevel1 = @"M";
-static const NSString *gCompressMethodDeflateLevel2 = @"F";
-static const NSString *gCompressMethodDeflateLevel3 = @"X";
-static const NSString *gCompressMethodReducedLevel1 = @"1";
-static const NSString *gCompressMethodReducedLevel2 = @"2";
-static const NSString *gCompressMethodReducedLevel3 = @"3";
-static const NSString *gCompressMethodReducedLevel4 = @"4";
-static const NSString *gCompressMethodOldTerse      = @"O";
-static const NSString *gCompressMethodNewTerse      = @"N";
-static const NSString *gCompressMethodBZ2           = @"B";
-static const NSString *gCompressMethodLMZA          = @"L";
-static const NSString *gCompressMethodLZ77          = @"7";
-static const NSString *gCompressMethodPPMd          = @"P";
-static const NSString *gCompressMethodUnknown       = @"U";
-#endif /* PRINT_COMPRESSION_METHOD */
-
 /* prototypes */
 
 OSStatus GeneratePreviewForURL(void *thisInterface,
@@ -268,11 +245,12 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
     a = archive_read_new();
 
-    archive_read_support_format_tar(a);
-    archive_read_support_format_zip(a);
     archive_read_support_filter_compress(a);
     archive_read_support_filter_gzip(a);
     archive_read_support_filter_bzip2(a);
+    archive_read_support_format_tar(a);
+    archive_read_support_format_zip(a);
+    archive_read_support_format_xar(a);
 
     /*
     archive_read_support_filter_xz(a);

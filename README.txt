@@ -1,12 +1,12 @@
 README
 ------
 
-qlZipInfo v1.1.0
+qlZipInfo v1.1.1
 By Sriranga Veeraraghavan <ranga@calalum.org>
 
 qlZipInfo is a QuickLook generator for zip, jar, tar, tar.gz 
-(.tgz), tar.bz2 (.tbz2), and tar.Z (.tZ) files.  It uses 
-libarchive (https://libarchive.org/).
+(.tgz), tar.bz2 (.tbz2), tar.Z (.tZ), and xar (.xar, .pkg) 
+files.  It relies on libarchive (https://libarchive.org/).
 
 Information for each file in an archive is displayed in the following 
 format:
@@ -35,6 +35,7 @@ Supported MacOSX versions:
 
 History:
 
+    v1.1.1  - add support for xar / pkg files
     v1.1.0  - switch to libarchive and add support for .tar,
               .tar.gz (.tgz), .tar.bz2 (tbz2), and tar.Z 
               (.tZ) files

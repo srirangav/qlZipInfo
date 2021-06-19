@@ -21,6 +21,8 @@
 				<string>org.gnu.gnu-tar-archive</string>
 				<string>public.z-archive</string>
 				<string>public.bzip2-archive</string>
+				<string>com.apple.installer-package-archive</string>
+				<string>com.apple.xar-archive</string>
 			</array>
 		</dict>
 	</array>
