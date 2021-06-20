@@ -23,6 +23,8 @@
 				<string>public.bzip2-archive</string>
 				<string>com.apple.installer-package-archive</string>
 				<string>com.apple.xar-archive</string>
+				<string>com.apple.disk-image-cdr</string>
+				<string>public.iso-image</string>
 			</array>
 		</dict>
 	</array>

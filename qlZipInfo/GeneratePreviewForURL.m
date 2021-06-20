@@ -20,7 +20,8 @@
                             styles
     v. 0.1.8 (06/15/2021) - add icon for encrypted files
     v. 0.2.0 (06/18/2021) - switch to using libarchive
-    v. 0.2.1 (06/18/2021) - add support for xar / pkg files
+    v. 0.2.1 (06/18/2021) - add support for xar / pkg files and isos,
+                            make the header row fixed
  
     Copyright (c) 2015-2021 Sriranga R. Veeraraghavan <ranga@calalum.org>
  
@@ -251,6 +252,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     archive_read_support_format_tar(a);
     archive_read_support_format_zip(a);
     archive_read_support_format_xar(a);
+    archive_read_support_format_iso9660(a);
 
     /*
     archive_read_support_filter_xz(a);
@@ -309,14 +311,18 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         put a border around the table only, but make it the same color
         as the background to better match the BigSur finder
         based on: https://stackoverflow.com/questions/10131729/removing-border-from-table-cell
+     
+        set y-direction overflow to auto to support a fixed header
+        based on:
+            https://www.w3docs.com/snippets/html/how-to-create-a-table-with-a-fixed-header-and-scrollable-body.html
      */
 
     [qlHtml appendFormat: @"table { width: 100%%; border: %dpx solid %@; ",
                           gBorder,
                           gDarkModeTableBorderColor];
-    [qlHtml appendString:
-        @"table-layout: fixed; border-collapse: collapse; }\n"];
-
+    [qlHtml appendString: @"table-layout: fixed; overflow-y: auto;"];
+    [qlHtml appendString: @"border-collapse: collapse; }\n"];
+    
     /* set the darkmode colors for the even rows of the table */
     
     [qlHtml appendFormat:
@@ -326,17 +332,22 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
     /* disable internal borders for table cells */
     
-    [qlHtml appendString: @"td { border: none; }\n"];
+    [qlHtml appendString: @"td { border: none; z-index: 1; }\n"];
 
     /*
         add a bottom border for the header row items only, to better
-        match the BigSur finder
+        match the BigSur finder, and make the header fixed.
+        based on:
+            https://www.w3docs.com/snippets/html/how-to-create-a-table-with-a-fixed-header-and-scrollable-body.html
      */
     
-    [qlHtml appendFormat: @"th { border-bottom: %dpx solid %@; }\n",
+    [qlHtml appendFormat: @"th { border-bottom: %dpx solid %@; ",
                           gBorder,
                           gDarkModeTableHeaderBorderColor];
-            
+    [qlHtml appendString: @" position: sticky; position: -webkit-sticky; "];
+    [qlHtml appendFormat: @"top: 0; z-index: 3; background-color: %@ ;}\n",
+                          gDarkModeBackground];
+    
     /* close darkmode styles */
     
     [qlHtml appendString: @"}\n"];
@@ -361,17 +372,25 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     [qlHtml appendFormat: @"table { width: 100%%; border: %dpx solid %@; ",
                           gBorder,
                           gLightModeTableBorderColor];
-    [qlHtml appendString:
-        @"table-layout: fixed; border-collapse: collapse; }\n"];
+    [qlHtml appendString: @"table-layout: fixed; overflow-y: auto;"];
+    [qlHtml appendString: @"border-collapse: collapse; }\n"];
 
     /* no internal borders */
     
     [qlHtml appendString: @"td { border: none; }\n"];
 
-    [qlHtml appendFormat: @"th { border-bottom: %dpx solid %@; }\n",
+    [qlHtml appendFormat: @"th { border-bottom: %dpx solid %@; ",
                           gBorder,
                           gLightModeTableHeaderBorderColor];
     
+/*    [qlHtml appendFormat: @"th { border-bottom: %dpx solid %@; ",
+                          gBorder,
+                          gLightModeTableHeaderBorderColor];
+ */
+    [qlHtml appendString: @" position: sticky; position: -webkit-sticky; "];
+    [qlHtml appendFormat: @"top: 0; z-index: 3; background-color: %@ ;}\n",
+                          gLightModeBackground];
+
     /* colors for the even rows */
     
     [qlHtml appendFormat:
@@ -449,6 +468,17 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         {
             break;
         }
+
+        if (r == ARCHIVE_WARN)
+        {
+
+            /*
+                skip this entry - could be b/c of a filename
+                encoding issue (TODO: add iconv support)
+             */
+            
+            continue;
+        }
         
         if (r != ARCHIVE_OK)
         {
@@ -463,7 +493,8 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         }
 
         fileNameInZip = archive_entry_pathname(entry);
-        isFolder = archive_entry_filetype(entry) == AE_IFDIR ? TRUE : FALSE;
+        isFolder =
+            archive_entry_filetype(entry) == AE_IFDIR ? TRUE : FALSE;
 
         /* start the table row for this file */
 
@@ -701,7 +732,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     /* close the table */
     
     [qlHtml appendString: @"</table>\n"];
-
+    
     /* close the html */
     
     [qlHtml appendString: @"</font>\n</body>\n</html>\n"];
