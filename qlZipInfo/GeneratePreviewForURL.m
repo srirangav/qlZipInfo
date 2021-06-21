@@ -20,8 +20,10 @@
                             styles
     v. 0.1.8 (06/15/2021) - add icon for encrypted files
     v. 0.2.0 (06/18/2021) - switch to using libarchive
-    v. 0.2.1 (06/18/2021) - add support for xar / pkg files and isos,
+    v. 0.2.1 (06/18/2021) - add support for xar / pkg files, and isos,
                             make the header row fixed
+    v. 0.2.2 (06/20/2021) - add support for rar, rar4, lha, debian
+                            archives
  
     Copyright (c) 2015-2021 Sriranga R. Veeraraghavan <ranga@calalum.org>
  
@@ -48,10 +50,11 @@
 @import Foundation;
 @import AppKit;
 
-#include <CoreFoundation/CoreFoundation.h>
-#include <CoreServices/CoreServices.h>
-#include <QuickLook/QuickLook.h>
+#import <CoreFoundation/CoreFoundation.h>
+#import <CoreServices/CoreServices.h>
+#import <QuickLook/QuickLook.h>
 #import <CommonCrypto/CommonDigest.h>
+
 #include <sys/syslimits.h>
 #include <sys/stat.h>
 #include <math.h>
@@ -253,10 +256,14 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     archive_read_support_format_zip(a);
     archive_read_support_format_xar(a);
     archive_read_support_format_iso9660(a);
+    archive_read_support_format_rar(a);
+    archive_read_support_format_rar5(a);
+    archive_read_support_format_lha(a);
+    archive_read_support_format_ar(a);
+    archive_read_support_format_7zip(a);
 
     /*
     archive_read_support_filter_xz(a);
-    archive_read_support_format_7zip(a);
     */
     
     if ((r = archive_read_open_filename(a, zipFileNameStr, 10240)))
@@ -483,6 +490,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         if (r != ARCHIVE_OK)
         {
             zipErr = zipQLFailed;
+            fprintf(stderr,"ERROR: %s\n", archive_error_string(a));
             break;
         }
         

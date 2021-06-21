@@ -25,6 +25,10 @@
 				<string>com.apple.xar-archive</string>
 				<string>com.apple.disk-image-cdr</string>
 				<string>public.iso-image</string>
+				<string>com.rarlab.rar-archive</string>
+				<string>org.debian.deb-archive</string>
+				<string>cx.c3.lha-archive</string>
+				<string>org.7-zip.7-zip-archive</string>
 			</array>
 		</dict>
 	</array>
