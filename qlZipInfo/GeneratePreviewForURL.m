@@ -22,8 +22,8 @@
     v. 0.2.0 (06/18/2021) - switch to using libarchive
     v. 0.2.1 (06/18/2021) - add support for xar / pkg files, and isos,
                             make the header row fixed
-    v. 0.2.2 (06/20/2021) - add support for rar, rar4, lha, debian
-                            archives
+    v. 0.2.2 (06/20/2021) - add support for rar, rar4, lha, 7z, xz, and
+                            debian (.deb) archives
  
     Copyright (c) 2015-2021 Sriranga R. Veeraraghavan <ranga@calalum.org>
  
@@ -193,7 +193,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     int r = 0;
     int zipErr = 0;
     struct stat fileStats;
-    unsigned long i = 0;
+    unsigned long i = 0, fileCount = 0;
     off_t totalSize = 0;
     off_t totalCompressedSize = 0;
     Float64 compression = 0;
@@ -261,10 +261,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     archive_read_support_format_lha(a);
     archive_read_support_format_ar(a);
     archive_read_support_format_7zip(a);
-
-    /*
     archive_read_support_filter_xz(a);
-    */
     
     if ((r = archive_read_open_filename(a, zipFileNameStr, 10240)))
     {
@@ -687,20 +684,22 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     /* print out the total number of files in the zip file */
 
+    fileCount = archive_file_count(a);
+    
     [qlHtml appendFormat:
         @"<td align=\"center\" colspan=\"2\">%lu item%s</td>\n",
-        i,
-        (i > 1 ? "s" : "")];
+        fileCount,
+        (fileCount > 1 ? "s" : "")];
     
     /* clear the file size spec */
     
     memset(&fileSizeSpecInZip, 0, sizeof(fileSizeSpec_t));
     
-    /* get the file's total size spec */
+    /* get the file's total uncompressed size spec */
     
     getFileSizeSpec(totalSize,
                     &fileSizeSpecInZip);
-    
+
     /* print out the zip file's total size in B, K, M, G, or T */
     
     [qlHtml appendFormat:
