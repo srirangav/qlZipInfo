@@ -266,6 +266,11 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     if ((r = archive_read_open_filename(a, zipFileNameStr, 10240)))
     {
+        fprintf(stderr,
+                "qlZipInfo: ERROR: %s\n",
+                archive_error_string(a));
+        archive_read_close(a);
+        archive_read_free(a);
         return zipQLFailed;
     }
     
