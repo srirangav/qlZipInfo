@@ -141,6 +141,7 @@ static const NSString *gFileIcon          = @"&#x1F4C4";
 static const NSString *gFileEncyrptedIcon = @"&#x1F512";
 static const NSString *gFileLinkIcon      = @"&#x1F4D1";
 static const NSString *gFileSpecialIcon   = @"&#x2699";
+static const NSString *gFileUnknownIcon   = @"&#x2753";
 
 /* default font style - sans serif */
 
@@ -319,13 +320,15 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         set y-direction overflow to auto to support a fixed header
         based on:
             https://www.w3docs.com/snippets/html/how-to-create-a-table-with-a-fixed-header-and-scrollable-body.html
+            https://stackoverflow.com/questions/50361698/border-style-do-not-work-with-sticky-position-element
      */
 
     [qlHtml appendFormat: @"table { width: 100%%; border: %dpx solid %@; ",
                           gBorder,
                           gDarkModeTableBorderColor];
     [qlHtml appendString: @"table-layout: fixed; overflow-y: auto;"];
-    [qlHtml appendString: @"border-collapse: collapse; }\n"];
+    [qlHtml appendString:
+        @"border-collapse: separate; border-spacing: 0; }\n"];
     
     /* set the darkmode colors for the even rows of the table */
     
@@ -377,20 +380,18 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                           gBorder,
                           gLightModeTableBorderColor];
     [qlHtml appendString: @"table-layout: fixed; overflow-y: auto;"];
-    [qlHtml appendString: @"border-collapse: collapse; }\n"];
+    [qlHtml appendString:
+        @"border-collapse: separate; border-spacing: 0; }\n"];
 
     /* no internal borders */
     
     [qlHtml appendString: @"td { border: none; }\n"];
 
+    /* make the header sticky */
+
     [qlHtml appendFormat: @"th { border-bottom: %dpx solid %@; ",
                           gBorder,
                           gLightModeTableHeaderBorderColor];
-    
-/*    [qlHtml appendFormat: @"th { border-bottom: %dpx solid %@; ",
-                          gBorder,
-                          gLightModeTableHeaderBorderColor];
- */
     [qlHtml appendString: @" position: sticky; position: -webkit-sticky; "];
     [qlHtml appendFormat: @"top: 0; z-index: 3; background-color: %@ ;}\n",
                           gLightModeBackground];
@@ -480,6 +481,13 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                 skip this entry - could be b/c of a filename
                 encoding issue (TODO: add iconv support)
              */
+
+            [qlHtml appendString: @"<tr>"];
+            [qlHtml appendFormat: @"<td align=\"center\">%@</td>",
+                                  gFileUnknownIcon];
+            [qlHtml appendString:
+                @"<td colspan=\"5\">[Skipped]</td>"];
+            [qlHtml appendString: @"</tr>\n"];
             
             continue;
         }
@@ -487,7 +495,9 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         if (r != ARCHIVE_OK)
         {
             zipErr = zipQLFailed;
-            fprintf(stderr,"ERROR: %s\n", archive_error_string(a));
+            fprintf(stderr,
+                    "qlZipInfo: ERROR: %s\n",
+                    archive_error_string(a));
             break;
         }
         
