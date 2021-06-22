@@ -202,6 +202,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     fileSizeSpec_t fileSizeSpecInZip;
     
     if (url == NULL) {
+        fprintf(stderr, "qlZipInfo: ERROR: url is null\n");
         return zipQLFailed;
     }
     
@@ -211,6 +212,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         (CFMutableStringRef)CFURLCopyFileSystemPath(url,
                                                     kCFURLPOSIXPathStyle);
     if (zipFileName == NULL) {
+        fprintf(stderr, "qlZipInfo: ERROR: file name is null\n");
         return zipQLFailed;
     }
     
@@ -236,6 +238,8 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                                PATH_MAX - 1,
                                kCFStringEncodingUTF8) != true)
         {
+            fprintf(stderr,
+                    "qlZipInfo: ERROR: can't get filename\n");
             return zipQLFailed;
         }
         
@@ -253,6 +257,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     archive_read_support_filter_compress(a);
     archive_read_support_filter_gzip(a);
     archive_read_support_filter_bzip2(a);
+    archive_read_support_filter_xz(a);
     archive_read_support_format_tar(a);
     archive_read_support_format_zip(a);
     archive_read_support_format_xar(a);
@@ -262,7 +267,6 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     archive_read_support_format_lha(a);
     archive_read_support_format_ar(a);
     archive_read_support_format_7zip(a);
-    archive_read_support_filter_xz(a);
     
     if ((r = archive_read_open_filename(a, zipFileNameStr, 10240)))
     {
