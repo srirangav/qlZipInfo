@@ -57,7 +57,6 @@
 
 #include <sys/syslimits.h>
 #include <sys/stat.h>
-#include <math.h>
 
 #include "config.h"
 #include "archive.h"
@@ -142,6 +141,10 @@ static const NSString *gFileEncyrptedIcon = @"&#x1F512";
 static const NSString *gFileLinkIcon      = @"&#x1F4D1";
 static const NSString *gFileSpecialIcon   = @"&#x2699";
 static const NSString *gFileUnknownIcon   = @"&#x2753";
+
+/* unknown file name */
+
+static const char *gFileNameUnavilable = "[Unavailable]";
 
 /* default font style - sans serif */
 
@@ -485,23 +488,11 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
         if (r == ARCHIVE_WARN)
         {
-
-            /*
-                skip this entry - could be b/c of a filename
-                encoding issue (TODO: add iconv support)
-             */
-
-            [qlHtml appendString: @"<tr>"];
-            [qlHtml appendFormat: @"<td align=\"center\">%@</td>",
-                                  gFileUnknownIcon];
-            [qlHtml appendString:
-                @"<td colspan=\"5\">[Skipped]</td>"];
-            [qlHtml appendString: @"</tr>\n"];
-            
-            continue;
+            fprintf(stderr,
+                    "qlZipInfo: WARN: %s\n",
+                    archive_error_string(a));
         }
-        
-        if (r != ARCHIVE_OK)
+        else if (r != ARCHIVE_OK)
         {
             zipErr = zipQLFailed;
             fprintf(stderr,
@@ -517,6 +508,32 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         }
 
         fileNameInZip = archive_entry_pathname(entry);
+        if (fileNameInZip == NULL)
+        {
+            fileNameInZip = archive_entry_pathname_utf8(entry);
+        }
+
+        if (fileNameInZip == NULL)
+        {
+#ifdef SKIP_ENTRY
+            /*
+                skip this entry - could be b/c of a filename
+                encoding issue
+             */
+
+            [qlHtml appendString: @"<tr>"];
+            [qlHtml appendFormat: @"<td align=\"center\">%@</td>",
+                                  gFileUnknownIcon];
+            [qlHtml appendString:
+                @"<td colspan=\"5\">[Skipped]</td>"];
+            [qlHtml appendString: @"</tr>\n"];
+
+            continue;
+#else
+            fileNameInZip = gFileNameUnavilable;
+#endif
+        }
+        
         isFolder =
             archive_entry_filetype(entry) == AE_IFDIR ? TRUE : FALSE;
 
