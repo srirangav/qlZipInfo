@@ -57,6 +57,7 @@
 
 #include <sys/syslimits.h>
 #include <sys/stat.h>
+#include <iconv.h>
 
 #include "config.h"
 #include "archive.h"
@@ -184,6 +185,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     NSString *qlEntryIcon = nil;
     NSMutableString *qlHtml = nil;
     NSMutableString *fileDateStringInZip = nil;
+    NSMutableString *localeString = nil;
     NSDateFormatter *fileDateFormatterInZip = nil;
     NSDateFormatter *fileLocalDateFormatterInZip = nil;
     NSDate *fileDateInZip = nil;
@@ -254,6 +256,23 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     if (QLPreviewRequestIsCancelled(preview)) {
         return noErr;
     }
+
+    /*
+        set the locale to UTF-8 to decode non-ASCII filenames:
+        
+        https://github.com/libarchive/libarchive/issues/587
+        https://github.com/libarchive/libarchive/issues/1535
+        https://stackoverflow.com/questions/1085506/how-to-get-language-locale-of-the-user-in-objective-c
+        https://developer.apple.com/documentation/foundation/nslocale/1416263-localeidentifier?language=objc
+        
+     */
+    
+    localeString = [[NSMutableString alloc] init];
+    [localeString appendString:
+        [[NSLocale currentLocale] localeIdentifier]];
+    [localeString appendString: @".UTF-8"];
+    
+    setlocale (LC_ALL, [localeString UTF8String]);
 
     a = archive_read_new();
 
@@ -515,23 +534,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
         if (fileNameInZip == NULL)
         {
-#ifdef SKIP_ENTRY
-            /*
-                skip this entry - could be b/c of a filename
-                encoding issue
-             */
-
-            [qlHtml appendString: @"<tr>"];
-            [qlHtml appendFormat: @"<td align=\"center\">%@</td>",
-                                  gFileUnknownIcon];
-            [qlHtml appendString:
-                @"<td colspan=\"5\">[Skipped]</td>"];
-            [qlHtml appendString: @"</tr>\n"];
-
-            continue;
-#else
             fileNameInZip = gFileNameUnavilable;
-#endif
         }
         
         isFolder =
