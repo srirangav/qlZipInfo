@@ -1,12 +1,12 @@
 README
 ------
 
-qlZipInfo v1.1.2
+qlZipInfo v1.1.3
 By Sriranga Veeraraghavan <ranga@calalum.org>
 
 qlZipInfo is a QuickLook generator for zip, jar, tar, tar.gz 
 (.tgz), tar.bz2 (.tbz2), tar.Z (.tZ), xar (.xar, .pkg), debian
-(.deb), 7zip (.7z), xz, and lha archives and ISO9660 images.
+(.deb), 7zip (.7z), xz, cab, and lha archives and ISO9660 images.
 
 qlZipInfo relies on libarchive (https://libarchive.org/).
 
@@ -37,6 +37,9 @@ Supported MacOSX versions:
 
 History:
 
+    v1.1.3  - add support for Microsoft CAB files (Install-
+              Sheild CAB files have a different format and
+              aren't yet supported)
     v1.1.2  - fix (partially?) listing non-ASCII filenames
     v1.1.1  - add support for xar / pkg, debian (.deb), 7zip
               (.7z), xz, and lha archives and ISO9660 images

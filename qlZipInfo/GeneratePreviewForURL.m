@@ -289,6 +289,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     archive_read_support_format_lha(a);
     archive_read_support_format_ar(a);
     archive_read_support_format_7zip(a);
+    archive_read_support_format_cab(a);
     
     if ((r = archive_read_open_filename(a, zipFileNameStr, 10240)))
     {

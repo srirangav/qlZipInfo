@@ -30,6 +30,7 @@
 				<string>cx.c3.lha-archive</string>
 				<string>org.7-zip.7-zip-archive</string>
 				<string>org.tukaani.xz-archive</string>
+				<string>com.microsoft.cab</string>
 			</array>
 		</dict>
 	</array>
