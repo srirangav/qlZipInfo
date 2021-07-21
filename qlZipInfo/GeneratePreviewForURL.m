@@ -24,6 +24,8 @@
                             make the header row fixed
     v. 0.2.2 (06/20/2021) - add support for rar, rar4, lha, 7z, xz, and
                             debian (.deb) archives
+    v. 0.2.3 (07/21/2021) - add support for indiviudal files that are
+                            gzip'ed
  
     Copyright (c) 2015-2021 Sriranga R. Veeraraghavan <ranga@calalum.org>
  
@@ -55,6 +57,7 @@
 #import <QuickLook/QuickLook.h>
 #import <CommonCrypto/CommonDigest.h>
 
+#include <stdio.h>
 #include <sys/syslimits.h>
 #include <sys/stat.h>
 #include <iconv.h>
@@ -159,6 +162,10 @@ static const char     *gFileSizeMegaBytes = "M";
 static const char     *gFileSizeGigaBytes = "G";
 static const char     *gFileSizeTeraBytes = "T";
 
+/* UTIs for files that may require special handling */
+
+static const CFStringRef gUTIGZip = CFSTR("org.gnu.gnu-zip-archive");
+
 /* prototypes */
 
 OSStatus GeneratePreviewForURL(void *thisInterface,
@@ -202,15 +209,19 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     unsigned long i = 0, fileCount = 0;
     off_t totalSize = 0;
     off_t totalCompressedSize = 0;
+    off_t fileCompressedSize = 0;
     Float64 compression = 0;
     bool isFolder = FALSE;
+    bool isGZFile = false;
     fileSizeSpec_t fileSizeSpecInZip;
-    
+    FILE *gzFile = NULL;
+    UInt8 gzCompressedSize[4];
+
     if (url == NULL) {
         fprintf(stderr, "qlZipInfo: ERROR: url is null\n");
         return zipQLFailed;
     }
-    
+
     /* get the local file system path for the specified file */
     
     zipFileName =
@@ -291,19 +302,51 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     archive_read_support_format_7zip(a);
     archive_read_support_format_cab(a);
     
-    if ((r = archive_read_open_filename(a, zipFileNameStr, 10240)))
+    r = archive_read_open_filename(a, zipFileNameStr, 10240);
+    
+    if (r != ARCHIVE_OK)
     {
         fprintf(stderr,
                 "qlZipInfo: ERROR: %s\n",
                 archive_error_string(a));
+
         archive_read_close(a);
         archive_read_free(a);
-        return zipQLFailed;
+
+        r = zipQLFailed;
     }
-    
+
+    if (r == zipQLFailed)
+    {
+        if (CFEqual(contentTypeUTI,gUTIGZip) != true)
+        {
+            return r;
+        }
+        
+        /* this is a gzip'ed file, re-try opening in raw mode */
+
+        isGZFile = true;
+        a = archive_read_new();
+        archive_read_support_format_raw(a);
+        archive_read_support_filter_gzip(a);
+
+        r = archive_read_open_filename(a, zipFileNameStr, 10240);
+
+        if (r != ARCHIVE_OK)
+        {
+            fprintf(stderr,
+                    "qlZipInfo: ERROR: gz: %s\n",
+                    archive_error_string(a));
+            archive_read_close(a);
+            archive_read_free(a);
+            return zipQLFailed;
+        }
+    }
+                        
     /*  exit if the user canceled the preview */
     
-    if (QLPreviewRequestIsCancelled(preview)) {
+    if (QLPreviewRequestIsCancelled(preview))
+    {
         archive_read_close(a);
         archive_read_free(a);
         return noErr;
@@ -538,8 +581,15 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
             fileNameInZip = gFileNameUnavilable;
         }
         
-        isFolder =
-            archive_entry_filetype(entry) == AE_IFDIR ? TRUE : FALSE;
+        if (isGZFile == true)
+        {
+            isFolder = FALSE;
+        }
+        else
+        {
+            isFolder =
+                (archive_entry_filetype(entry) == AE_IFDIR ? TRUE : FALSE);
+        }
 
         /* start the table row for this file */
 
@@ -556,22 +606,25 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
          */
         
         qlEntryIcon = (NSString *)gFileIcon;
-        
-        if (isFolder == TRUE)
+
+        if (isGZFile != true)
         {
-            qlEntryIcon = (NSString *)gFolderIcon;
-        }
-        else if (archive_entry_is_encrypted(entry))
-        {
-            qlEntryIcon = (NSString *)gFileEncyrptedIcon;
-        }
-        else if (archive_entry_filetype(entry) == AE_IFLNK)
-        {
-            qlEntryIcon = (NSString *)gFileLinkIcon;
-        }
-        else if (archive_entry_filetype(entry) != AE_IFREG)
-        {
-            qlEntryIcon = (NSString *)gFileSpecialIcon;
+            if (isFolder == TRUE)
+            {
+                qlEntryIcon = (NSString *)gFolderIcon;
+            }
+            else if (archive_entry_is_encrypted(entry))
+            {
+                qlEntryIcon = (NSString *)gFileEncyrptedIcon;
+            }
+            else if (archive_entry_filetype(entry) == AE_IFLNK)
+            {
+                qlEntryIcon = (NSString *)gFileLinkIcon;
+            }
+            else if (archive_entry_filetype(entry) != AE_IFREG)
+            {
+                qlEntryIcon = (NSString *)gFileSpecialIcon;
+            }
         }
         
         [qlHtml appendFormat: @"<td align=\"center\">%@</td>",
@@ -597,6 +650,42 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
             [qlHtml appendString:
                     @"<td align=\"center\" colspan=\"2\"><pre>--</pre></td>"];
         } else {
+                        
+            if (isGZFile == true)
+            {
+                /*
+                    if this is a gzip'ed file, assume that the uncompressed
+                    size is stored in the last 4 bytes of the file (which
+                    might be wrong for files greater than 4GB); see:
+                 
+                    http://www.abeel.be/content/determine-uncompressed-size-gzip-file
+                    https://stackoverflow.com/questions/9209138/uncompressed-file-size-using-zlibs-gzip-file-access-function
+                 */
+                
+                gzFile = fopen(zipFileNameStr, "r");
+                if (gzFile != NULL)
+                {
+                    memset(gzCompressedSize, 0, 4);
+                    
+                    if (fseek(gzFile, -4, SEEK_END) == 0)
+                    {
+                        if (fread(gzCompressedSize, 1 , 4, gzFile) == 4)
+                        {
+                            fileCompressedSize =
+                                (gzCompressedSize[3] << 24) |
+                                (gzCompressedSize[2] << 16) |
+                                (gzCompressedSize[1] <<  8) +
+                                gzCompressedSize[0];
+                        }
+                    }
+                    
+                    fclose(gzFile);
+                }
+            }
+            else
+            {
+                fileCompressedSize = archive_entry_size(entry);
+            }
 
             /* clear the file size spec */
             
@@ -604,9 +693,9 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
             /* get the file's size spec */
 
-            getFileSizeSpec(archive_entry_size(entry),
+            getFileSizeSpec(fileCompressedSize,
                             &fileSizeSpecInZip);
-            
+
             /* print out the file's size in B, K, M, G, or T */
             
             [qlHtml appendFormat:
@@ -699,21 +788,28 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         /* close the row */
         
         [qlHtml appendString:@"</tr>\n"];
+        
+        /* update the total compressed sizes */
 
-        /* update the total compressed and uncompressed sizes */
-
-        totalSize += archive_entry_size(entry);
+        totalSize += fileCompressedSize;
+        
+        /* if this was a GZip'ed file, no need to repeat the loop */
+        
+        if (isGZFile == true)
+        {
+            break;
+        }
     }
 
     /* close the zip file */
 
     archive_read_close(a);
     archive_read_free(a);
-    
-    /* close the table body */
+        
+    /* close the main table's body */
     
     [qlHtml appendString: @"</tbody>\n"];
-    
+  
     /*
         start the summary row for the zip file -
         [total size] [blank] [ no. of files]
@@ -734,7 +830,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     /* clear the file size spec */
     
     memset(&fileSizeSpecInZip, 0, sizeof(fileSizeSpec_t));
-    
+        
     /* get the file's total uncompressed size spec */
     
     getFileSizeSpec(totalSize,
@@ -767,7 +863,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     [qlHtml appendString:
             @"<td align=\"right\" colspan=\"2\"><pre>&nbsp;</pre></td>"];
-    
+        
     /* close the summary row */
     
     [qlHtml appendString:@"</tr>\n"];
