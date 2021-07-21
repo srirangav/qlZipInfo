@@ -72,3 +72,8 @@ History:
 License:
 
     Please see LICENSE.txt
+
+Homepage:
+
+    https://github.com/srirangav/qlZipInfo
+
