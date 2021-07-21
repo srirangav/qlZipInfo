@@ -6,7 +6,8 @@ By Sriranga Veeraraghavan <ranga@calalum.org>
 
 qlZipInfo is a QuickLook generator for zip, jar, tar, tar.gz (.tgz),
 tar.bz2 (.tbz2), tar.Z (.tZ), xar (.xar, .pkg), debian (.deb),
-7zip (.7z), xz, cab, gzip, and lha archives and ISO9660 images.
+7zip (.7z), xz, Microsoft cabinet (.cab), gzip, and lha archives 
+and ISO9660 images.
 
 qlZipInfo relies on libarchive (https://libarchive.org/).
 
