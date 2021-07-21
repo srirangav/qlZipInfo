@@ -39,7 +39,7 @@ History:
 
     v1.1.3  - add support for Microsoft CAB files (Install-
               Sheild CAB files have a different format and
-              aren't yet supported) and gzip'ed archives of
+              aren't supported yet) and gzip'ed archives of
               a single file
     v1.1.2  - fix (partially?) listing non-ASCII filenames
     v1.1.1  - add support for xar / pkg, debian (.deb), 7zip
