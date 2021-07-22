@@ -1,4 +1,5 @@
 #!/bin/sh
+#
 #    getUTI.sh - get the Uniform Type Identifier (UTI) for a file
 #
 #    See: https://en.wikipedia.org/wiki/Uniform_Type_Identifier
@@ -57,9 +58,8 @@ do
     # print out the UTI using mdls
     
     "$MDLS" -name kMDItemContentType \
-                -name kMDItemContentTypeTree \
-                -name kMDItemKind "$ARG"
-
+            -name kMDItemContentTypeTree \
+            -name kMDItemKind "$ARG"
 done
 
 exit $?
