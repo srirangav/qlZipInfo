@@ -1,23 +1,30 @@
 README
 ------
 
-qlZipInfo v1.1.3
+qlZipInfo v1.1.4
 By Sriranga Veeraraghavan <ranga@calalum.org>
 
-qlZipInfo is a QuickLook generator for zip, jar, tar, tar.gz (.tgz),
-tar.bz2 (.tbz2), tar.Z (.tZ), xar (.xar, .pkg), debian (.deb),
-7zip (.7z), xz, Microsoft cabinet (.cab), gzip, and lha archives 
-and ISO9660 images.
+Homepage:
 
-qlZipInfo relies on libarchive (https://libarchive.org/).
+    https://github.com/srirangav/qlZipInfo
 
-Information for each file in an archive is displayed in the following 
-format:
+Overview:
 
-    Icon | Filename | Size | Date Modified
+    qlZipInfo is a QuickLook generator for zip, jar, tar,
+    tar.gz (.tgz), tar.bz2 (.tbz2), tar.Z (.tZ), xar (.xar,
+    .pkg), debian (.deb), 7zip (.7z), xz, Microsoft cabinet
+    (.cab), gzip, and lha archives and ISO9660 images.
 
-A folder icon is shown for folders / directories, a file icon is 
-shown for regular files, and a lock icon is shown for encypted files.
+    qlZipInfo relies on libarchive (https://libarchive.org/).
+
+    Information for each file in an archive is displayed in
+    the following format:
+
+        Icon | Filename | Size | Date Modified
+
+    A folder icon is shown for folders / directories, a file
+    icon is shown for regular files, and a lock icon is shown
+    for encypted files.
 
 Install:
 
@@ -38,6 +45,7 @@ Supported MacOSX versions:
 
 History:
 
+    v1.1.4  - modularize preview generation
     v1.1.3  - add support for Microsoft CAB files (Install-
               Sheild CAB files have a different format and
               aren't supported yet) and gzip'ed archives of
@@ -73,8 +81,3 @@ History:
 License:
 
     Please see LICENSE.txt
-
-Homepage:
-
-    https://github.com/srirangav/qlZipInfo
-
