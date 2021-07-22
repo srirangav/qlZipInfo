@@ -1,5 +1,5 @@
 /*
- GeneratePreviewForURL.h - constants for qlZipInfo
+    GeneratePreviewForURL.h - constants for qlZipInfo
  
     History:
  
