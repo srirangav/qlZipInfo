@@ -134,6 +134,7 @@
 
 /* Begin PBXFileReference section */
 		261A6131267DA593009BB583 /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
+		261D47E126A94A0800028CA3 /* GeneratePreviewForURL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratePreviewForURL.h; sourceTree = "<group>"; };
 		261EB60C22DD6C5100B38AE0 /* minishared.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = minishared.h; sourceTree = "<group>"; };
 		261EB60D22DD6C5100B38AE0 /* minishared.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = minishared.c; sourceTree = "<group>"; };
 		26314C5B267DEE0600F17EF9 /* liblzma.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = liblzma.tbd; path = usr/lib/liblzma.tbd; sourceTree = SDKROOT; };
@@ -499,6 +500,7 @@
 				26BC4AAF26807928005C136F /* lzma */,
 				26CA45D81B8461BA00B08F29 /* GenerateThumbnailForURL.m */,
 				26CA45DA1B8461BA00B08F29 /* GeneratePreviewForURL.m */,
+				261D47E126A94A0800028CA3 /* GeneratePreviewForURL.h */,
 				26CA45DC1B8461BA00B08F29 /* main.c */,
 				26CA45D61B8461BA00B08F29 /* Supporting Files */,
 			);
@@ -859,12 +861,12 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = CLN8R9E6QM;
 				INFOPLIST_FILE = qlZipInfo/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 1.1.3;
+				MARKETING_VERSION = 1.1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.calalum.ranga.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -878,12 +880,12 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = CLN8R9E6QM;
 				INFOPLIST_FILE = qlZipInfo/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 1.1.3;
+				MARKETING_VERSION = 1.1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.calalum.ranga.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

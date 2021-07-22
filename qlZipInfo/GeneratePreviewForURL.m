@@ -49,136 +49,26 @@
     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-@import Foundation;
-@import AppKit;
+//@import Foundation;
+//@import AppKit;
 
 #import <CoreFoundation/CoreFoundation.h>
 #import <CoreServices/CoreServices.h>
 #import <QuickLook/QuickLook.h>
 #import <CommonCrypto/CommonDigest.h>
 
-#include <stdio.h>
-#include <sys/syslimits.h>
-#include <sys/stat.h>
-#include <iconv.h>
+#import <stdio.h>
+#import <sys/syslimits.h>
+#import <sys/stat.h>
+#import <iconv.h>
 
-#include "config.h"
-#include "archive.h"
-#include "archive_entry.h"
+#import "config.h"
+#import "archive.h"
+#import "archive_entry.h"
 #import "GTMNSString+HTML.h"
+#import "GeneratePreviewForURL.h"
 
-/* structs */
-
-typedef struct fileSizeSpec
-{
-    char spec[3];
-    Float64 size;
-} fileSizeSpec_t;
-
-/* 
-    Default error code (MacOS extractErr error code from MacErrors.h) See:
-    https://opensource.apple.com/source/CarbonHeaders/CarbonHeaders-18.1/MacErrors.h
- */
-
-enum
-{
-    zipQLFailed = -3104,
-};
-
-/* 
-    Default values for spacing of the output
- */
-
-enum
-{
-    gBorder          = 1,
-    gFontSize        = 2,
-    gIconHeight      = 16,
-    gIconWidth       = 16,
-    gColPadding      = 8,
-    gColFileSize     = 72,
-    gColFileCompress = 46,
-    gColFileModDate  = 58,
-    gColFileModTime  = 56,
-    gColFileType     = 24,
-    gColFileName     = 288,
-};
-
-/* constants */
-
-/* table headings */
-
-static const NSString *gTableHeaderName   = @"Name";
-static const NSString *gTableHeaderSize   = @"Size";
-static const NSString *gTableHeaderDate   = @"Modified";
-
-/* darkmode styles */
-
-static const NSString *gDarkModeBackground = @"#232323";
-static const NSString *gDarkModeForeground = @"lightgrey";
-static const NSString *gDarkModeTableRowEvenBackgroundColor
-                                           = @"#313131";
-static const NSString *gDarkModeTableRowEvenForegroundColor
-                                           = @"white";
-static const NSString *gDarkModeTableBorderColor
-                                            = @"#232323";
-static const NSString *gDarkModeTableHeaderBorderColor
-                                            = @"#555555";
-/* light mode styles */
-
-static const NSString *gLightModeBackground = @"white";
-static const NSString *gLightModeForeground = @"black";
-static const NSString *gLightModeTableRowEvenBackgroundColor
-                                            = @"#F5F5F5";
-static const NSString *gLightModeTableRowEvenForegroundColor
-                                            = @"black";
-static const NSString *gLightModeTableBorderColor
-                                            = @"white";
-static const NSString *gLightModeTableHeaderBorderColor
-                                            = @"#E7E7E7";
-
-/* icons */
-
-static const NSString *gFolderIcon        = @"&#x1F4C1";
-static const NSString *gFileIcon          = @"&#x1F4C4";
-static const NSString *gFileEncyrptedIcon = @"&#x1F512";
-static const NSString *gFileLinkIcon      = @"&#x1F4D1";
-static const NSString *gFileSpecialIcon   = @"&#x2699";
-static const NSString *gFileUnknownIcon   = @"&#x2753";
-
-/* unknown file name */
-
-static const char *gFileNameUnavilable = "[Unavailable]";
-
-/* default font style - sans serif */
-
-static const NSString *gFontFace = @"sans-serif";
-
-/* filesize abbreviations */
-
-static const char     *gFileSizeBytes     = "B";
-static const char     *gFileSizeKiloBytes = "K";
-static const char     *gFileSizeMegaBytes = "M";
-static const char     *gFileSizeGigaBytes = "G";
-static const char     *gFileSizeTeraBytes = "T";
-
-/* UTIs for files that may require special handling */
-
-static const CFStringRef gUTIGZip = CFSTR("org.gnu.gnu-zip-archive");
-
-/* prototypes */
-
-OSStatus GeneratePreviewForURL(void *thisInterface,
-                               QLPreviewRequestRef preview,
-                               CFURLRef url,
-                               CFStringRef contentTypeUTI,
-                               CFDictionaryRef options);
-void CancelPreviewGeneration(void *thisInterface,
-                             QLPreviewRequestRef preview);
-static int getFileSizeSpec(off_t fileSizeInBytes,
-                           fileSizeSpec_t *fileSpec);
-static float getCompression(off_t uncompressedSize,
-                            off_t compressedSize);
+/* public functions */
 
 /* GeneratePreviewForURL - generate a zip file's preview */
 
@@ -214,8 +104,6 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     bool isFolder = FALSE;
     bool isGZFile = false;
     fileSizeSpec_t fileSizeSpecInZip;
-    FILE *gzFile = NULL;
-    UInt8 gzCompressedSize[4];
 
     if (url == NULL) {
         fprintf(stderr, "qlZipInfo: ERROR: url is null\n");
@@ -361,147 +249,14 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                 forKey: (NSString*)kQLPreviewPropertyMIMETypeKey];
     
     qlHtml = [[NSMutableString alloc] init];
-    
-    /* start html header */
-    
-    [qlHtml appendString: @"<!DOCTYPE html>\n"];
-    [qlHtml appendString: @"<html>\n"];
-    [qlHtml appendString: @"<head>\n"];
-    [qlHtml appendString:
-        @"<meta http-equiv=\"Content-Type\" content=\"text/html; "];
-    [qlHtml appendString: @"charset=utf-8\" />\n"];
-    
-    /* start the style sheet */
-    
-    [qlHtml appendString: @"<style>\n"];
 
-    /* darkmode styles */
+    /* create the html header */
     
-    [qlHtml appendString:
-        @"@media (prefers-color-scheme: dark) { "];
-
-    /* set darkmode background and foreground colors */
+    formatOutputHeader(qlHtml);
     
-    [qlHtml appendFormat:
-        @"body { background-color: %@; color: %@; }\n",
-        gDarkModeBackground,
-        gDarkModeForeground];
-    
-    /*
-        put a border around the table only, but make it the same color
-        as the background to better match the BigSur finder
-        based on: https://stackoverflow.com/questions/10131729/removing-border-from-table-cell
-     
-        set y-direction overflow to auto to support a fixed header
-        based on:
-            https://www.w3docs.com/snippets/html/how-to-create-a-table-with-a-fixed-header-and-scrollable-body.html
-            https://stackoverflow.com/questions/50361698/border-style-do-not-work-with-sticky-position-element
-     */
-
-    [qlHtml appendFormat: @"table { width: 100%%; border: %dpx solid %@; ",
-                          gBorder,
-                          gDarkModeTableBorderColor];
-    [qlHtml appendString: @"table-layout: fixed; overflow-y: auto;"];
-    [qlHtml appendString:
-        @"border-collapse: separate; border-spacing: 0; }\n"];
-    
-    /* set the darkmode colors for the even rows of the table */
-    
-    [qlHtml appendFormat:
-        @"tr:nth-child(even) { background-color: %@ ; color: %@; }\n",
-        gDarkModeTableRowEvenBackgroundColor,
-        gDarkModeTableRowEvenForegroundColor];
-
-    /* disable internal borders for table cells */
-    
-    [qlHtml appendString: @"td { border: none; z-index: 1; }\n"];
-
-    /*
-        add a bottom border for the header row items only, to better
-        match the BigSur finder, and make the header fixed.
-        based on:
-            https://www.w3docs.com/snippets/html/how-to-create-a-table-with-a-fixed-header-and-scrollable-body.html
-     */
-    
-    [qlHtml appendFormat: @"th { border-bottom: %dpx solid %@; ",
-                          gBorder,
-                          gDarkModeTableHeaderBorderColor];
-    [qlHtml appendString: @" position: sticky; position: -webkit-sticky; "];
-    [qlHtml appendFormat: @"top: 0; z-index: 3; background-color: %@ ;}\n",
-                          gDarkModeBackground];
-    
-    /* close darkmode styles */
-    
-    [qlHtml appendString: @"}\n"];
-
-    /* light mode styles */
-    
-    [qlHtml appendString:
-        @"@media (prefers-color-scheme: light) { "];
-    
-    /* light mode background and foreground colors */
-    
-    [qlHtml appendFormat:
-        @"body { background-color: %@; color: %@; }\n",
-        gLightModeBackground,
-        gLightModeForeground];
-
-    /*
-        put a border around the table only
-        based on: https://stackoverflow.com/questions/10131729/removing-border-from-table-cell
-     */
-
-    [qlHtml appendFormat: @"table { width: 100%%; border: %dpx solid %@; ",
-                          gBorder,
-                          gLightModeTableBorderColor];
-    [qlHtml appendString: @"table-layout: fixed; overflow-y: auto;"];
-    [qlHtml appendString:
-        @"border-collapse: separate; border-spacing: 0; }\n"];
-
-    /* no internal borders */
-    
-    [qlHtml appendString: @"td { border: none; }\n"];
-
-    /* make the header sticky */
-
-    [qlHtml appendFormat: @"th { border-bottom: %dpx solid %@; ",
-                          gBorder,
-                          gLightModeTableHeaderBorderColor];
-    [qlHtml appendString: @" position: sticky; position: -webkit-sticky; "];
-    [qlHtml appendFormat: @"top: 0; z-index: 3; background-color: %@ ;}\n",
-                          gLightModeBackground];
-
-    /* colors for the even rows */
-    
-    [qlHtml appendFormat:
-        @"tr:nth-child(even) { background-color: %@ ; color: %@; }\n",
-        gLightModeTableRowEvenBackgroundColor,
-        gLightModeTableRowEvenForegroundColor];
-    
-    /* close light mode styles */
-    
-    [qlHtml appendString: @"}\n"];
-
-    /*
-        style for preventing wrapping in table cells, based on:
-        https://stackoverflow.com/questions/300220/how-to-prevent-text-in-a-table-cell-from-wrapping
-     */
-
-    [qlHtml appendString: @".nowrap { white-space: nowrap; }\n"];
-    
-    /* close the style sheet */
-    
-    [qlHtml appendString: @"</style>\n"];
-    
-    /* close the html header */
-    
-    [qlHtml appendString: @"</head>\n"];
-
     /* start the html body */
 
-    [qlHtml appendFormat: @"<body>\n"];
-
-    [qlHtml appendFormat: @"<font face=\"%@\">\n", gFontFace];
+    startOutputBody(qlHtml);
 
     /* 
        start the table
@@ -636,7 +391,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
             [[NSString stringWithUTF8String: fileNameInZip]
                                              gtm_stringByEscapingForHTML];
         
-        [qlHtml appendString: @"<td><div style=\"display:block; "];
+        [qlHtml appendString: @"<td><div style=\"display: block; "];
 
         [qlHtml appendFormat: @"word-wrap: break-word;\">%@</div></td>",
                               fileNameInZipEscaped];
@@ -653,34 +408,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                         
             if (isGZFile == true)
             {
-                /*
-                    if this is a gzip'ed file, assume that the uncompressed
-                    size is stored in the last 4 bytes of the file (which
-                    might be wrong for files greater than 4GB); see:
-                 
-                    http://www.abeel.be/content/determine-uncompressed-size-gzip-file
-                    https://stackoverflow.com/questions/9209138/uncompressed-file-size-using-zlibs-gzip-file-access-function
-                 */
-                
-                gzFile = fopen(zipFileNameStr, "r");
-                if (gzFile != NULL)
-                {
-                    memset(gzCompressedSize, 0, 4);
-                    
-                    if (fseek(gzFile, -4, SEEK_END) == 0)
-                    {
-                        if (fread(gzCompressedSize, 1 , 4, gzFile) == 4)
-                        {
-                            fileCompressedSize =
-                                (gzCompressedSize[3] << 24) |
-                                (gzCompressedSize[2] << 16) |
-                                (gzCompressedSize[1] <<  8) +
-                                gzCompressedSize[0];
-                        }
-                    }
-                    
-                    fclose(gzFile);
-                }
+                fileCompressedSize = getGZExpandedFileSize(zipFileNameStr);
             }
             else
             {
@@ -878,7 +606,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     /* close the html */
     
-    [qlHtml appendString: @"</font>\n</body>\n</html>\n"];
+    endOutputBody(qlHtml);
     
     QLPreviewRequestSetDataRepresentation(preview,
                                           (__bridge CFDataRef)[qlHtml dataUsingEncoding:
@@ -893,6 +621,234 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 void CancelPreviewGeneration(void *thisInterface,
                              QLPreviewRequestRef preview)
 {
+}
+
+/* private functions */
+
+/* formatOutputHeader - format the output header */
+
+static bool formatOutputHeader(NSMutableString *qlHtml)
+{
+    if (qlHtml == nil)
+    {
+        return false;
+    }
+
+    /* start html header */
+    
+    [qlHtml appendString: @"<!DOCTYPE html>\n"];
+    [qlHtml appendString: @"<html>\n"];
+    [qlHtml appendString: @"<head>\n"];
+    [qlHtml appendString:
+        @"<meta http-equiv=\"Content-Type\" content=\"text/html; "];
+    [qlHtml appendString: @"charset=utf-8\" />\n"];
+    
+    /* start the style sheet */
+    
+    [qlHtml appendString: @"<style>\n"];
+
+    /* darkmode styles */
+    
+    [qlHtml appendString:
+        @"@media (prefers-color-scheme: dark) { "];
+
+    /* set darkmode background and foreground colors */
+    
+    [qlHtml appendFormat:
+        @"body { background-color: %@; color: %@; }\n",
+        gDarkModeBackground,
+        gDarkModeForeground];
+    
+    /*
+        put a border around the table only, but make it the same color
+        as the background to better match the BigSur finder
+        based on: https://stackoverflow.com/questions/10131729/removing-border-from-table-cell
+     
+        set y-direction overflow to auto to support a fixed header
+        based on:
+            https://www.w3docs.com/snippets/html/how-to-create-a-table-with-a-fixed-header-and-scrollable-body.html
+            https://stackoverflow.com/questions/50361698/border-style-do-not-work-with-sticky-position-element
+     */
+
+    [qlHtml appendFormat: @"table { width: 100%%; border: %dpx solid %@; ",
+                          gBorder,
+                          gDarkModeTableBorderColor];
+    [qlHtml appendString: @"table-layout: fixed; overflow-y: auto;"];
+    [qlHtml appendString:
+        @"border-collapse: separate; border-spacing: 0; }\n"];
+    
+    /* set the darkmode colors for the even rows of the table */
+    
+    [qlHtml appendFormat:
+        @"tr:nth-child(even) { background-color: %@ ; color: %@; }\n",
+        gDarkModeTableRowEvenBackgroundColor,
+        gDarkModeTableRowEvenForegroundColor];
+
+    /* disable internal borders for table cells */
+    
+    [qlHtml appendString: @"td { border: none; z-index: 1; }\n"];
+
+    /*
+        add a bottom border for the header row items only, to better
+        match the BigSur finder, and make the header fixed.
+        based on:
+            https://www.w3docs.com/snippets/html/how-to-create-a-table-with-a-fixed-header-and-scrollable-body.html
+     */
+    
+    [qlHtml appendFormat: @"th { border-bottom: %dpx solid %@; ",
+                          gBorder,
+                          gDarkModeTableHeaderBorderColor];
+    [qlHtml appendString: @" position: sticky; position: -webkit-sticky; "];
+    [qlHtml appendFormat: @"top: 0; z-index: 3; background-color: %@ ;}\n",
+                          gDarkModeBackground];
+    
+    /* close darkmode styles */
+    
+    [qlHtml appendString: @"}\n"];
+
+    /* light mode styles */
+    
+    [qlHtml appendString:
+        @"@media (prefers-color-scheme: light) { "];
+    
+    /* light mode background and foreground colors */
+    
+    [qlHtml appendFormat:
+        @"body { background-color: %@; color: %@; }\n",
+        gLightModeBackground,
+        gLightModeForeground];
+
+    /*
+        put a border around the table only
+        based on: https://stackoverflow.com/questions/10131729/removing-border-from-table-cell
+     */
+
+    [qlHtml appendFormat: @"table { width: 100%%; border: %dpx solid %@; ",
+                          gBorder,
+                          gLightModeTableBorderColor];
+    [qlHtml appendString: @"table-layout: fixed; overflow-y: auto;"];
+    [qlHtml appendString:
+        @"border-collapse: separate; border-spacing: 0; }\n"];
+
+    /* no internal borders */
+    
+    [qlHtml appendString: @"td { border: none; }\n"];
+
+    /* make the header sticky */
+
+    [qlHtml appendFormat: @"th { border-bottom: %dpx solid %@; ",
+                          gBorder,
+                          gLightModeTableHeaderBorderColor];
+    [qlHtml appendString: @" position: sticky; position: -webkit-sticky; "];
+    [qlHtml appendFormat: @"top: 0; z-index: 3; background-color: %@ ;}\n",
+                          gLightModeBackground];
+
+    /* colors for the even rows */
+    
+    [qlHtml appendFormat:
+        @"tr:nth-child(even) { background-color: %@ ; color: %@; }\n",
+        gLightModeTableRowEvenBackgroundColor,
+        gLightModeTableRowEvenForegroundColor];
+    
+    /* close light mode styles */
+    
+    [qlHtml appendString: @"}\n"];
+
+    /*
+        style for preventing wrapping in table cells, based on:
+        https://stackoverflow.com/questions/300220/how-to-prevent-text-in-a-table-cell-from-wrapping
+     */
+
+    [qlHtml appendString: @".nowrap { white-space: nowrap; }\n"];
+    
+    /* close the style sheet */
+    
+    [qlHtml appendString: @"</style>\n"];
+    
+    /* close the html header */
+    
+    [qlHtml appendString: @"</head>\n"];
+
+    return true;
+}
+
+/* formatOutputHeader - start the output body */
+
+static bool startOutputBody(NSMutableString *qlHtml)
+{
+    if (qlHtml == nil) {
+        return false;
+    }
+    
+    [qlHtml appendFormat: @"<body>\n"];
+    [qlHtml appendFormat: @"<font face=\"%@\">\n", gFontFace];
+
+    return true;
+}
+
+static bool endOutputBody(NSMutableString *qlHtml)
+{
+    if (qlHtml == nil) {
+        return false;
+    }
+    
+    [qlHtml appendString: @"</font>\n</body>\n</html>\n"];
+
+    return true;
+}
+
+/*  getGZExpandedFileSize - get a gzip'ed file's expanded file size */
+
+static off_t getGZExpandedFileSize(const char *zipFileNameStr)
+{
+    FILE *gzFile = NULL;
+    UInt8 gzCompressedSize[4];
+    off_t gzExpandedFileSize = 0;
+
+    if (zipFileNameStr == NULL)
+    {
+        return gzExpandedFileSize;
+    }
+
+    /* open the file for reading */
+    
+    gzFile = fopen(zipFileNameStr, "r");
+    if (gzFile == NULL)
+    {
+        return gzExpandedFileSize;
+    }
+    
+    memset(gzCompressedSize, 0, 4);
+
+    /* go to last 4 bytes of the file */
+    
+    if (fseek(gzFile, -4, SEEK_END) != 0)
+    {
+        fclose(gzFile);
+        return gzExpandedFileSize;
+    }
+
+    /*
+        read the last 4 bytes and convert them to the uncompressed
+        file size (which might be wrong for files greater than 4GB),
+        see:
+
+        http://www.abeel.be/content/determine-uncompressed-size-gzip-file
+        https://stackoverflow.com/questions/9209138/uncompressed-file-size-using-zlibs-gzip-file-access-function
+     */
+    
+    if (fread(gzCompressedSize, 1 , 4, gzFile) == 4)
+    {
+        gzExpandedFileSize =
+            (gzCompressedSize[3] << 24) |
+            (gzCompressedSize[2] << 16) |
+            (gzCompressedSize[1] <<  8) +
+            gzCompressedSize[0];
+    }
+        
+    fclose(gzFile);
+
+    return gzExpandedFileSize;
 }
 
 /* getFileSizeSpec - return a string corresponding to the size of the file */
