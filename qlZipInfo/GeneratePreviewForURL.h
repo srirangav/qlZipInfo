@@ -1,9 +1,9 @@
 /*
-    qlZipInfo_constants.h - constants for qlZipInfo
+ GeneratePreviewForURL.h - constants for qlZipInfo
  
     History:
  
-    v. 0.1.0 (07/21/2021) - initial reelease
+    v. 0.1.0 (07/22/2021) - initial reelease
  
     Copyright (c) 2021 Sriranga R. Veeraraghavan <ranga@calalum.org>
  
@@ -27,8 +27,8 @@
     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef qlZipInfo_constants_h
-#define qlZipInfo_constants_h
+#ifndef generate_preview_for_url_h
+#define generate_preview_for_url_h
 
 /* constants */
 
@@ -147,4 +147,4 @@ static bool formatOutputHeader(NSMutableString *qlHtml);
 static bool startOutputBody(NSMutableString *qlHtml);
 static bool endOutputBody(NSMutableString *qlHtml);
 
-#endif /* qlZipInfo_constants_h */
+#endif /* generate_preview_for_url_h */

@@ -1,5 +1,5 @@
 /*
-    GeneratePreviewForURL - generate a preview of a zip file
+    GeneratePreviewForURL.m - preview generation for archives
  
     History:
  
@@ -26,6 +26,7 @@
                             debian (.deb) archives
     v. 0.2.3 (07/21/2021) - add support for indiviudal files that are
                             gzip'ed
+    v. 0.2.4 (07/22/2021) - modularize preview generation
  
     Copyright (c) 2015-2021 Sriranga R. Veeraraghavan <ranga@calalum.org>
  
@@ -48,9 +49,6 @@
     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
-//@import Foundation;
-//@import AppKit;
 
 #import <CoreFoundation/CoreFoundation.h>
 #import <CoreServices/CoreServices.h>
