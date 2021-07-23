@@ -499,9 +499,9 @@
 				26CA45E51B84624200B08F29 /* minizip */,
 				26909ED3267B374C000272C5 /* libarchive */,
 				26BC4AAF26807928005C136F /* lzma */,
-				26CA45D81B8461BA00B08F29 /* GenerateThumbnailForURL.m */,
-				26CA45DA1B8461BA00B08F29 /* GeneratePreviewForURL.m */,
 				261D47E126A94A0800028CA3 /* GeneratePreviewForURL.h */,
+				26CA45DA1B8461BA00B08F29 /* GeneratePreviewForURL.m */,
+				26CA45D81B8461BA00B08F29 /* GenerateThumbnailForURL.m */,
 				26CA45DC1B8461BA00B08F29 /* main.c */,
 				26CA45D61B8461BA00B08F29 /* Supporting Files */,
 			);

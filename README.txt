@@ -25,7 +25,12 @@ Overview:
     A folder icon is shown for folders / directories, a file
     icon is shown for regular files, and a lock icon is shown
     for encypted files.
-
+    
+    After listing information for all the files in an archive,
+    a summary rows is shown with the number of files in the
+    archive, the archive's total uncompressed size, the
+    archive's total compressed size and the % compression.
+    
 Install:
 
     1. Create the directory ~/Library/QuickLook if it doesn't 
@@ -45,7 +50,8 @@ Supported MacOSX versions:
 
 History:
 
-    v1.1.4  - modularize preview generation
+    v1.1.4  - modularize preview generation, add total
+              compressed size to the summary row
     v1.1.3  - add support for Microsoft CAB files (Install-
               Sheild CAB files have a different format and
               aren't supported yet) and gzip'ed archives of

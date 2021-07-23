@@ -68,7 +68,7 @@
 
 /* public functions */
 
-/* GeneratePreviewForURL - generate a zip file's preview */
+/* GeneratePreviewForURL - generate an archives preview */
 
 OSStatus GeneratePreviewForURL(void *thisInterface,
                                QLPreviewRequestRef preview,
@@ -98,12 +98,12 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     off_t totalSize = 0;
     off_t totalCompressedSize = 0;
     off_t fileCompressedSize = 0;
-    Float64 compression = 0;
     bool isFolder = FALSE;
     bool isGZFile = false;
     fileSizeSpec_t fileSizeSpecInZip;
 
-    if (url == NULL) {
+    if (url == NULL)
+    {
         fprintf(stderr, "qlZipInfo: ERROR: url is null\n");
         return zipQLFailed;
     }
@@ -113,7 +113,8 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     zipFileName =
         (CFMutableStringRef)CFURLCopyFileSystemPath(url,
                                                     kCFURLPOSIXPathStyle);
-    if (zipFileName == NULL) {
+    if (zipFileName == NULL)
+    {
         fprintf(stderr, "qlZipInfo: ERROR: file name is null\n");
         return zipQLFailed;
     }
@@ -124,9 +125,11 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     /* covert the file system path to a c string */
     
-    zipFileNameStr = CFStringGetCStringPtr(zipFileName,
-                                           kCFStringEncodingUTF8);
-    if (zipFileNameStr == NULL) {
+    zipFileNameStr =
+        CFStringGetCStringPtr(zipFileName, kCFStringEncodingUTF8);
+    
+    if (zipFileNameStr == NULL)
+    {
         
         /*
             if CFStringGetCStringPtr returns NULL, try to get the
@@ -150,7 +153,8 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     /*  exit if the user canceled the preview */
     
-    if (QLPreviewRequestIsCancelled(preview)) {
+    if (QLPreviewRequestIsCancelled(preview))
+    {
         return noErr;
     }
 
@@ -171,6 +175,8 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     setlocale (LC_ALL, [localeString UTF8String]);
 
+    /* initialize the archive object with the supported archive types */
+    
     a = archive_read_new();
 
     archive_read_support_filter_compress(a);
@@ -188,8 +194,12 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     archive_read_support_format_7zip(a);
     archive_read_support_format_cab(a);
     
+    /* open the archive for reading */
+    
     r = archive_read_open_filename(a, zipFileNameStr, 10240);
     
+    /* return an error if the file couldn't be opened */
+
     if (r != ARCHIVE_OK)
     {
         fprintf(stderr,
@@ -204,20 +214,23 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
     if (r == zipQLFailed)
     {
-        if (CFEqual(contentTypeUTI,gUTIGZip) != true)
+        /* if this is a gzip'ed file, re-try opening in raw mode */
+
+        if (CFEqual(contentTypeUTI, gUTIGZip) != true)
         {
             return r;
         }
         
-        /* this is a gzip'ed file, re-try opening in raw mode */
-
         isGZFile = true;
+        
         a = archive_read_new();
         archive_read_support_format_raw(a);
         archive_read_support_filter_gzip(a);
 
         r = archive_read_open_filename(a, zipFileNameStr, 10240);
 
+        /* return an error if the gzip'ed couldn't be opened */
+        
         if (r != ARCHIVE_OK)
         {
             fprintf(stderr,
@@ -242,9 +255,9 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
     qlHtmlProps = [[NSMutableDictionary alloc] init];
     [qlHtmlProps setObject: @"UTF-8"
-                forKey: (NSString *)kQLPreviewPropertyTextEncodingNameKey];
+                 forKey: (NSString *)kQLPreviewPropertyTextEncodingNameKey];
     [qlHtmlProps setObject: @"text/html"
-                forKey: (NSString*)kQLPreviewPropertyMIMETypeKey];
+                 forKey: (NSString*)kQLPreviewPropertyMIMETypeKey];
     
     qlHtml = [[NSMutableString alloc] init];
 
@@ -262,7 +275,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
      */
 
     [qlHtml appendFormat: @"<table align=\"center\" cellpadding=\"%d\">\n",
-                           (gColPadding/2)];
+                          (gColPadding/2)];
     [qlHtml appendFormat: @"<colgroup width=\"%d\" />\n",
                           (gColFileType + gColPadding)];
     [qlHtml appendFormat: @"<colgroup width=\"%d\" />\n",
@@ -538,20 +551,21 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
   
     /*
         start the summary row for the zip file -
-        [total size] [blank] [ no. of files]
+        [# files] [expanded size / compressed size] [% compression]
      */
 
-    [qlHtml appendString: @"<tbody>\n"];
-    [qlHtml appendFormat: @"<tr class=\"border-top\" ;\">"];
+    [qlHtml appendString: @"<tbody>\n<tr>\n"];
     
     /* print out the total number of files in the zip file */
 
     fileCount = archive_file_count(a);
-    
-    [qlHtml appendFormat:
-        @"<td align=\"center\" colspan=\"2\">%lu item%s</td>\n",
-        fileCount,
-        (fileCount > 1 ? "s" : "")];
+
+    [qlHtml appendString:
+        @"<td align=\"center\" colspan=\"2\" class=\"border-top\">"];
+
+    [qlHtml appendFormat: @"%lu item%s</td>\n",
+                          fileCount,
+                          (fileCount > 1 ? "s" : "")];
     
     /* clear the file size spec */
     
@@ -563,33 +577,48 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                     &fileSizeSpecInZip);
 
     /* print out the zip file's total size in B, K, M, G, or T */
-    
-    [qlHtml appendFormat:
-            @"<td align=\"right\">%-.1f %-1s</td>",
-            fileSizeSpecInZip.size,
-            fileSizeSpecInZip.spec];
+
+    [qlHtml appendString:
+        @"<td align=\"right\" colspan=\"3\" class=\"border-top\">"];
+    [qlHtml appendFormat: @"%-.1f&nbsp;%-1s",
+                          fileSizeSpecInZip.size,
+                          fileSizeSpecInZip.spec];
 
     if (stat(zipFileNameStr, &fileStats) == 0)
     {
         totalCompressedSize = fileStats.st_size;
-    }
+
+        if (totalCompressedSize > 0)
+        {
+            /* clear the file size spec */
+        
+            memset(&fileSizeSpecInZip, 0, sizeof(fileSizeSpec_t));
+            
+            /* get the file's total uncompressed size spec */
+        
+            getFileSizeSpec(totalCompressedSize,
+                            &fileSizeSpecInZip);
     
+            [qlHtml appendFormat: @" / %-.1f&nbsp;%-1s",
+                                  fileSizeSpecInZip.size,
+                                  fileSizeSpecInZip.spec];            
+        }
+    }
+        
     /* print out the % compression for the whole zip file */
 
-    if (totalSize > 0 && totalCompressedSize > 0) {
-        compression = getCompression(totalSize,
-                                     totalCompressedSize);
-        [qlHtml appendFormat:
-                @"<td align=\"right\">(%3.0f%%)</td>",
-                compression];
-    } else {
-        [qlHtml appendString:
-                @"<td align=\"right\"><pre>&nbsp;</pre></td>"];
+    if (totalSize > 0 && totalCompressedSize > 0)
+    {
+        [qlHtml appendFormat: @" (%3.0f%%)",
+                              getCompression(totalSize,
+                                             totalCompressedSize)];
     }
     
+    [qlHtml appendString: @"</td>"];
+    
     [qlHtml appendString:
-            @"<td align=\"right\" colspan=\"2\"><pre>&nbsp;</pre></td>"];
-        
+        @"<td class=\"border-top\"><pre>&nbsp;</pre></td>\n"];
+
     /* close the summary row */
     
     [qlHtml appendString:@"</tr>\n"];
@@ -611,6 +640,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                                                 NSUTF8StringEncoding],
                                           kUTTypeHTML,
                                           (__bridge CFDictionaryRef)qlHtmlProps);
+    
     return (zipErr == 0 ? noErr : zipQLFailed);
 }
 
@@ -647,8 +677,7 @@ static bool formatOutputHeader(NSMutableString *qlHtml)
 
     /* darkmode styles */
     
-    [qlHtml appendString:
-        @"@media (prefers-color-scheme: dark) { "];
+    [qlHtml appendString: @"@media (prefers-color-scheme: dark) { "];
 
     /* set darkmode background and foreground colors */
     
@@ -682,10 +711,6 @@ static bool formatOutputHeader(NSMutableString *qlHtml)
         gDarkModeTableRowEvenBackgroundColor,
         gDarkModeTableRowEvenForegroundColor];
 
-    /* disable internal borders for table cells */
-    
-    [qlHtml appendString: @"td { border: none; z-index: 1; }\n"];
-
     /*
         add a bottom border for the header row items only, to better
         match the BigSur finder, and make the header fixed.
@@ -699,7 +724,18 @@ static bool formatOutputHeader(NSMutableString *qlHtml)
     [qlHtml appendString: @" position: sticky; position: -webkit-sticky; "];
     [qlHtml appendFormat: @"top: 0; z-index: 3; background-color: %@ ;}\n",
                           gDarkModeBackground];
+
+    /* disable internal borders for table cells */
     
+    [qlHtml appendString: @"td { border: none; z-index: 1; }\n"];
+
+    /* top border for table cells in the summary row */
+    
+    [qlHtml appendFormat:
+            @"td.border-top { border-top: %dpx solid %@; }\n",
+            gBorder,
+            gDarkModeTableHeaderBorderColor];
+
     /* close darkmode styles */
     
     [qlHtml appendString: @"}\n"];
@@ -728,10 +764,6 @@ static bool formatOutputHeader(NSMutableString *qlHtml)
     [qlHtml appendString:
         @"border-collapse: separate; border-spacing: 0; }\n"];
 
-    /* no internal borders */
-    
-    [qlHtml appendString: @"td { border: none; }\n"];
-
     /* make the header sticky */
 
     [qlHtml appendFormat: @"th { border-bottom: %dpx solid %@; ",
@@ -747,7 +779,18 @@ static bool formatOutputHeader(NSMutableString *qlHtml)
         @"tr:nth-child(even) { background-color: %@ ; color: %@; }\n",
         gLightModeTableRowEvenBackgroundColor,
         gLightModeTableRowEvenForegroundColor];
+
+    /* no internal borders */
     
+    [qlHtml appendString: @"td { border: none; z-index: 1; }\n"];
+
+    /* top border for table cells in the summary row */
+
+    [qlHtml appendFormat:
+            @"td.border-top { border-top: %dpx solid %@; }\n",
+            gBorder,
+            gLightModeTableHeaderBorderColor];
+
     /* close light mode styles */
     
     [qlHtml appendString: @"}\n"];
@@ -857,7 +900,8 @@ static int getFileSizeSpec(off_t fileSizeInBytes,
     Float64 fileSize = 0.0;
     int err = -1;
     
-    if (fileSpec == NULL) {
+    if (fileSpec == NULL)
+    {
         return err;
     }
 
@@ -867,7 +911,8 @@ static int getFileSizeSpec(off_t fileSizeInBytes,
     
     /* print the file size in B, KB, MB, GB, or TB */
     
-    if (fileSizeInBytes < 100) {
+    if (fileSizeInBytes < 100)
+    {
         snprintf(fileSpec->spec, 3, "%s", gFileSizeBytes);
         fileSpec->size = (Float64)fileSizeInBytes;
         return err;
@@ -875,7 +920,8 @@ static int getFileSizeSpec(off_t fileSizeInBytes,
     
     fileSize = (Float64)fileSizeInBytes / 1000.0;
     
-    if (fileSize < 1000.0) {
+    if (fileSize < 1000.0)
+    {
         snprintf(fileSpec->spec, 3, "%s", gFileSizeKiloBytes);
         fileSpec->size = fileSize;
         return err;
@@ -883,7 +929,8 @@ static int getFileSizeSpec(off_t fileSizeInBytes,
 
     fileSize /= 1000.0;
 
-    if (fileSize < 1000.0) {
+    if (fileSize < 1000.0)
+    {
         snprintf(fileSpec->spec, 3, "%s", gFileSizeMegaBytes);
         fileSpec->size = fileSize;
         return err;
@@ -891,7 +938,8 @@ static int getFileSizeSpec(off_t fileSizeInBytes,
 
     fileSize /= 1000.0;
     
-    if (fileSize < 1000.0) {
+    if (fileSize < 1000.0)
+    {
         snprintf(fileSpec->spec, 3, "%s", gFileSizeGigaBytes);
         fileSpec->size = fileSize;
         return err;
@@ -899,6 +947,7 @@ static int getFileSizeSpec(off_t fileSizeInBytes,
 
     snprintf(fileSpec->spec, 3, "%s", gFileSizeTeraBytes);
     fileSpec->size = fileSize;
+    
     return err;
 }
 
@@ -912,7 +961,8 @@ static float getCompression(off_t uncompressedSize,
     if (uncompressedSize > 0)
     {
         compression = uncompressedSize / (Float64)(compressedSize);
-        if (compression >= 1.0) {
+        if (compression >= 1.0)
+        {
             compression = 1.0 / compression;
         }
         compression = 100.0 * (1.0 - compression);
