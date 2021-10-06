@@ -48,6 +48,16 @@ Supported MacOSX versions:
     v. 1.0.9 onwards     - 10.9+
     v. 1.0.8 and earlier - 10.6+
 
+Known Issues:
+
+    1. If WinZip is installed (for example, as part of Roxio Toast), 
+       this quicklook generator will not produce a preview for zip 
+       files because Quicklook always prefers generators that are 
+       included in an application and there is no way to override 
+       this behavior without editing WinZip.  See:
+
+       https://stackoverflow.com/questions/11705425/prefer-my-quicklook-plugin
+
 History:
 
     v1.1.4  - modularize preview generation, add total
@@ -87,3 +97,4 @@ History:
 License:
 
     Please see LICENSE.txt
+
