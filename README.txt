@@ -1,7 +1,7 @@
 README
 ------
 
-qlZipInfo v1.1.4
+qlZipInfo v1.1.5
 By Sriranga Veeraraghavan <ranga@calalum.org>
 
 Homepage:
@@ -60,6 +60,7 @@ Known Issues:
 
 History:
 
+    v1.1.5  - upgrade to libarchive v.3.5.2
     v1.1.4  - modularize preview generation, add total
               compressed size to the summary row
     v1.1.3  - add support for Microsoft CAB files (Install-
@@ -97,4 +98,3 @@ History:
 License:
 
     Please see LICENSE.txt
-

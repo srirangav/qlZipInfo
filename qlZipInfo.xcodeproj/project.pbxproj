@@ -140,6 +140,12 @@
 		261EB60D22DD6C5100B38AE0 /* minishared.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = minishared.c; sourceTree = "<group>"; };
 		26314C5B267DEE0600F17EF9 /* liblzma.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = liblzma.tbd; path = usr/lib/liblzma.tbd; sourceTree = SDKROOT; };
 		26314C5D267DF1E100F17EF9 /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
+		265F0DD32726B12E00713E91 /* libarchive-3.5.1.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; name = "libarchive-3.5.1.tar.gz"; path = "Sources/libarchive-3.5.1.tar.gz"; sourceTree = "<group>"; };
+		265F0DD42726B12E00713E91 /* libarchive-3.5.1.tar.gz.asc */ = {isa = PBXFileReference; lastKnownFileType = text; name = "libarchive-3.5.1.tar.gz.asc"; path = "Sources/libarchive-3.5.1.tar.gz.asc"; sourceTree = "<group>"; };
+		265F0DD52726B12E00713E91 /* google-toolbox-for-mac-2.3.1.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = "google-toolbox-for-mac-2.3.1.zip"; path = "Sources/google-toolbox-for-mac-2.3.1.zip"; sourceTree = "<group>"; };
+		265F0DD62726B12E00713E91 /* libarchive-3.5.2.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; name = "libarchive-3.5.2.tar.gz"; path = "Sources/libarchive-3.5.2.tar.gz"; sourceTree = "<group>"; };
+		265F0DD72726B12E00713E91 /* xz-5.2.4.tar.xz */ = {isa = PBXFileReference; lastKnownFileType = file; name = "xz-5.2.4.tar.xz"; path = "Sources/xz-5.2.4.tar.xz"; sourceTree = "<group>"; };
+		265F0DD82726B12E00713E91 /* libarchive-3.5.2.tar.gz.asc */ = {isa = PBXFileReference; lastKnownFileType = text; name = "libarchive-3.5.2.tar.gz.asc"; path = "Sources/libarchive-3.5.2.tar.gz.asc"; sourceTree = "<group>"; };
 		26909ED4267B374C000272C5 /* archive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = archive.h; sourceTree = "<group>"; };
 		26909ED6267B3797000272C5 /* archive_read.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = archive_read.c; sourceTree = "<group>"; };
 		26909ED8267B37BB000272C5 /* archive_platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = archive_platform.h; sourceTree = "<group>"; };
@@ -535,6 +541,12 @@
 			children = (
 				26EE1BCD20B695D40023D0C3 /* google-toolbox-for-mac-1.6.0.zip */,
 				26EE1BCE20B695D40023D0C3 /* google-toolbox-for-mac-2.1.4.zip */,
+				265F0DD52726B12E00713E91 /* google-toolbox-for-mac-2.3.1.zip */,
+				265F0DD32726B12E00713E91 /* libarchive-3.5.1.tar.gz */,
+				265F0DD42726B12E00713E91 /* libarchive-3.5.1.tar.gz.asc */,
+				265F0DD62726B12E00713E91 /* libarchive-3.5.2.tar.gz */,
+				265F0DD82726B12E00713E91 /* libarchive-3.5.2.tar.gz.asc */,
+				265F0DD72726B12E00713E91 /* xz-5.2.4.tar.xz */,
 				26CA45FA1B86991600B08F29 /* unzip11.zip */,
 				26EE1BD120B699EA0023D0C3 /* zlib-1.2.11.tar.gz */,
 			);
@@ -868,7 +880,7 @@
 				INFOPLIST_FILE = qlZipInfo/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 1.1.4;
+				MARKETING_VERSION = 1.1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.calalum.ranga.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -887,7 +899,7 @@
 				INFOPLIST_FILE = qlZipInfo/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 1.1.4;
+				MARKETING_VERSION = 1.1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.calalum.ranga.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

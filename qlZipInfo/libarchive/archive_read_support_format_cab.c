@@ -1465,7 +1465,7 @@ cab_read_ahead_cfdata_deflate(struct archive_read *a, ssize_t *avail)
 		cab->stream.next_out =
 		    cab->uncompressed_buffer + cab->stream.total_out;
 		cab->stream.avail_out =
-		    (unsigned int)(cfdata->uncompressed_size - cab->stream.total_out);
+		    (uint)(cfdata->uncompressed_size - cab->stream.total_out);
 
 		d = __archive_read_ahead(a, 1, &bytes_avail);
 		if (bytes_avail <= 0) {
@@ -2110,7 +2110,6 @@ lzx_decode_init(struct lzx_stream *strm, int w_bits)
 		ds->pos_tbl = malloc(sizeof(ds->pos_tbl[0]) * w_slot);
 		if (ds->pos_tbl == NULL)
 			return (ARCHIVE_FATAL);
-		lzx_huffman_free(&(ds->mt));
 	}
 
 	for (footer = 0; footer < 18; footer++)

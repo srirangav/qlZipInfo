@@ -631,8 +631,8 @@ static int run_arm_filter(struct rar5* rar, struct filter_info* flt) {
 		if(*b == 0xEB) {
 			/* 0xEB = ARM's BL (branch + link) instruction. */
 			offset = read_filter_data(rar,
-			    (rar->cstate.solid_offset + flt->block_start + i) &
-			     (unsigned int)rar->cstate.window_mask) & 0x00ffffff;
+			    (uint32_t)((rar->cstate.solid_offset + flt->block_start + i) &
+			     rar->cstate.window_mask) & 0x00ffffff);
 
 			offset -= (uint32_t) ((i + flt->block_start) / 4);
 			offset = (offset & 0x00ffffff) | 0xeb000000;
@@ -2243,11 +2243,11 @@ static int process_base_block(struct archive_read* a,
 
 #if !defined WIN32
 	// Not reached.
-    /*
+/*
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,
 	    "Internal unpacker error");
 	return ARCHIVE_FATAL;
-     */
+*/
 #endif
 }
 
@@ -2344,7 +2344,7 @@ static void update_crc(struct rar5* rar, const uint8_t* p, size_t to_read) {
 		 * `stored_crc32` info filled in. */
 		if(rar->file.stored_crc32 > 0) {
 			rar->file.calculated_crc32 =
-            (unsigned int)crc32(rar->file.calculated_crc32, p, (unsigned int)to_read);
+				(uint)crc32(rar->file.calculated_crc32, p, (uint)to_read);
 		}
 
 		/* Check if the file uses an optional BLAKE2sp checksum
@@ -4078,6 +4078,7 @@ int archive_read_support_format_rar5(struct archive *_a) {
 	if(ARCHIVE_OK != rar5_init(rar)) {
 		archive_set_error(&ar->archive, ENOMEM,
 		    "Can't allocate rar5 filter buffer");
+		free(rar);
 		return ARCHIVE_FATAL;
 	}
 

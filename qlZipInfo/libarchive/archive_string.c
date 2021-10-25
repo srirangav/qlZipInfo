@@ -3014,7 +3014,7 @@ archive_string_normalize_C(struct archive_string *as, const void *_p,
 		while ((n2 = parse(&uc2, s, len)) > 0) {
 			uint32_t ucx[FDC_MAX];
 			int ccx[FDC_MAX];
-            int cl, cx, i, nx = 0, ucx_size;
+			int cl, cx, i, nx=0, ucx_size;
 			int LIndex,SIndex;
 			uint32_t nfc;
 

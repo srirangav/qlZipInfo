@@ -386,14 +386,14 @@ set_acl(struct archive *a, int fd, const char *name,
 
 		switch (ae_tag) {
 		case ARCHIVE_ENTRY_ACL_USER:
-			ae_uid = (unsigned int)archive_write_disk_uid(a, ae_name, ae_id);
+			ae_uid = (uid_t)archive_write_disk_uid(a, ae_name, ae_id);
 			if (mbr_uid_to_uuid(ae_uid, ae_uuid) != 0)
 				continue;
 			if (acl_set_qualifier(acl_entry, &ae_uuid) != 0)
 				continue;
 			break;
 		case ARCHIVE_ENTRY_ACL_GROUP:
-			ae_gid = (unsigned int)archive_write_disk_gid(a, ae_name, ae_id);
+			ae_gid = (gid_t)archive_write_disk_gid(a, ae_name, ae_id);
 			if (mbr_gid_to_uuid(ae_gid, ae_uuid) != 0)
 				continue;
 			if (acl_set_qualifier(acl_entry, &ae_uuid) != 0)

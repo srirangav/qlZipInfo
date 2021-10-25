@@ -360,7 +360,7 @@ static int	la_mktemp(struct archive_write_disk *);
 static void	fsobj_error(int *, struct archive_string *, int, const char *,
 		    const char *);
 static int	check_symlinks_fsobj(char *, int *, struct archive_string *,
-		    int);
+		    int, int);
 static int	check_symlinks(struct archive_write_disk *);
 static int	create_filesystem_object(struct archive_write_disk *);
 static struct fixup_entry *current_fixup(struct archive_write_disk *,
@@ -1299,9 +1299,9 @@ hfs_drive_compressor(struct archive_write_disk *a, const char *buff,
 	buffer_compressed = a->compressed_buffer +
 	    a->compressed_buffer_size - a->compressed_buffer_remaining;
 	a->stream.next_in = (Bytef *)(uintptr_t)(const void *)buff;
-	a->stream.avail_in = (unsigned int)size;
+	a->stream.avail_in = (uint)size;
 	a->stream.next_out = buffer_compressed;
-	a->stream.avail_out = (unsigned int)a->compressed_buffer_remaining;
+	a->stream.avail_out = (uint)a->compressed_buffer_remaining;
 	do {
 		ret = deflate(&a->stream, Z_FINISH);
 		switch (ret) {
@@ -1355,7 +1355,7 @@ hfs_drive_compressor(struct archive_write_disk *a, const char *buff,
 	/* Update block info. */
 	archive_le32enc(a->decmpfs_block_info++,
 	    a->compressed_rsrc_position_v - RSRC_H_SIZE);
-	archive_le32enc(a->decmpfs_block_info++, (unsigned int)bytes_compressed);
+	archive_le32enc(a->decmpfs_block_info++, (uint32_t)bytes_compressed);
 	a->compressed_rsrc_position_v += bytes_compressed;
 
 	/*
@@ -1452,7 +1452,7 @@ hfs_write_decmpfs_block(struct archive_write_disk *a, const char *buff,
 
 		/* Calculate a block count of the file. */
 		block_count =
-            (unsigned int)((a->filesize + MAX_DECMPFS_BLOCK_SIZE -1) /
+		    (uint)((a->filesize + MAX_DECMPFS_BLOCK_SIZE -1) /
 			MAX_DECMPFS_BLOCK_SIZE);
 		/*
 		 * Allocate buffer for resource fork.
@@ -2263,7 +2263,7 @@ create_filesystem_object(struct archive_write_disk *a)
 			return (EPERM);
 		}
 		r = check_symlinks_fsobj(linkname_copy, &error_number,
-		    &error_string, a->flags);
+		    &error_string, a->flags, 1);
 		if (r != ARCHIVE_OK) {
 			archive_set_error(&a->archive, error_number, "%s",
 			    error_string.s);
@@ -2284,7 +2284,12 @@ create_filesystem_object(struct archive_write_disk *a)
 		 */
 		if (a->flags & ARCHIVE_EXTRACT_SAFE_WRITES)
 			unlink(a->name);
+#ifdef HAVE_LINKAT
+		r = linkat(AT_FDCWD, linkname, AT_FDCWD, a->name,
+		    0) ? errno : 0;
+#else
 		r = link(linkname, a->name) ? errno : 0;
+#endif
 		/*
 		 * New cpio and pax formats allow hardlink entries
 		 * to carry data, so we may have to open the file
@@ -2456,6 +2461,7 @@ _archive_write_disk_close(struct archive *_a)
 {
 	struct archive_write_disk *a = (struct archive_write_disk *)_a;
 	struct fixup_entry *next, *p;
+	struct stat st;
 	int fd, ret;
 
 	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
@@ -2473,6 +2479,20 @@ _archive_write_disk_close(struct archive *_a)
 		    (TODO_TIMES | TODO_MODE_BASE | TODO_ACLS | TODO_FFLAGS)) {
 			fd = open(p->name,
 			    O_WRONLY | O_BINARY | O_NOFOLLOW | O_CLOEXEC);
+			if (fd == -1) {
+				/* If we cannot lstat, skip entry */
+				if (lstat(p->name, &st) != 0)
+					goto skip_fixup_entry;
+				/*
+				 * If we deal with a symbolic link, mark
+				 * it in the fixup mode to ensure no
+				 * modifications are made to its target.
+				 */
+				if (S_ISLNK(st.st_mode)) {
+					p->mode &= ~S_IFMT;
+					p->mode |= S_IFLNK;
+				}
+			}
 		}
 		if (p->fixup & TODO_TIMES) {
 			set_times(a, fd, p->mode, p->name,
@@ -2487,7 +2507,12 @@ _archive_write_disk_close(struct archive *_a)
 				fchmod(fd, p->mode);
 			else
 #endif
-			chmod(p->name, p->mode);
+#ifdef HAVE_LCHMOD
+			lchmod(p->name, p->mode);
+#else
+			if (!S_ISLNK(p->mode))
+				chmod(p->name, p->mode);
+#endif
 		}
 		if (p->fixup & TODO_ACLS)
 			archive_write_disk_set_acls(&a->archive, fd,
@@ -2498,6 +2523,7 @@ _archive_write_disk_close(struct archive *_a)
 		if (p->fixup & TODO_MAC_METADATA)
 			set_mac_metadata(a, p->name, p->mac_metadata,
 					 p->mac_metadata_size);
+skip_fixup_entry:
 		next = p->next;
 		archive_acl_clear(&p->acl);
 		free(p->mac_metadata);
@@ -2638,6 +2664,7 @@ new_fixup(struct archive_write_disk *a, const char *pathname)
 	fe->next = a->fixup_list;
 	a->fixup_list = fe;
 	fe->fixup = 0;
+	fe->mode = 0;
 	fe->name = strdup(pathname);
 	return (fe);
 }
@@ -2675,7 +2702,7 @@ fsobj_error(int *a_eno, struct archive_string *a_estr,
  */
 static int
 check_symlinks_fsobj(char *path, int *a_eno, struct archive_string *a_estr,
-    int flags)
+    int flags, int checking_linkname)
 {
 #if !defined(HAVE_LSTAT) && \
     !(defined(HAVE_OPENAT) && defined(HAVE_FSTATAT) && defined(HAVE_UNLINKAT))
@@ -2684,6 +2711,7 @@ check_symlinks_fsobj(char *path, int *a_eno, struct archive_string *a_estr,
 	(void)error_number; /* UNUSED */
 	(void)error_string; /* UNUSED */
 	(void)flags; /* UNUSED */
+	(void)checking_linkname; /* UNUSED */
 	return (ARCHIVE_OK);
 #else
 	int res = ARCHIVE_OK;
@@ -2805,6 +2833,28 @@ check_symlinks_fsobj(char *path, int *a_eno, struct archive_string *a_estr,
 				head = tail + 1;
 			}
 		} else if (S_ISLNK(st.st_mode)) {
+			if (last && checking_linkname) {
+#ifdef HAVE_LINKAT
+				/*
+				 * Hardlinks to symlinks are safe to write
+				 * if linkat() is supported as it does not
+				 * follow symlinks.
+				 */
+				res = ARCHIVE_OK;
+#else
+				/*
+				 * We return ARCHIVE_FAILED here as we are
+				 * not able to safely write hardlinks
+				 * to symlinks.
+				 */
+				tail[0] = c;
+				fsobj_error(a_eno, a_estr, errno,
+				    "Cannot write hardlink to symlink ",
+				    path);
+				res = ARCHIVE_FAILED;
+#endif
+				break;
+			} else
 			if (last) {
 				/*
 				 * Last element is symlink; remove it
@@ -2971,7 +3021,7 @@ check_symlinks(struct archive_write_disk *a)
 	int rc;
 	archive_string_init(&error_string);
 	rc = check_symlinks_fsobj(a->name, &error_number, &error_string,
-	    a->flags);
+	    a->flags, 0);
 	if (rc != ARCHIVE_OK) {
 		archive_set_error(&a->archive, error_number, "%s",
 		    error_string.s);
@@ -3325,9 +3375,7 @@ set_ownership(struct archive_write_disk *a)
 
 #ifdef HAVE_FCHOWN
 	/* If we have an fd, we can avoid a race. */
-	if (a->fd >= 0 && fchown(a->fd,
-                             (unsigned int)a->uid,
-                             (unsigned int)a->gid) == 0) {
+	if (a->fd >= 0 && fchown(a->fd, (uid_t)a->uid, (gid_t)a->gid) == 0) {
 		/* We've set owner and know uid/gid are correct. */
 		a->todo &= ~(TODO_OWNER | TODO_SGID_CHECK | TODO_SUID_CHECK);
 		return (ARCHIVE_OK);
@@ -3337,7 +3385,7 @@ set_ownership(struct archive_write_disk *a)
 	/* We prefer lchown() but will use chown() if that's all we have. */
 	/* Of course, if we have neither, this will always fail. */
 #ifdef HAVE_LCHOWN
-	if (lchown(a->name, (unsigned int)a->uid, (unsigned int)a->gid) == 0) {
+	if (lchown(a->name, (uid_t)a->uid, (gid_t)a->gid) == 0) {
 		/* We've set owner and know uid/gid are correct. */
 		a->todo &= ~(TODO_OWNER | TODO_SGID_CHECK | TODO_SUID_CHECK);
 		return (ARCHIVE_OK);
@@ -3391,9 +3439,9 @@ set_time(int fd, int mode, const char *name,
 	struct timeval times[2];
 
 	times[0].tv_sec = atime;
-	times[0].tv_usec = (int)(atime_nsec / 1000);
+	times[0].tv_usec = (int)atime_nsec / 1000;
 	times[1].tv_sec = mtime;
-	times[1].tv_usec = (int)(mtime_nsec / 1000);
+	times[1].tv_usec = (int)mtime_nsec / 1000;
 
 #ifdef HAVE_FUTIMES
 	if (fd >= 0)
@@ -3901,7 +3949,8 @@ set_fflags_platform(struct archive_write_disk *a, int fd, const char *name,
 
 	/* If we weren't given an fd, open it ourselves. */
 	if (myfd < 0) {
-		myfd = open(name, O_RDONLY | O_NONBLOCK | O_BINARY | O_CLOEXEC);
+		myfd = open(name, O_RDONLY | O_NONBLOCK | O_BINARY |
+		    O_CLOEXEC | O_NOFOLLOW);
 		__archive_ensure_cloexec_flag(myfd);
 	}
 	if (myfd < 0)
