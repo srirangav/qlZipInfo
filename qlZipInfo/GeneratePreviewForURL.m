@@ -27,6 +27,7 @@
     v. 0.2.3 (07/21/2021) - add support for indiviudal files that are
                             gzip'ed
     v. 0.2.4 (07/22/2021) - modularize preview generation
+    v. 0.2.5 (10/26/2021) - add support for uu encoded archives
  
     Copyright (c) 2015-2021 Sriranga R. Veeraraghavan <ranga@calalum.org>
  
@@ -175,14 +176,22 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     
     setlocale (LC_ALL, [localeString UTF8String]);
 
-    /* initialize the archive object with the supported archive types */
+    /* initialize the archive object */
     
     a = archive_read_new();
 
+    /* enable filters */
+    
     archive_read_support_filter_compress(a);
     archive_read_support_filter_gzip(a);
     archive_read_support_filter_bzip2(a);
     archive_read_support_filter_xz(a);
+    archive_read_support_filter_uu(a);
+    archive_read_support_filter_rpm(a);
+
+    /* enable archive formats */
+    
+    archive_read_support_format_cpio(a);
     archive_read_support_format_tar(a);
     archive_read_support_format_zip(a);
     archive_read_support_format_xar(a);

@@ -60,7 +60,8 @@ Known Issues:
 
 History:
 
-    v1.1.5  - upgrade to libarchive v.3.5.2
+    v1.1.5  - upgrade to libarchive v.3.5.2, add support for
+              uuencoded archives
     v1.1.4  - modularize preview generation, add total
               compressed size to the summary row
     v1.1.3  - add support for Microsoft CAB files (Install-

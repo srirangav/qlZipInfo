@@ -31,6 +31,8 @@
 				<string>org.7-zip.7-zip-archive</string>
 				<string>org.tukaani.xz-archive</string>
 				<string>com.microsoft.cab</string>
+				<string>public.uuencoded-archive</string>
+				<string>com.redhat.rpm-archive</string>
 			</array>
 		</dict>
 	</array>
