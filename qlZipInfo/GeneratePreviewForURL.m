@@ -27,7 +27,7 @@
     v. 0.2.3 (07/21/2021) - add support for indiviudal files that are
                             gzip'ed
     v. 0.2.4 (07/22/2021) - modularize preview generation
-    v. 0.2.5 (10/26/2021) - add support for uu encoded archives
+    v. 0.2.5 (10/26/2021) - add support for uu encoded archives and rpms
  
     Copyright (c) 2015-2021 Sriranga R. Veeraraghavan <ranga@calalum.org>
  
