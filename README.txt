@@ -1,7 +1,7 @@
 README
 ------
 
-qlZipInfo v1.1.5
+qlZipInfo v1.1.6
 By Sriranga Veeraraghavan <ranga@calalum.org>
 
 Homepage:
@@ -25,12 +25,12 @@ Overview:
     A folder icon is shown for folders / directories, a file
     icon is shown for regular files, and a lock icon is shown
     for encypted files.
-    
+
     After listing information for all the files in an archive,
     a summary rows is shown with the number of files in the
     archive, the archive's total uncompressed size, the
     archive's total compressed size and the % compression.
-    
+
 Install:
 
     1. Create the directory ~/Library/QuickLook if it doesn't 
@@ -50,7 +50,7 @@ Supported MacOSX versions:
 
 Known Issues:
 
-    1. If WinZip is installed (for example, as part of Roxio Toast), 
+    1. If WinZip is installed (for example, as part of Roxio Toast),
        this quicklook generator will not produce a preview for zip 
        files because Quicklook always prefers generators that are 
        included in an application and there is no way to override 
@@ -58,42 +58,44 @@ Known Issues:
 
        https://stackoverflow.com/questions/11705425/prefer-my-quicklook-plugin
 
+    2. Unix Compress'ed tar files with the extension .tz or .tZ
+       cannot be reliabily detected and previewed
+
+    3. InstallSheild CAB files are not supported
+
 History:
 
-    v1.1.5  - upgrade to libarchive v.3.5.2, add support for
-              uuencoded archives and rpm files
-    v1.1.4  - modularize preview generation, add total
-              compressed size to the summary row
-    v1.1.3  - add support for Microsoft CAB files (Install-
-              Sheild CAB files have a different format and
-              aren't supported yet) and gzip'ed archives of
-              a single file
+    v1.1.6  - fix to detect .tgz files as tar-gzip'ed archives and 
+              .tbz files as tar-bzip2'ed archives, disable preview
+              of 1Password backups
+    v1.1.5  - upgrade to libarchive v.3.5.2, add support for uuencoded
+              archives and rpm files
+    v1.1.4  - modularize preview generation, add total compressed 
+              size to the summary row
+    v1.1.3  - add support for Microsoft CAB files and gzip'ed archives
+              of a single file
     v1.1.2  - fix (partially?) listing non-ASCII filenames
-    v1.1.1  - add support for xar / pkg, debian (.deb), 7zip
-              (.7z), xz, and lha archives and ISO9660 images
-    v1.1.0  - switch to libarchive and add support for .tar,
-              .tar.gz (.tgz), .tar.bz2 (tbz2), and tar.Z 
-              (.tZ) files
+    v1.1.1  - add support for xar / pkg, debian (.deb), 7zip (.7z), xz,
+              and lha archives and ISO9660 images
+    v1.1.0  - switch to libarchive and add support for .tar, .tar.gz, 
+              .tar.bz2, and tar.Z files
     v1.0.15 - show a lock icon for encrypted files
-    v1.0.14 - fixes to make darkmode and light mode better
-              match the BigSur Finder
+    v1.0.14 - fixes to make darkmode and light mode better match the 
+              BigSur Finder
     v1.0.13 - make sure days and months are zero prefixed
-    v1.0.12 - increase size used to display the compressed
-              file size; disable showing the compression
-              method
+    v1.0.12 - increase size used to display the compressed file size; 
+              disable showing the compression method
     v1.0.11 - add support for zip files with non-UTF8 filenames
     v1.0.10 - add darkmode support
     v1.0.9  - build on Big Sur (11.x)
-    v1.0.8  - add support for 1Password backups
+    v1.0.8  - add support for some 1Password backups
     v1.0.7  - update to Minizip 1.2, show compression method
     v1.0.6  - updates for Xcode 10.2
     v1.0.5  - internal updates
     v1.0.4  - internal updates
-    v1.0.3  - localize the date, change compression reporting, 
-              and escape any HTML characters in file / folder 
-              names
-    v1.0.2  - add icons, display file compression, size in B, 
-              KB, MB, etc.
+    v1.0.3  - localize the date, change compression reporting, and escape
+              any HTML characters in file / folder names
+    v1.0.2  - add icons, display file compression, size in B, KB, MB, etc.
     v1.0.1  - initial release
 
 License:
