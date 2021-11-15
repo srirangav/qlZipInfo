@@ -28,6 +28,7 @@
                             gzip'ed
     v. 0.2.4 (07/22/2021) - modularize preview generation
     v. 0.2.5 (10/26/2021) - add support for uu encoded archives and rpms
+    v. 0.3.0 (11/13/2021) - add support for binhex archives
  
     Copyright (c) 2015-2021 Sriranga R. Veeraraghavan <ranga@calalum.org>
  
@@ -64,6 +65,7 @@
 #import "config.h"
 #import "archive.h"
 #import "archive_entry.h"
+#import "binhex.h"
 #import "GTMNSString+HTML.h"
 #import "GeneratePreviewForURL.h"
 
@@ -109,6 +111,15 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         return zipQLFailed;
     }
 
+    if (CFEqual(contentTypeUTI, gUITBinHex) == true)
+    {
+        return GeneratePreviewForHQX(thisInterface,
+                                     preview,
+                                     url,
+                                     contentTypeUTI,
+                                     options);
+    }
+    
     /* get the local file system path for the specified file */
     
     zipFileName =
@@ -452,9 +463,9 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                     fileSizeSpecInZip.spec];
 
             [qlHtml appendString:
-                    @"<td align=\"right\">&nbsp;"];
+                    @"<td align=\"right\">&nbsp;</td>"];
            
-            [qlHtml appendString: @"</td>"];
+            //[qlHtml appendString: @"</td>"];
         }
     
         /* 
@@ -653,6 +664,263 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     return (zipErr == 0 ? noErr : zipQLFailed);
 }
 
+/* GeneratePreviewForHQX - generate the preview for a binhex archive */
+
+static OSStatus GeneratePreviewForHQX(void *thisInterface,
+                                      QLPreviewRequestRef preview,
+                                      CFURLRef url,
+                                      CFStringRef contentTypeUTI,
+                                      CFDictionaryRef options)
+{
+    NSMutableDictionary *qlHtmlProps = nil;
+    NSMutableString *qlHtml = nil;
+    int zipErr = 0;
+    CFMutableStringRef zipFileName = NULL;
+    const char *zipFileNameStr = NULL;
+    char zipFileNameCStr[PATH_MAX];
+    NSString *escapedStr = nil;
+    hqxFileHandle_t hqxFile;
+    fileSizeSpec_t fileSizeSpecInZip;
+
+    if (url == NULL)
+    {
+        fprintf(stderr, "qlZipInfo: ERROR: url is null\n");
+        return zipQLFailed;
+    }
+
+    if (CFEqual(contentTypeUTI, gUITBinHex) != true)
+    {
+        fprintf(stderr, 
+                "qlZipInfo: ERROR: UTI is not binhex\n");
+        return zipQLFailed;
+    }
+
+    /* get the local file system path for the specified file */
+    
+    zipFileName =
+        (CFMutableStringRef)CFURLCopyFileSystemPath(url,
+                                                    kCFURLPOSIXPathStyle);
+    if (zipFileName == NULL)
+    {
+        fprintf(stderr, "qlZipInfo: ERROR: file name is null\n");
+        return zipQLFailed;
+    }
+    
+    /* normalize the file name */
+    
+    CFStringNormalize(zipFileName, kCFStringNormalizationFormC);
+    
+    /* covert the file system path to a c string */
+    
+    zipFileNameStr =
+        CFStringGetCStringPtr(zipFileName, kCFStringEncodingUTF8);
+    
+    if (zipFileNameStr == NULL)
+    {
+        
+        /*
+            if CFStringGetCStringPtr returns NULL, try to get the
+            file path using CFStringGetCString() b/c the file path
+            might have non-UTF8 characters, see:
+            https://developer.apple.com/documentation/corefoundation/1542133-cfstringgetcstringptr
+         */
+        
+        if (CFStringGetCString(zipFileName,
+                               zipFileNameCStr,
+                               PATH_MAX - 1,
+                               kCFStringEncodingUTF8) != true)
+        {
+            fprintf(stderr,
+                    "qlZipInfo: ERROR: can't get filename\n");
+            return zipQLFailed;
+        }
+        
+        zipFileNameStr = zipFileNameCStr;
+    }
+
+    /*  exit if the user canceled the preview */
+    
+    if (QLPreviewRequestIsCancelled(preview))
+    {
+        return noErr;
+    }
+
+    if (hqxInitFileHandle(zipFileNameStr, &hqxFile) != gHqxOkay)
+    {
+        fprintf(stderr, 
+                "qlZipInfo: ERROR: could not initialize hqx file handle\n");
+        return zipQLFailed;
+    }
+
+    /*  exit if the user canceled the preview */
+    
+    if (QLPreviewRequestIsCancelled(preview))
+    {
+        hqxReleaseFileHandle(&hqxFile);
+        return noErr;
+    }
+
+    if (hqxGetHeader(&hqxFile) != gHqxOkay)
+    {
+        fprintf(stderr, 
+                "qlZipInfo: ERROR: could not read hqx handle\n");
+        hqxReleaseFileHandle(&hqxFile);
+        return zipQLFailed;
+    }
+
+    if (QLPreviewRequestIsCancelled(preview))
+    {
+        hqxReleaseFileHandle(&hqxFile);
+        return noErr;
+    }
+
+    /* initialize the HTML output */
+
+    qlHtmlProps = [[NSMutableDictionary alloc] init];
+    [qlHtmlProps setObject: @"UTF-8"
+                 forKey: (NSString *)kQLPreviewPropertyTextEncodingNameKey];
+    [qlHtmlProps setObject: @"text/html"
+                 forKey: (NSString*)kQLPreviewPropertyMIMETypeKey];
+    
+    qlHtml = [[NSMutableString alloc] init];
+
+    /* create the html header */
+    
+    formatOutputHeader(qlHtml);
+    
+    /* start the html body */
+
+    startOutputBody(qlHtml);
+
+    /*
+       start the table
+       based on: http://www.w3.org/TR/html4/struct/tables.html
+     */
+
+    [qlHtml appendFormat: @"<table align=\"center\" cellpadding=\"%d\">\n",
+                          (gColPadding/2)];
+    [qlHtml appendFormat: @"<colgroup width=\"%d\" />\n",
+                          (gColFileType + gColPadding)];
+    [qlHtml appendFormat: @"<colgroup width=\"%d\" />\n",
+                          (gColFileName + gColPadding)];
+    [qlHtml appendFormat: @"<colgroup width=\"%d\" />\n",
+                          (gColFileSize + gColPadding)];
+    [qlHtml appendFormat: @"<colgroup width=\"%d\" />\n",
+                          (gColFileMacType + gColPadding)];
+    [qlHtml appendFormat: @"<colgroup width=\"%d\" />\n",
+                          (gColFileMacCreator + gColPadding)];
+    
+    /* add the table header */
+    
+    [qlHtml appendString: @"<thead><tr class=\"border-bottom\">"];
+    [qlHtml appendFormat: @"<th class=\"border-side\" colspan=\"2\">%@</th>",
+                          gTableHeaderName];
+    [qlHtml appendFormat: @"<th class=\"border-side\">%@</th>",
+                          gTableHeaderSize];
+    [qlHtml appendFormat: @"<th class=\"border-side\">%@</th>",
+                          gTableHeaderType];
+    [qlHtml appendFormat: @"<th class=\"border-side\">%@</th>",
+                          gTableHeaderCreator];
+    [qlHtml appendString: @"</tr></thead>\n"];
+    
+    /* start the table body */
+
+    [qlHtml appendString: @"<tbody>\n"];
+
+    /* start the table row for this file */
+
+    [qlHtml appendFormat: @"<tr>"];
+
+    /* add the icon */
+        
+    if (strncmp(gMacFileTypeApplication,
+                hqxFile.hqxHeader.type,
+                4) == 0)
+    {
+        escapedStr = (NSString *)gFileAppIcon;
+    }
+    else if (strncmp(gMacFileTypeSIT,
+                     hqxFile.hqxHeader.type,
+                     4) == 0 ||
+             strncmp(gMacFileTypeSIT5,
+                              hqxFile.hqxHeader.type,
+                              4) == 0)
+    {
+        escapedStr = (NSString *)gFilePkgIcon;
+    }
+    else
+    {
+        escapedStr = (NSString *)gFileIcon;
+    }
+    
+    [qlHtml appendFormat: @"<td align=\"center\">%@</td>",
+                          escapedStr];
+
+    escapedStr =
+        [[NSString stringWithUTF8String: hqxFile.hqxHeader.name]
+                                         gtm_stringByEscapingForHTML];
+
+    [qlHtml appendString: @"<td><div style=\"display: block; "];
+    [qlHtml appendFormat: @"word-wrap: break-word;\">%@</div></td>",
+                          escapedStr];
+
+    /* clear the file size spec */
+    
+    memset(&fileSizeSpecInZip, 0, sizeof(fileSizeSpec_t));
+
+    /* get the file's size spec */
+
+    getFileSizeSpec(hqxFile.hqxHeader.dataLen + 
+                    hqxFile.hqxHeader.rsrcLen,
+                    &fileSizeSpecInZip);
+
+    /* print out the file's size in B, K, M, G, or T */
+    
+    [qlHtml appendFormat:
+            @"<td align=\"center\">%-.1f %-1s</td>",
+            fileSizeSpecInZip.size,
+            fileSizeSpecInZip.spec];
+
+//    [qlHtml appendString:
+//            @"<td align=\"right\">&nbsp;</td>"];
+
+    escapedStr =
+        [[NSString stringWithUTF8String: hqxFile.hqxHeader.type]
+                                         gtm_stringByEscapingForHTML];
+    [qlHtml appendFormat: @"<td align=\"center\">%@</td>", escapedStr];
+
+    escapedStr =
+        [[NSString stringWithUTF8String: hqxFile.hqxHeader.creator]
+                                         gtm_stringByEscapingForHTML];
+    [qlHtml appendFormat: @"<td align=\"center\">%@</td>", escapedStr];
+
+    /* close the row */
+    
+    [qlHtml appendString:@"</tr>\n"];
+
+    /* close the main table's body */
+    
+    [qlHtml appendString: @"</tbody>\n"];
+
+    /* close the table */
+    
+    [qlHtml appendString: @"</table>\n"];
+    
+    /* close the html */
+    
+    endOutputBody(qlHtml);
+
+    hqxReleaseFileHandle(&hqxFile);
+
+    QLPreviewRequestSetDataRepresentation(preview,
+                                          (__bridge CFDataRef)[qlHtml dataUsingEncoding:
+                                                NSUTF8StringEncoding],
+                                          kUTTypeHTML,
+                                          (__bridge CFDictionaryRef)qlHtmlProps);
+
+    return (zipErr == 0 ? noErr : zipQLFailed);
+}
+
 /* CancelPreviewGeneration - handle a user canceling the preview */
 
 void CancelPreviewGeneration(void *thisInterface,
@@ -727,9 +995,10 @@ static bool formatOutputHeader(NSMutableString *qlHtml)
             https://www.w3docs.com/snippets/html/how-to-create-a-table-with-a-fixed-header-and-scrollable-body.html
      */
     
-    [qlHtml appendFormat: @"th { border-bottom: %dpx solid %@; ",
-                          gBorder,
-                          gDarkModeTableHeaderBorderColor];
+    [qlHtml appendFormat:
+        @"th { border-bottom: %dpx solid %@; ",
+        gBorder,
+        gDarkModeTableHeaderBorderColor];
     [qlHtml appendString: @" position: sticky; position: -webkit-sticky; "];
     [qlHtml appendFormat: @"top: 0; z-index: 3; background-color: %@ ;}\n",
                           gDarkModeBackground];

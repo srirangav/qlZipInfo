@@ -35,6 +35,7 @@
 				<string>com.microsoft.cab</string>
 				<string>public.uuencoded-archive</string>
 				<string>com.redhat.rpm-archive</string>
+				<string>com.apple.binhex-archive</string>
 			</array>
 		</dict>
 	</array>

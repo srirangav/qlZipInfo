@@ -1,7 +1,7 @@
 README
 ------
 
-qlZipInfo v1.1.6
+qlZipInfo v1.1.7
 By Sriranga Veeraraghavan <ranga@calalum.org>
 
 Homepage:
@@ -13,10 +13,11 @@ Overview:
     qlZipInfo is a QuickLook generator for zip, jar, tar,
     tar.gz (.tgz), tar.bz2 (.tbz2), tar.Z (.tZ), xar (.xar,
     .pkg), debian (.deb), 7zip (.7z), xz, Microsoft cabinet
-    (.cab), gzip, and lha archives and ISO9660 images.
+    (.cab), gzip, lha, and Binhex 4.0 (.hqx) archives and
+    ISO9660 images.
 
     qlZipInfo relies on libarchive (https://libarchive.org/).
-
+    
     Information for each file in an archive is displayed in
     the following format:
 
@@ -24,12 +25,19 @@ Overview:
 
     A folder icon is shown for folders / directories, a file
     icon is shown for regular files, and a lock icon is shown
-    for encypted files.
+    for encypted files.  In addition, for BinHex 4.0 archives,
+    a package icon is shown if the file stored in the archive
+    is a Stuffit archive and an application icon is shown if
+    the file stored in the archive is an application.
 
     After listing information for all the files in an archive,
     a summary rows is shown with the number of files in the
     archive, the archive's total uncompressed size, the
     archive's total compressed size and the % compression.
+    
+    For BinHex 4.0 files, the date modificed and the summary
+    row are omitted. Instead the MacOS type and creator are
+    shown.
 
 Install:
 
@@ -56,15 +64,18 @@ Known Issues:
        included in an application and there is no way to override 
        this behavior without editing WinZip.  See:
 
-       https://stackoverflow.com/questions/11705425/prefer-my-quicklook-plugin
+       https://stackoverflow.com/questions/11705425
 
     2. Unix Compress'ed tar files with the extension .tz or .tZ
        cannot be reliabily detected and previewed
 
     3. InstallSheild CAB files are not supported
+    
+    4. Only BinHex 4.0 files are supported
 
 History:
 
+    v1.1.7  - add support for BinHex 4.0 files
     v1.1.6  - fix to detect .tgz files as tar-gzip'ed archives and 
               .tbz files as tar-bzip2'ed archives, disable preview
               of 1Password backups

@@ -10,6 +10,7 @@
 		261A6132267DA593009BB583 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 261A6131267DA593009BB583 /* libxml2.tbd */; };
 		26314C5C267DEE2000F17EF9 /* liblzma.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 26314C5B267DEE0600F17EF9 /* liblzma.tbd */; };
 		26314C5E267DF1E800F17EF9 /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 26314C5D267DF1E100F17EF9 /* libiconv.tbd */; };
+		26546105274054D600713E91 /* binhex.c in Sources */ = {isa = PBXBuildFile; fileRef = 26546104274054D600713E91 /* binhex.c */; };
 		26909ED5267B374C000272C5 /* archive.h in Headers */ = {isa = PBXBuildFile; fileRef = 26909ED4267B374C000272C5 /* archive.h */; };
 		26909ED7267B3797000272C5 /* archive_read.c in Sources */ = {isa = PBXBuildFile; fileRef = 26909ED6267B3797000272C5 /* archive_read.c */; settings = {COMPILER_FLAGS = "-D HAVE_CONFIG_H"; }; };
 		26909ED9267B37BB000272C5 /* archive_platform.h in Headers */ = {isa = PBXBuildFile; fileRef = 26909ED8267B37BB000272C5 /* archive_platform.h */; };
@@ -140,6 +141,8 @@
 		261EB60D22DD6C5100B38AE0 /* minishared.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = minishared.c; sourceTree = "<group>"; };
 		26314C5B267DEE0600F17EF9 /* liblzma.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = liblzma.tbd; path = usr/lib/liblzma.tbd; sourceTree = SDKROOT; };
 		26314C5D267DF1E100F17EF9 /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
+		26546104274054D600713E91 /* binhex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = binhex.c; sourceTree = "<group>"; };
+		265461062740557400713E91 /* binhex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = binhex.h; sourceTree = "<group>"; };
 		265F0DD32726B12E00713E91 /* libarchive-3.5.1.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; name = "libarchive-3.5.1.tar.gz"; path = "Sources/libarchive-3.5.1.tar.gz"; sourceTree = "<group>"; };
 		265F0DD42726B12E00713E91 /* libarchive-3.5.1.tar.gz.asc */ = {isa = PBXFileReference; lastKnownFileType = text; name = "libarchive-3.5.1.tar.gz.asc"; path = "Sources/libarchive-3.5.1.tar.gz.asc"; sourceTree = "<group>"; };
 		265F0DD52726B12E00713E91 /* google-toolbox-for-mac-2.3.1.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = "google-toolbox-for-mac-2.3.1.zip"; path = "Sources/google-toolbox-for-mac-2.3.1.zip"; sourceTree = "<group>"; };
@@ -508,6 +511,8 @@
 				261D47E126A94A0800028CA3 /* GeneratePreviewForURL.h */,
 				26CA45DA1B8461BA00B08F29 /* GeneratePreviewForURL.m */,
 				26CA45D81B8461BA00B08F29 /* GenerateThumbnailForURL.m */,
+				26546104274054D600713E91 /* binhex.c */,
+				265461062740557400713E91 /* binhex.h */,
 				26CA45DC1B8461BA00B08F29 /* main.c */,
 				26CA45D61B8461BA00B08F29 /* Supporting Files */,
 			);
@@ -686,6 +691,7 @@
 				26909F8B267C074E000272C5 /* archive_read_open_memory.c in Sources */,
 				26909F92267C074E000272C5 /* archive_read_extract.c in Sources */,
 				26909F3B267B407B000272C5 /* archive_read_support_filter_none.c in Sources */,
+				26546105274054D600713E91 /* binhex.c in Sources */,
 				26909F90267C074E000272C5 /* archive_read_disk_set_standard_lookup.c in Sources */,
 				26909F2F267B407B000272C5 /* archive_read_support_format_cab.c in Sources */,
 				26909F9F267C0825000272C5 /* archive_disk_acl_darwin.c in Sources */,
@@ -880,7 +886,7 @@
 				INFOPLIST_FILE = qlZipInfo/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 1.1.6;
+				MARKETING_VERSION = 1.1.7;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.calalum.ranga.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -899,7 +905,7 @@
 				INFOPLIST_FILE = qlZipInfo/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 1.1.6;
+				MARKETING_VERSION = 1.1.7;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.calalum.ranga.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

@@ -3,7 +3,8 @@
  
     History:
  
-    v. 0.1.0 (07/22/2021) - initial reelease
+    v. 0.1.0 (07/22/2021) - initial release
+    v. 0.2.0 (11/13/2021) - add binhex support
  
     Copyright (c) 2021 Sriranga R. Veeraraghavan <ranga@calalum.org>
  
@@ -59,6 +60,9 @@ enum
     gColFileModTime  = 56,
     gColFileType     = 24,
     gColFileName     = 288,
+    gColFileMacType  = 58,
+    gColFileMacCreator = 58,
+    gColFileMacFileName = 356,
 };
 
 /* table headings */
@@ -66,6 +70,8 @@ enum
 static const NSString *gTableHeaderName = @"Name";
 static const NSString *gTableHeaderSize = @"Size";
 static const NSString *gTableHeaderDate = @"Modified";
+static const NSString *gTableHeaderType = @"Type";
+static const NSString *gTableHeaderCreator = @"Creator";
 
 /* darkmode styles */
 
@@ -100,6 +106,8 @@ static const NSString *gFileEncyrptedIcon = @"&#x1F512";
 static const NSString *gFileLinkIcon      = @"&#x1F4D1";
 static const NSString *gFileSpecialIcon   = @"&#x2699";
 static const NSString *gFileUnknownIcon   = @"&#x2753";
+static const NSString *gFileAppIcon       = @"&#x270D";
+static const NSString *gFilePkgIcon       = @"&#x1F4E6";
 
 /* unknown file name */
 
@@ -117,9 +125,14 @@ static const char *gFileSizeMegaBytes = "M";
 static const char *gFileSizeGigaBytes = "G";
 static const char *gFileSizeTeraBytes = "T";
 
+static const char *gMacFileTypeApplication = "APPL";
+static const char *gMacFileTypeSIT = "SITD";
+static const char *gMacFileTypeSIT5 = "SIT5";
+
 /* UTIs for files that may require special handling */
 
 static const CFStringRef gUTIGZip = CFSTR("org.gnu.gnu-zip-archive");
+static const CFStringRef gUITBinHex = CFSTR("com.apple.binhex-archive");
 
 /* structs */
 
@@ -136,6 +149,11 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                                CFURLRef url,
                                CFStringRef contentTypeUTI,
                                CFDictionaryRef options);
+static OSStatus GeneratePreviewForHQX(void *thisInterface,
+                                      QLPreviewRequestRef preview,
+                                      CFURLRef url,
+                                      CFStringRef contentTypeUTI,
+                                      CFDictionaryRef options);
 void CancelPreviewGeneration(void *thisInterface,
                              QLPreviewRequestRef preview);
 static off_t getGZExpandedFileSize(const char *zipFileNameStr);
