@@ -2,7 +2,7 @@
 
 PROJNAME   = qlZipInfo
 PROJEXT    = qlgenerator
-PROJVERS   = 1.1.7
+PROJVERS   = 1.1.8
 BUNDLEID   = "org.calalum.ranga.$(PROJNAME)"
 
 # code signing information

@@ -167,7 +167,7 @@ static int
 __archive_md5update(archive_md5_ctx *ctx, const void *indata,
     size_t insize)
 {
-  CC_MD5_Update(ctx, indata, (unsigned int)insize);
+  CC_MD5_Update(ctx, indata, (CC_LONG)insize);
   return (ARCHIVE_OK);
 }
 
@@ -548,7 +548,7 @@ static int
 __archive_sha1update(archive_sha1_ctx *ctx, const void *indata,
     size_t insize)
 {
-  CC_SHA1_Update(ctx, indata, (unsigned int)insize);
+  CC_SHA1_Update(ctx, indata, (CC_LONG)insize);
   return (ARCHIVE_OK);
 }
 
@@ -811,7 +811,7 @@ static int
 __archive_sha256update(archive_sha256_ctx *ctx, const void *indata,
     size_t insize)
 {
-  CC_SHA256_Update(ctx, indata, (unsigned int)insize);
+  CC_SHA256_Update(ctx, indata, (CC_LONG)insize);
   return (ARCHIVE_OK);
 }
 
@@ -1046,7 +1046,7 @@ static int
 __archive_sha384update(archive_sha384_ctx *ctx, const void *indata,
     size_t insize)
 {
-  CC_SHA384_Update(ctx, indata, (unsigned int)insize);
+  CC_SHA384_Update(ctx, indata, (CC_LONG)insize);
   return (ARCHIVE_OK);
 }
 
@@ -1305,7 +1305,7 @@ static int
 __archive_sha512update(archive_sha512_ctx *ctx, const void *indata,
     size_t insize)
 {
-  CC_SHA512_Update(ctx, indata, (unsigned int)insize);
+  CC_SHA512_Update(ctx, indata, (CC_LONG)insize);
   return (ARCHIVE_OK);
 }
 
