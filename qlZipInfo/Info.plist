@@ -36,6 +36,7 @@
 				<string>public.uuencoded-archive</string>
 				<string>com.redhat.rpm-archive</string>
 				<string>com.apple.binhex-archive</string>
+				<string>com.roxio.disk-image-toast</string>
 			</array>
 		</dict>
 	</array>
@@ -72,7 +73,7 @@
 	<key>CFPlugInUnloadFunction</key>
 	<string></string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Portions Copyright © 2015-2021 Sriranga Veeraraghavan. All rights reserved.</string>
+	<string>Portions Copyright © 2015-2022 Sriranga Veeraraghavan. All rights reserved.</string>
 	<key>QLNeedsToBeRunInMainThread</key>
 	<false/>
 	<key>QLPreviewHeight</key>

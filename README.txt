@@ -1,7 +1,7 @@
 README
 ------
 
-qlZipInfo v1.1.8
+qlZipInfo v1.1.9
 By Sriranga Veeraraghavan <ranga@calalum.org>
 
 Homepage:
@@ -14,8 +14,8 @@ Overview:
     tar.gz (.tgz), tar.bz2 (.tbz2/.tbz), tar.Z (.tZ), xar 
     (.xar, .pkg), debian (.deb), Redhat Package Manager 
     (.rpm), 7zip (.7z), xz, Microsoft cabinet (.cab), gzip 
-    (.gz), lha, and Binhex 4.0 (.hqx) archives and ISO9660 
-    images.
+    (.gz), lha, and Binhex 4.0 (.hqx) archives and ISO9660
+    (.iso, .cdr, .toast) images.
 
     qlZipInfo relies on libarchive (https://libarchive.org/).
     
@@ -36,7 +36,7 @@ Overview:
     archive, the archive's total uncompressed size, the
     archive's total compressed size and the % compression.
     
-    For BinHex 4.0 files, the date modificed and the summary
+    For BinHex 4.0 files, the date modified and the summary
     row are omitted. Instead the MacOS type and creator are
     shown.
 
@@ -51,6 +51,9 @@ Install:
 
        /usr/bin/qlmanage -r
        /usr/bin/qlmanage -r cache
+
+    4. Wait a minute or two for QuickLook to properly load
+       or reload qlZipInfo.qlgenerator
 
 Supported MacOSX versions:
 
@@ -74,9 +77,11 @@ Known Issues:
     3. InstallSheild CAB files are not currently supported
     
     4. Only BinHex 4.0 files are supported
-
+    
 History:
 
+    v1.1.9  - add support for (some?) CD/DVD images created
+              by Roxio Toast
     v1.1.8  - upgrade to libarchive v.3.6.0
     v1.1.7  - add support for BinHex 4.0 files
     v1.1.6  - fix to detect .tgz files as tar-gzip'ed archives 
