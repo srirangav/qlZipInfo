@@ -137,18 +137,15 @@
 		261A6131267DA593009BB583 /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
 		261D47E126A94A0800028CA3 /* GeneratePreviewForURL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratePreviewForURL.h; sourceTree = "<group>"; };
 		261D47E226A95ADA00028CA3 /* getUTI.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = getUTI.sh; sourceTree = SOURCE_ROOT; };
-		261EB60C22DD6C5100B38AE0 /* minishared.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = minishared.h; sourceTree = "<group>"; };
-		261EB60D22DD6C5100B38AE0 /* minishared.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = minishared.c; sourceTree = "<group>"; };
 		26314C5B267DEE0600F17EF9 /* liblzma.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = liblzma.tbd; path = usr/lib/liblzma.tbd; sourceTree = SDKROOT; };
 		26314C5D267DF1E100F17EF9 /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
+		264233162801342400713E91 /* libarchive-3.6.1.tar.gz.asc */ = {isa = PBXFileReference; lastKnownFileType = text; name = "libarchive-3.6.1.tar.gz.asc"; path = "Sources/libarchive-3.6.1.tar.gz.asc"; sourceTree = "<group>"; };
+		264233172801342400713E91 /* libarchive-3.6.1.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; name = "libarchive-3.6.1.tar.gz"; path = "Sources/libarchive-3.6.1.tar.gz"; sourceTree = "<group>"; };
+		26423318280165C400713E91 /* xz-5.2.5.tar.gz.sig */ = {isa = PBXFileReference; lastKnownFileType = file; name = "xz-5.2.5.tar.gz.sig"; path = "Sources/xz-5.2.5.tar.gz.sig"; sourceTree = "<group>"; };
+		26423319280165C400713E91 /* xz-5.2.5.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; name = "xz-5.2.5.tar.gz"; path = "Sources/xz-5.2.5.tar.gz"; sourceTree = "<group>"; };
 		26546104274054D600713E91 /* binhex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = binhex.c; sourceTree = "<group>"; };
 		265461062740557400713E91 /* binhex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = binhex.h; sourceTree = "<group>"; };
-		265F0DD32726B12E00713E91 /* libarchive-3.5.1.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; name = "libarchive-3.5.1.tar.gz"; path = "Sources/libarchive-3.5.1.tar.gz"; sourceTree = "<group>"; };
-		265F0DD42726B12E00713E91 /* libarchive-3.5.1.tar.gz.asc */ = {isa = PBXFileReference; lastKnownFileType = text; name = "libarchive-3.5.1.tar.gz.asc"; path = "Sources/libarchive-3.5.1.tar.gz.asc"; sourceTree = "<group>"; };
 		265F0DD52726B12E00713E91 /* google-toolbox-for-mac-2.3.1.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = "google-toolbox-for-mac-2.3.1.zip"; path = "Sources/google-toolbox-for-mac-2.3.1.zip"; sourceTree = "<group>"; };
-		265F0DD62726B12E00713E91 /* libarchive-3.5.2.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; name = "libarchive-3.5.2.tar.gz"; path = "Sources/libarchive-3.5.2.tar.gz"; sourceTree = "<group>"; };
-		265F0DD72726B12E00713E91 /* xz-5.2.4.tar.xz */ = {isa = PBXFileReference; lastKnownFileType = file; name = "xz-5.2.4.tar.xz"; path = "Sources/xz-5.2.4.tar.xz"; sourceTree = "<group>"; };
-		265F0DD82726B12E00713E91 /* libarchive-3.5.2.tar.gz.asc */ = {isa = PBXFileReference; lastKnownFileType = text; name = "libarchive-3.5.2.tar.gz.asc"; path = "Sources/libarchive-3.5.2.tar.gz.asc"; sourceTree = "<group>"; };
 		26909ED4267B374C000272C5 /* archive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = archive.h; sourceTree = "<group>"; };
 		26909ED6267B3797000272C5 /* archive_read.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = archive_read.c; sourceTree = "<group>"; };
 		26909ED8267B37BB000272C5 /* archive_platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = archive_platform.h; sourceTree = "<group>"; };
@@ -284,17 +281,9 @@
 		26CA45D81B8461BA00B08F29 /* GenerateThumbnailForURL.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GenerateThumbnailForURL.m; sourceTree = "<group>"; };
 		26CA45DA1B8461BA00B08F29 /* GeneratePreviewForURL.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GeneratePreviewForURL.m; sourceTree = "<group>"; };
 		26CA45DC1B8461BA00B08F29 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
-		26CA45E61B84624200B08F29 /* ioapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ioapi.c; sourceTree = "<group>"; };
-		26CA45E71B84624200B08F29 /* ioapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ioapi.h; sourceTree = "<group>"; };
-		26CA45E81B84624200B08F29 /* unzip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = unzip.c; sourceTree = "<group>"; };
-		26CA45E91B84624200B08F29 /* unzip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = unzip.h; sourceTree = "<group>"; };
-		26CA45FA1B86991600B08F29 /* unzip11.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = unzip11.zip; path = Sources/unzip11.zip; sourceTree = "<group>"; };
 		26D414401BA9E23200216180 /* GTMDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTMDefines.h; sourceTree = "<group>"; };
 		26D414411BA9E23200216180 /* GTMNSString+HTML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "GTMNSString+HTML.h"; sourceTree = "<group>"; };
 		26D414421BA9E23200216180 /* GTMNSString+HTML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "GTMNSString+HTML.m"; sourceTree = "<group>"; };
-		26EE1BCD20B695D40023D0C3 /* google-toolbox-for-mac-1.6.0.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = "google-toolbox-for-mac-1.6.0.zip"; path = "Sources/google-toolbox-for-mac-1.6.0.zip"; sourceTree = "<group>"; };
-		26EE1BCE20B695D40023D0C3 /* google-toolbox-for-mac-2.1.4.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = "google-toolbox-for-mac-2.1.4.zip"; path = "Sources/google-toolbox-for-mac-2.1.4.zip"; sourceTree = "<group>"; };
-		26EE1BD120B699EA0023D0C3 /* zlib-1.2.11.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; name = "zlib-1.2.11.tar.gz"; path = "Sources/zlib-1.2.11.tar.gz"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -505,7 +494,6 @@
 			isa = PBXGroup;
 			children = (
 				26D4143F1BA9E23200216180 /* GTM */,
-				26CA45E51B84624200B08F29 /* minizip */,
 				26909ED3267B374C000272C5 /* libarchive */,
 				26BC4AAF26807928005C136F /* lzma */,
 				261D47E126A94A0800028CA3 /* GeneratePreviewForURL.h */,
@@ -528,32 +516,14 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		26CA45E51B84624200B08F29 /* minizip */ = {
-			isa = PBXGroup;
-			children = (
-				26CA45E61B84624200B08F29 /* ioapi.c */,
-				26CA45E71B84624200B08F29 /* ioapi.h */,
-				261EB60D22DD6C5100B38AE0 /* minishared.c */,
-				261EB60C22DD6C5100B38AE0 /* minishared.h */,
-				26CA45E81B84624200B08F29 /* unzip.c */,
-				26CA45E91B84624200B08F29 /* unzip.h */,
-			);
-			path = minizip;
-			sourceTree = "<group>";
-		};
 		26CA45F11B84630200B08F29 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				26EE1BCD20B695D40023D0C3 /* google-toolbox-for-mac-1.6.0.zip */,
-				26EE1BCE20B695D40023D0C3 /* google-toolbox-for-mac-2.1.4.zip */,
 				265F0DD52726B12E00713E91 /* google-toolbox-for-mac-2.3.1.zip */,
-				265F0DD32726B12E00713E91 /* libarchive-3.5.1.tar.gz */,
-				265F0DD42726B12E00713E91 /* libarchive-3.5.1.tar.gz.asc */,
-				265F0DD62726B12E00713E91 /* libarchive-3.5.2.tar.gz */,
-				265F0DD82726B12E00713E91 /* libarchive-3.5.2.tar.gz.asc */,
-				265F0DD72726B12E00713E91 /* xz-5.2.4.tar.xz */,
-				26CA45FA1B86991600B08F29 /* unzip11.zip */,
-				26EE1BD120B699EA0023D0C3 /* zlib-1.2.11.tar.gz */,
+				264233172801342400713E91 /* libarchive-3.6.1.tar.gz */,
+				264233162801342400713E91 /* libarchive-3.6.1.tar.gz.asc */,
+				26423319280165C400713E91 /* xz-5.2.5.tar.gz */,
+				26423318280165C400713E91 /* xz-5.2.5.tar.gz.sig */,
 			);
 			name = Sources;
 			sourceTree = "<group>";
@@ -886,7 +856,7 @@
 				INFOPLIST_FILE = qlZipInfo/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 1.1.9;
+				MARKETING_VERSION = 1.1.10;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.calalum.ranga.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -905,7 +875,7 @@
 				INFOPLIST_FILE = qlZipInfo/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 1.1.9;
+				MARKETING_VERSION = 1.1.10;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.calalum.ranga.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

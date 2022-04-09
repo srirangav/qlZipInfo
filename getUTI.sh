@@ -4,6 +4,11 @@
 #
 #    See: https://en.wikipedia.org/wiki/Uniform_Type_Identifier
 #
+#    v0.1.0 - initial release
+#    v0.1.1 - remove unneeded calls to awk, etc.
+#    v0.1.2 - fix formatting
+#    v0.1.3 - minor changes to pass shellcheck
+#
 #    Copyright (c) 2020-2021 Sriranga R. Veeraraghavan <ranga@calalum.org>
 #
 #    Permission is hereby granted, free of charge, to any person obtaining
@@ -30,7 +35,7 @@ MDLS="/usr/bin/mdls"
 
 # check if at least one file was specified
 
-if [ x"$1" = "x" ] ; then
+if [ z"$1" = "z" ] ; then
     echo "Usage: $0 [file1] [file2] ..." >& 2
     exit 1;
 fi

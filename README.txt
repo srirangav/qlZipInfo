@@ -1,7 +1,7 @@
 README
 ------
 
-qlZipInfo v1.1.9
+qlZipInfo v1.1.10
 By Sriranga Veeraraghavan <ranga@calalum.org>
 
 Homepage:
@@ -80,13 +80,15 @@ Known Issues:
     
 History:
 
-    v1.1.9  - add support for (some?) CD/DVD images created
-              by Roxio Toast
+    v1.1.10 - update to libarchive v.3.6.1 and lzma headers from
+              xz v.5.2.5
+    v1.1.9  - add support for (some?) CD/DVD images created by
+              Roxio Toast
     v1.1.8  - upgrade to libarchive v.3.6.0
     v1.1.7  - add support for BinHex 4.0 files
-    v1.1.6  - fix to detect .tgz files as tar-gzip'ed archives 
-              and .tbz files as tar-bzip2'ed archives, disable 
-              preview of 1Password backups
+    v1.1.6  - fix to detect .tgz files as tar-gzip'ed archives and
+              .tbz files as tar-bzip2'ed archives, disable preview
+              of 1Password backups
     v1.1.5  - upgrade to libarchive v.3.5.2, add support for 
               uuencoded archives and rpm files
     v1.1.4  - modularize preview generation, add total compressed 
