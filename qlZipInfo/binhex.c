@@ -1,18 +1,18 @@
 /*
     binhex.c - decode a binhex file
- 
+
     History:
- 
+
     v. 0.1.0 (11/13/2021) - initial release
- 
+
     Based on:
 
     https://files.stairways.com/other/binhex-40-specs-info.txt
     http://www.natural-innovations.com/binhex/binhex-src.txt
     https://en.m.wikipedia.org/wiki/BinHex
- 
+
     Copyright (c) 2021 Sriranga R. Veeraraghavan <ranga@calalum.org>
- 
+
     Permission is hereby granted, free of charge, to any person obtaining
     a copy of this software and associated documentation files (the
     "Software") to deal in the Software without restriction, including
@@ -20,10 +20,10 @@
     distribute, sublicense, and/or sell copies of the Software, and to
     permit persons to whom the Software is furnished to do so, subject
     to the following conditions:
- 
+
     The above copyright notice and this permission notice shall be
     included in all copies or substantial portions of the Software.
- 
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
     MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -31,7 +31,7 @@
     CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+*/
 
 #include <assert.h>
 #include <stddef.h>
@@ -45,6 +45,7 @@
 #include <sys/errno.h>
 #include <sys/stat.h>
 
+#include "macosroman2ascii.h"
 #include "binhex.h"
 
 enum
@@ -65,7 +66,7 @@ enum
 
 /* valid characters for a binhex'ed file */
 
-static const char *gHqxValidChars = 
+static const char *gHqxValidChars =
     "!\"#$%&'()*+,-012345689@ABCDEFGHIJKLMNPQRSTUVXYZ[`abcdefhijklmpqr";
 
 #ifdef HQXMAIN
@@ -78,7 +79,7 @@ static const char *gStrDontExtract = "-n";
 
 #endif /* HQXMAIN */
 
-static const char gHqxValidCharsLookupTable[83] = 
+static const char gHqxValidCharsLookupTable[83] =
 {
     0xFF, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
     0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0xFF, 0xFF,
@@ -90,12 +91,12 @@ static const char gHqxValidCharsLookupTable[83] =
     0x2C, 0x2D, 0x2E, 0x2F, 0xFF, 0xFF, 0xFF, 0xFF,
     0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0xFF,
     0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0xFF, 0xFF,
-    0x3D, 0x3E, 0x3F 
+    0x3D, 0x3E, 0x3F
 };
 
 #ifdef HQXMAIN
 
-/* 
+/*
     Prefix and suffix for storing the resource fork, see:
        https://stackoverflow.com/questions/66620681/
        https://en.m.wikipedia.org/wiki/Resource_fork
@@ -139,7 +140,7 @@ static void hqxInterpretFinderFlags(short flags);
 #ifdef HQXMAIN
 
 /* isArg - check whether the supplied argument is one of the
-           two specified arguments, return 1 if one of the 
+           two specified arguments, return 1 if one of the
            specified arguments match the supplied argument,
            otherwise returns 0 */
 
@@ -150,7 +151,7 @@ int isArg(const char *arg,
     size_t modeStrLen = 0;
 
     /* return 0 if the supplied argument is null */
-    
+
     if (arg == NULL || arg[0] == '\0')
     {
         return 0;
@@ -159,7 +160,7 @@ int isArg(const char *arg,
     /* if a non-null long mode is specified, check if
        the supplied argument matches it */
 
-    if (longMode != NULL) 
+    if (longMode != NULL)
     {
         modeStrLen = strlen(longMode);
         if (strncasecmp(arg, longMode, modeStrLen) == 0)
@@ -181,7 +182,7 @@ int isArg(const char *arg,
     }
 
     /* no match, return 0 */
-    
+
     return 0;
 }
 #endif /* HQXMAIN */
@@ -196,23 +197,23 @@ int hqxInitFileHandle(const char *fname, hqxFileHandle_t *hqxFile)
     }
 
     /* store the specified file name */
-    
+
     hqxFile->fname = fname;
 
     /* open the specified file in readonly mode */
-    
+
     hqxFile->fd = open(hqxFile->fname, O_RDONLY);
     if (hqxFile->fd < 0)
     {
-        fprintf(stderr, 
-                "ERROR: '%s': %s\n", 
-                hqxFile->fname, 
+        fprintf(stderr,
+                "ERROR: '%s': %s\n",
+                hqxFile->fname,
                 strerror(errno));
         return gHqxErr;
     }
 
     /* get a stream pointer to the specified file */
-    
+
     hqxFile->fp = fdopen(hqxFile->fd, "r");
     if (hqxFile->fp == NULL)
     {
@@ -221,33 +222,33 @@ int hqxInitFileHandle(const char *fname, hqxFileHandle_t *hqxFile)
     }
 
     /* clear the CRCs */
-    
+
     hqxFile->crc = 0;
     hqxFile->dataCRC = 0;
     hqxFile->rsrcCRC = 0;
 
     /* clear the run length encoding variables */
-    
+
     hqxFile->repeat = 0;
     hqxFile->repeatChar = 0;
     hqxFile->eof = 0;
 
     hqxFile->haveExtractedDataFork = 0;
-    
+
     /* initialize the read buffer */
-    
-    memset(hqxFile->readBuf, '\0', 
+
+    memset(hqxFile->readBuf, '\0',
            sizeof(hqxFile->readBuf));
     hqxFile->readBufIndex = -1;
     hqxFile->readBufSize = -1;
     hqxFile->readBufAtEOF = 0;
-    
+
     /* initialize the output buffer */
-    
-    memset(hqxFile->outputBuffer, '\0', 
+
+    memset(hqxFile->outputBuffer, '\0',
            sizeof(hqxFile->outputBuffer));
     hqxFile->outputPtr = hqxFile->outputBuffer;
-    hqxFile->outputEnd = 
+    hqxFile->outputEnd =
         hqxFile->outputBuffer + sizeof(hqxFile->outputBuffer);
 
     /* zero out the binhex header */
@@ -273,7 +274,7 @@ int hqxReleaseFileHandle(hqxFileHandle_t *hqxFile)
 {
 
     /* validate the file handle */
-    
+
     if (hqxFile == NULL)
     {
         return gHqxErr;
@@ -282,7 +283,7 @@ int hqxReleaseFileHandle(hqxFileHandle_t *hqxFile)
     /* if we have a file stream, fclose(3) it, which also
        should close the underlying file descriptor from
        open(2) that was opened by hqxInitFileHandle */
-        
+
     if (hqxFile->fp != NULL)
     {
         return fclose(hqxFile->fp);
@@ -297,7 +298,7 @@ int hqxReleaseFileHandle(hqxFileHandle_t *hqxFile)
     }
 
     /* default - return an error */
-    
+
     return gHqxErr;
 }
 
@@ -316,11 +317,11 @@ static int hqxFindHeader(hqxFileHandle_t *hqxFile)
         return gHqxErr;
     }
 
-    /* read the file one character at a time to look for the 
+    /* read the file one character at a time to look for the
        start of binhex'ed data (this is slow and inefficient,
        but reliable since binhex files can be embedded in other
        files like emails) */
-       
+
     while (1)
     {
         numread = read(hqxFile->fd, &readbuf, sizeof(readbuf));
@@ -333,7 +334,7 @@ static int hqxFindHeader(hqxFileHandle_t *hqxFile)
         {
 
             /* a newline ('\n') or a carriage return ('\r')
-               indicates a start of line. */ 
+               indicates a start of line. */
 
             case '\n':
             case '\r':
@@ -342,7 +343,7 @@ static int hqxFindHeader(hqxFileHandle_t *hqxFile)
                 break;
 
             /* a ':' as the first character on a line potentially
-               indicates the start of the header of a binhex'ed 
+               indicates the start of the header of a binhex'ed
                file */
 
             case ':':
@@ -370,8 +371,8 @@ static int hqxFindHeader(hqxFileHandle_t *hqxFile)
         }
 
         /* if we found a header, stop reading characters */
-        
-        if (rc == gHqxOkay) 
+
+        if (rc == gHqxOkay)
         {
 
             /* rewind by one byte, since we read ahead one byte
@@ -393,7 +394,9 @@ static int hqxFindHeader(hqxFileHandle_t *hqxFile)
 
 int hqxGetHeader(hqxFileHandle_t *hqxFile)
 {
+#if 0
     char *np = NULL;
+#endif
     int rc = gHqxErr;
     int nameLen = 0;
 
@@ -408,7 +411,7 @@ int hqxGetHeader(hqxFileHandle_t *hqxFile)
 
     if (hqxFindHeader(hqxFile) != gHqxOkay)
     {
-        fprintf(stderr, 
+        fprintf(stderr,
                 "ERROR: '%s': could not find valid binhex header\n",
                 hqxFile->fname);
         return rc;
@@ -418,9 +421,9 @@ int hqxGetHeader(hqxFileHandle_t *hqxFile)
     fprintf(stderr,"DEBUG: Found header!\n");
 #endif
 
-    /* read the file name's length, which is stored in the first byte 
+    /* read the file name's length, which is stored in the first byte
        after the initial ':' in a binhex file */
-    
+
     nameLen = hqxGetByte(hqxFile);
     if (nameLen == EOF)
     {
@@ -428,18 +431,18 @@ int hqxGetHeader(hqxFileHandle_t *hqxFile)
         return rc;
     }
 
-    /* increment the name length because it needs to include 
+    /* increment the name length because it needs to include
        the trailing 0 byte that occurs after the filename in
        a binhex file */
 
     nameLen++;
-    
+
     /* make sure the name length is valid */
-    
+
     if (nameLen >= HQXFNAMEMAX)
     {
-        fprintf(stderr, 
-                "ERROR: Filename length is too long: %d!\n", 
+        fprintf(stderr,
+                "ERROR: Filename length is too long: %d!\n",
                 nameLen);
         return rc;
     }
@@ -449,9 +452,9 @@ int hqxGetHeader(hqxFileHandle_t *hqxFile)
 #endif
 
     /* read the filename */
-    
-    if (hqxGetBuffer(hqxFile, 
-                     hqxFile->hqxHeader.name, 
+
+    if (hqxGetBuffer(hqxFile,
+                     hqxFile->hqxHeader.name,
                      nameLen) == gHqxErr)
     {
         fprintf(stderr, "ERROR: Can't read filename!\n");
@@ -462,13 +465,18 @@ int hqxGetHeader(hqxFileHandle_t *hqxFile)
     fprintf(stderr, "DEBUG: Raw filename is '%s'\n", hqxFile->hqxHeader.name);
 #endif
 
-    /* clean up the file name by changing potential directory 
+    /* clean up the file name by changing potential directory
        separators characters (:, /, \,) and non-printable /
        problematic ascii characters to '_' */
 
+    macosroman2ascii(hqxFile->hqxHeader.name,
+                     sizeof(hqxFile->hqxHeader.name),
+                     hqxFile->hqxHeader.asciiName,
+                     sizeof(hqxFile->hqxHeader.asciiName));
+#if 0
     for (np = hqxFile->hqxHeader.name; *np != '\0'; np++)
     {
-        if (*np == ':' || *np == '/' || *np == '\\' || 
+        if (*np == ':' || *np == '/' || *np == '\\' ||
             *np == ';' || *np == ' ' || *np == '<' ||
             *np == '>' || *np == '?' || *np == '`' ||
             *np == '[' || *np == ']' || *np == '^' ||
@@ -478,18 +486,19 @@ int hqxGetHeader(hqxFileHandle_t *hqxFile)
             *np = '_';
         }
     }
+#endif
 
 #ifdef HQXDEBUG
-    fprintf(stderr, 
-            "DEBUG: Clean filename is '%s'\n", 
+    fprintf(stderr,
+            "DEBUG: Clean filename is '%s'\n",
             hqxFile->hqxHeader.name);
 #endif
 
-    /* read the file type; shorten the length by 1 so that we 
+    /* read the file type; shorten the length by 1 so that we
        have room for a null at the end of the string */
 
-    if (hqxGetBuffer(hqxFile, 
-                     hqxFile->hqxHeader.type, 
+    if (hqxGetBuffer(hqxFile,
+                     hqxFile->hqxHeader.type,
                      sizeof(hqxFile->hqxHeader.type)-1) == gHqxErr)
     {
         fprintf(stderr, "ERROR: Can't read file type!\n");
@@ -497,16 +506,16 @@ int hqxGetHeader(hqxFileHandle_t *hqxFile)
     }
 
 #ifdef HQXDEBUG
-    fprintf(stderr, 
-            "DEBUG: Type is '%s'\n", 
+    fprintf(stderr,
+            "DEBUG: Type is '%s'\n",
             hqxFile->hqxHeader.type);
 #endif
 
-    /* read the file creator; shorten the length by 1 so that we 
+    /* read the file creator; shorten the length by 1 so that we
        have room for a null at the end of the string */
 
-    if (hqxGetBuffer(hqxFile, 
-                     hqxFile->hqxHeader.creator, 
+    if (hqxGetBuffer(hqxFile,
+                     hqxFile->hqxHeader.creator,
                      sizeof(hqxFile->hqxHeader.creator)-1) == gHqxErr)
     {
         fprintf(stderr, "ERROR: Can't read file creator!\n");
@@ -514,13 +523,13 @@ int hqxGetHeader(hqxFileHandle_t *hqxFile)
     }
 
 #ifdef HQXDEBUG
-    fprintf(stderr, 
-            "DEBUG: Creator is '%s'\n", 
+    fprintf(stderr,
+            "DEBUG: Creator is '%s'\n",
             hqxFile->hqxHeader.creator);
 #endif
 
     /* get the flags */
-    
+
     hqxFile->hqxHeader.flags = hqxGet2Bytes(hqxFile);
     if (hqxFile->hqxHeader.flags == gHqxErr)
     {
@@ -529,8 +538,8 @@ int hqxGetHeader(hqxFileHandle_t *hqxFile)
     }
 
 #ifdef HQXDEBUG
-    fprintf(stderr, 
-            "DEBUG: Flags are 0x%x\n", 
+    fprintf(stderr,
+            "DEBUG: Flags are 0x%x\n",
             hqxFile->hqxHeader.flags);
 #endif
 
@@ -542,8 +551,8 @@ int hqxGetHeader(hqxFileHandle_t *hqxFile)
     }
 
 #ifdef HQXDEBUG
-    fprintf(stderr, 
-            "DEBUG: Data fork is %ld bytes\n", 
+    fprintf(stderr,
+            "DEBUG: Data fork is %ld bytes\n",
             hqxFile->hqxHeader.dataLen);
 #endif
 
@@ -555,15 +564,15 @@ int hqxGetHeader(hqxFileHandle_t *hqxFile)
     }
 
 #ifdef HQXDEBUG
-    fprintf(stderr, 
-            "DEBUG: Resource fork is %ld bytes\n", 
+    fprintf(stderr,
+            "DEBUG: Resource fork is %ld bytes\n",
             hqxFile->hqxHeader.rsrcLen);
 #endif
 
-    /* read the header CRC, but exclude it from the 
+    /* read the header CRC, but exclude it from the
        running CRC calculation */
-    
-    hqxFile->hqxHeader.headerCRC = 
+
+    hqxFile->hqxHeader.headerCRC =
         hqxGet2BytesWithOptions(hqxFile, OPT_EXCLUDE_FROM_CRC);
     if (hqxFile->hqxHeader.headerCRC == gHqxErr)
     {
@@ -572,18 +581,18 @@ int hqxGetHeader(hqxFileHandle_t *hqxFile)
     }
 
 #ifdef HQXDEBUG
-    fprintf(stderr, 
-            "DEBUG: Header crc should be 0x%x\n", 
+    fprintf(stderr,
+            "DEBUG: Header crc should be 0x%x\n",
             hqxFile->hqxHeader.headerCRC);
 #endif
 
-    /* verify that the expected header CRC specified in the 
+    /* verify that the expected header CRC specified in the
        binhex file matches the one we calculated */
-       
+
     if (hqxVerifyCRC(hqxFile->crc, hqxFile->hqxHeader.headerCRC) == 0)
     {
-        fprintf(stderr, 
-                "ERROR: Header CRC mismatch: 0x%x != 0x%x\n", 
+        fprintf(stderr,
+                "ERROR: Header CRC mismatch: 0x%x != 0x%x\n",
                 hqxFile->hqxHeader.headerCRC,
                 hqxFile->crc);
         return rc;
@@ -603,11 +612,11 @@ static int hqxVerifyCRC(short calculatedCRC, short expectedCRC)
 {
     calculatedCRC &= WORDMASK;
     expectedCRC &= WORDMASK;
-    
+
     return (calculatedCRC == expectedCRC ? 1 : 0);
 }
 
-/* hqxGetBuffer - read exactly len characters from the binhex file 
+/* hqxGetBuffer - read exactly len characters from the binhex file
                   into the specified buffer */
 
 static int hqxGetBuffer(hqxFileHandle_t *hqxFile, char *buf, int len)
@@ -615,21 +624,21 @@ static int hqxGetBuffer(hqxFileHandle_t *hqxFile, char *buf, int len)
     int c = EOF, i = 0;
 
     /* validate the supplied arguments */
-    
-    if (hqxFile == NULL || 
-        hqxFile->fd < 0 || 
-        buf == NULL || 
+
+    if (hqxFile == NULL ||
+        hqxFile->fd < 0 ||
+        buf == NULL ||
         len <= 0)
     {
         return gHqxErr;
     }
 
     /* clear the provided buffer */
-    
+
     memset(buf, '\0', len);
-    
+
     /* fill the buffer, one byte at a time */
-    
+
     for (i = 0; i < len; i++) {
         c = hqxGetByte(hqxFile);
         if (c == EOF)
@@ -638,7 +647,7 @@ static int hqxGetBuffer(hqxFileHandle_t *hqxFile, char *buf, int len)
         }
         *buf++ = c;
     }
-    
+
     return gHqxOkay;
 }
 
@@ -655,7 +664,7 @@ static short hqxGet2Bytes(hqxFileHandle_t *hqxFile)
 /* hqxGet2BytesWithOptions - read 2 bytes as a short from a binhex
                              file, using the specified options */
 
-static short hqxGet2BytesWithOptions(hqxFileHandle_t *hqxFile, 
+static short hqxGet2BytesWithOptions(hqxFileHandle_t *hqxFile,
                                      int options)
 {
     int c = 0;
@@ -669,7 +678,7 @@ static short hqxGet2BytesWithOptions(hqxFileHandle_t *hqxFile,
     }
 
     /* read the first byte with the specified options */
-    
+
     c = hqxGetByteWithOptions(hqxFile, options);
     if (c == EOF)
     {
@@ -679,7 +688,7 @@ static short hqxGet2BytesWithOptions(hqxFileHandle_t *hqxFile,
     value = (c & BYTEMASK) << 8;
 
     /* read the second byte with the specified options */
-    
+
     c = hqxGetByteWithOptions(hqxFile, options);
     if (c == EOF)
     {
@@ -705,7 +714,7 @@ static long hqxGet4Bytes(hqxFileHandle_t *hqxFile)
         return gHqxErr;
     }
 
-    for (i = 0; i < 4; i++) 
+    for (i = 0; i < 4; i++)
     {
         c = hqxGetByte(hqxFile);
         if (c == EOF)
@@ -715,7 +724,7 @@ static long hqxGet4Bytes(hqxFileHandle_t *hqxFile)
         }
         value <<= 8;
         value |= (c & BYTEMASK);
-    }    
+    }
 
     return value;
 }
@@ -725,14 +734,14 @@ static long hqxGet4Bytes(hqxFileHandle_t *hqxFile)
 static int hqxGetByte(hqxFileHandle_t *hqxFile)
 {
     /* read 1 byte without any options */
-    
+
     return hqxGetByteWithOptions(hqxFile, OPT_NONE);
 }
 
 /* hqxGetByteWithOptions - read a byte from a binhex file with the
                            specified options */
 
-static int hqxGetByteWithOptions(hqxFileHandle_t *hqxFile, 
+static int hqxGetByteWithOptions(hqxFileHandle_t *hqxFile,
                                  int options)
 {
     int c = EOF;
@@ -745,17 +754,17 @@ static int hqxGetByteWithOptions(hqxFileHandle_t *hqxFile,
     }
 
     /* get a byte from the file */
-    
+
     c = hqxGetByteWithRL(hqxFile);
-    
+
     /* if the byte we read is not EOF, see if we need to update
-       the CRC, per the options; for example, when computing the 
+       the CRC, per the options; for example, when computing the
        CRCs for the header, data fork, and resource fork, 0 must
        be used instead of the byte we read */
 
     if (c != EOF)
     {
-        if (options != OPT_EXCLUDE_FROM_CRC) 
+        if (options != OPT_EXCLUDE_FROM_CRC)
         {
             hqxUpdateCRC(c, hqxFile);
         }
@@ -787,7 +796,7 @@ static void hqxUpdateCRC(int c, hqxFileHandle_t *hqxFile)
     fprintf(stderr, "DEBUG: crc starts as 0x%x\n", hqxFile->crc);
 #endif /* HQXDEBUG */
 
-    for (i=0; i<8; i++) 
+    for (i=0; i<8; i++)
     {
         temp = ((hqxFile->crc & 0x8000) != 0 ? 1 : 0);
         hqxFile->crc <<= 1;
@@ -820,9 +829,9 @@ static int hqxGetByteWithRL(hqxFileHandle_t *hqxFile)
     }
 
     /* if repeat is non-zero, we previously encountered
-       a run length encoding indicator, so return the 
+       a run length encoding indicator, so return the
        repeated character and decrement the repeat counter */
-       
+
     if (hqxFile->repeat > 0)
     {
         hqxFile->repeat--;
@@ -832,30 +841,30 @@ static int hqxGetByteWithRL(hqxFileHandle_t *hqxFile)
     c = hqxGetByteRaw(hqxFile);
 
     /* end of file occurred */
-    
+
     if (c == EOF)
     {
         hqxFile->eof = 1;
-        return c;  
+        return c;
     }
 
-    /* a regular byte was found, save it as the repeat 
+    /* a regular byte was found, save it as the repeat
        character and return it */
-    
+
     if (c != RUNCHAR)
     {
         hqxFile->repeatChar = c;
         return c;
     }
 
-    /* the byte we just read was the start of run length 
+    /* the byte we just read was the start of run length
        encoding indicator, so read the next byte to get
        the number of repeats */
-    
+
     hqxFile->repeat = hqxGetByteRaw(hqxFile);
-    
+
     /* EOF occurred instead of the repeat count, return it */
-    
+
     if (hqxFile->repeat == EOF)
     {
         hqxFile->eof = 1;
@@ -870,9 +879,9 @@ static int hqxGetByteWithRL(hqxFileHandle_t *hqxFile)
         hqxFile->repeatChar = RUNCHAR;
         return RUNCHAR;
     }
-    
+
     /* reduce the repeat count and return the saved repeated character */
-    
+
     hqxFile->repeat -= 2;
     return hqxFile->repeatChar;
 }
@@ -899,12 +908,12 @@ static int hqxGetByteRaw(hqxFileHandle_t *hqxFile)
 
     if (hqxFile->outputPtr == hqxFile->outputBuffer)
     {
-        for (readBufferPtr = readBuffer; 
-             readBufferPtr < readBufferEnd; 
-             readBufferPtr++) 
+        for (readBufferPtr = readBuffer;
+             readBufferPtr < readBufferEnd;
+             readBufferPtr++)
         {
             c = hqxGet6Bits(hqxFile);
-            
+
             if (c == EOF)
             {
                 if (readBufferPtr <= &readBuffer[1])
@@ -921,28 +930,28 @@ static int hqxGetByteRaw(hqxFileHandle_t *hqxFile)
                     hqxFile->eof = 2;
                 }
             }
-            
+
             *readBufferPtr = c;
         }
-        
-        hqxFile->outputBuffer[0] = 
+
+        hqxFile->outputBuffer[0] =
             (readBuffer[0] << 2 | readBuffer[1] >> 4);
-        hqxFile->outputBuffer[1] = 
+        hqxFile->outputBuffer[1] =
             (readBuffer[1] << 4 | readBuffer[2] >> 2);
-        hqxFile->outputBuffer[2] = 
+        hqxFile->outputBuffer[2] =
             (readBuffer[2] << 6 | readBuffer[3]);
     }
-    
+
     /* at EOF */
-    
-    if (hqxFile->eof != 0 && 
+
+    if (hqxFile->eof != 0 &&
         (hqxFile->outputPtr >= &(hqxFile->outputPtr[hqxFile->eof])))
     {
         return EOF;
     }
 
     c = *(hqxFile->outputPtr++);
-    
+
     if (hqxFile->outputPtr >= hqxFile->outputEnd)
     {
         hqxFile->outputPtr = hqxFile->outputBuffer;
@@ -966,34 +975,34 @@ static int hqxGet6Bits(hqxFileHandle_t *hqxFile)
     }
 
     /* if we have reached the end of the file, return EOF */
-    
+
     if (hqxFile->readBufAtEOF != 0)
     {
         return EOF;
     }
 
-    do 
+    do
     {
 
         /* if either the read buffer index is -1 or the read buffer size
            is -1, we need to try to read from the input file */
-           
+
         if (hqxFile->readBufIndex == -1 || hqxFile->readBufSize == -1)
         {
             needRead = 1;
         }
 
-        /* if the read buffer index is greater than or equal to the 
+        /* if the read buffer index is greater than or equal to the
             read buffer size, we need to try to read from the input
             file */
-            
+
         if (hqxFile->readBufIndex >= hqxFile->readBufSize)
         {
             needRead = 1;
         }
 
         /* if we need to read from the input file, do so */
-        
+
         if (needRead == 1)
         {
 
@@ -1004,8 +1013,8 @@ static int hqxGet6Bits(hqxFileHandle_t *hqxFile)
             /* try to read up to the size of the read buffer from
                the input file and store the number of bytes read */
 
-            hqxFile->readBufSize = read(hqxFile->fd, 
-                                        hqxFile->readBuf, 
+            hqxFile->readBufSize = read(hqxFile->fd,
+                                        hqxFile->readBuf,
                                         sizeof(hqxFile->readBuf));
 
             /* if the number of bytes read == 0, we are at the end
@@ -1022,8 +1031,8 @@ static int hqxGet6Bits(hqxFileHandle_t *hqxFile)
 
             if (hqxFile->readBufSize < 0)
             {
-                fprintf(stderr, 
-                        "ERROR: %s: %s\n", hqxFile->fname, 
+                fprintf(stderr,
+                        "ERROR: %s: %s\n", hqxFile->fname,
                         strerror(errno));
                 hqxFile->readBufAtEOF = 1;
                 return EOF;
@@ -1032,7 +1041,7 @@ static int hqxGet6Bits(hqxFileHandle_t *hqxFile)
             /* reset the read buffer index to the beginning of the
                read buffer and clear the flag indicating we need
                to read from the input file */
-               
+
             hqxFile->readBufIndex = 0;
             needRead = 0;
         }
@@ -1051,7 +1060,7 @@ static int hqxGet6Bits(hqxFileHandle_t *hqxFile)
             case '\r':
                 continue;
 
-            /* a : or EOF, indicates end of the file, so 
+            /* a : or EOF, indicates end of the file, so
                return that */
 
             case ':':
@@ -1059,12 +1068,12 @@ static int hqxGet6Bits(hqxFileHandle_t *hqxFile)
                 hqxFile->readBufAtEOF = 1;
                 return EOF;
 
-            /* make sure the next character is a valid 
+            /* make sure the next character is a valid
                character for a binhex file */
 
             default:
-                tc = ((nextChar-' ') < 83) ? 
-                      gHqxValidCharsLookupTable[nextChar-' '] : 
+                tc = ((nextChar-' ') < 83) ?
+                      gHqxValidCharsLookupTable[nextChar-' '] :
                       0xff;
                 if (tc != 0xff)
                 {
@@ -1084,7 +1093,7 @@ static int hqxGet6Bits(hqxFileHandle_t *hqxFile)
 #ifdef HQXMAIN
 
 /* hqxExtractFork - extract either the data fork or the rsrc fork from
-                    a bin hex file; if the prefix is specified, then 
+                    a bin hex file; if the prefix is specified, then
                     the resource fork is extracted.
 
    NOTE: the data fork must be extracted first; asking for the rsrc fork
@@ -1100,8 +1109,8 @@ static int hqxExtractFork(hqxFileHandle_t *hqxFile, const char *prefix)
     long forkLen = 0, i = 0, j = 0;
     char *outFileName = NULL, *altFileName = NULL, *outBuf = NULL;
 
-    if (hqxFile == NULL || 
-        hqxFile->fd < 0 || 
+    if (hqxFile == NULL ||
+        hqxFile->fd < 0 ||
         hqxFile->hqxHeader.name[0] == '\0')
     {
         return gHqxErr;
@@ -1113,9 +1122,9 @@ static int hqxExtractFork(hqxFileHandle_t *hqxFile, const char *prefix)
     }
 
     /* if a prefix is specified, we are extracting the rsrc fork */
-    
-    forkLen = (prefix == NULL ? 
-               hqxFile->hqxHeader.dataLen : 
+
+    forkLen = (prefix == NULL ?
+               hqxFile->hqxHeader.dataLen :
                hqxFile->hqxHeader.rsrcLen);
 
     /* if the fork length is less than zero, the header may not have
@@ -1127,16 +1136,16 @@ static int hqxExtractFork(hqxFileHandle_t *hqxFile, const char *prefix)
     }
 
     /* if the fork we are extracting is 0 size, skip it */
-    
+
     if (forkLen == 0)
     {
 
-        /* if no prefix was specified, then we are dealing 
+        /* if no prefix was specified, then we are dealing
            with a 0 size data fork - just read and store
            the crc so that the rsrc fork can be extracted
            properly; no need to do this for a zero sized
            rsrc fork */
-           
+
         if (prefix == NULL)
         {
             hqxFile->dataCRC = hqxGet2Bytes(hqxFile);
@@ -1150,28 +1159,28 @@ static int hqxExtractFork(hqxFileHandle_t *hqxFile, const char *prefix)
     {
         /* if the prefix is specified, allocate memory to store the
            output file name plus the resource fork prefix */
-        
-        outFileNameLen = 
+
+        outFileNameLen =
             strlen(hqxFile->hqxHeader.name) + strlen(prefix) + 1;
-        
+
         outFileName = calloc(outFileNameLen, sizeof(char));
         if (outFileName == NULL)
         {
-            fprintf(stderr, 
+            fprintf(stderr,
                     "ERROR: Cannot allocate memory for rsrc fork filename.\n");
             return gHqxErr;
         }
 
         freeOutFileName = 1;
 
-        err = snprintf(outFileName, 
-                       outFileNameLen, 
-                       "%s%s", 
-                       prefix, 
+        err = snprintf(outFileName,
+                       outFileNameLen,
+                       "%s%s",
+                       prefix,
                        hqxFile->hqxHeader.name);
         if (err < 0)
         {
-            fprintf(stderr, 
+            fprintf(stderr,
                     "ERROR: Cannot store rsrc fork filename.\n");
             free(outFileName);
             return gHqxErr;
@@ -1179,15 +1188,15 @@ static int hqxExtractFork(hqxFileHandle_t *hqxFile, const char *prefix)
 
         /* allocate memory to store the alternate name for the
            resource fork */
-           
-        altFileNameLen = strlen(hqxFile->hqxHeader.name) + 
+
+        altFileNameLen = strlen(hqxFile->hqxHeader.name) +
                          strlen(gRsrcForkSuffix) + 1;
         altFileName = calloc(altFileNameLen, sizeof(char));
         if (altFileName != NULL)
         {
-            err = snprintf(altFileName, 
-                           altFileNameLen, 
-                           "%s%s", 
+            err = snprintf(altFileName,
+                           altFileNameLen,
+                           "%s%s",
                            hqxFile->hqxHeader.name,
                            gRsrcForkSuffix);
             if (err < 0)
@@ -1207,10 +1216,10 @@ static int hqxExtractFork(hqxFileHandle_t *hqxFile, const char *prefix)
 #endif /* HQXDEBUG */
 
     /* remove write permissions for group and others */
-    
+
     umask(S_IWGRP | S_IWOTH);
-    
-    /* open the output file for writing, creating it if it doesn't 
+
+    /* open the output file for writing, creating it if it doesn't
        exist, but erroring if it already exists; if the alternate
        name is not null, we start with it first */
 
@@ -1220,7 +1229,7 @@ static int hqxExtractFork(hqxFileHandle_t *hqxFile, const char *prefix)
 #ifdef HQXDEBUG
         if (outfd < 0)
         {
-            fprintf(stderr, 
+            fprintf(stderr,
                     "DEBUG: can't open %s: %s!\n.",
                     altFileName,
                     strerror(errno));
@@ -1230,8 +1239,8 @@ static int hqxExtractFork(hqxFileHandle_t *hqxFile, const char *prefix)
         free(altFileName);
     }
 
-    /* check if we have already opened an output file (for 
-       example, using the alternate name for rsrc forks); if 
+    /* check if we have already opened an output file (for
+       example, using the alternate name for rsrc forks); if
        not, open it */
 
     if (outfd < 0) {
@@ -1243,7 +1252,7 @@ static int hqxExtractFork(hqxFileHandle_t *hqxFile, const char *prefix)
             {
                 free(outFileName);
             }
-            fprintf(stderr, 
+            fprintf(stderr,
                     "ERROR: output filename was NULL!\n");
             return gHqxErr;
         }
@@ -1252,15 +1261,15 @@ static int hqxExtractFork(hqxFileHandle_t *hqxFile, const char *prefix)
     }
     else
     {
-    
+
         /* we are using the name rsrc fork, so don't try to
           set permissions for it (which would fail) */
 
         setPerms = 0;
 
 #ifdef HQXDEBUG
-        fprintf(stderr, 
-                "DEBUG: writing to %s%s\n", 
+        fprintf(stderr,
+                "DEBUG: writing to %s%s\n",
                 hqxFile->hqxHeader.name,
                 gRsrcForkSuffix);
 #endif /* HQXDEBUG */
@@ -1274,21 +1283,21 @@ static int hqxExtractFork(hqxFileHandle_t *hqxFile, const char *prefix)
 
     if (outfd < 0)
     {
-        fprintf(stderr, 
-                "ERROR: can't open output file: %s\n", 
+        fprintf(stderr,
+                "ERROR: can't open output file: %s\n",
                 strerror(errno));
         return gHqxErr;
     }
 
     /* set the permissions for the file we just opened */
-    
+
     if (setPerms != 0)
     {
         err = fchmod(outfd, S_IRUSR | S_IWUSR | S_IRGRP);
         if (err < 0)
         {
-            fprintf(stderr, 
-                    "ERROR: Can't set output file permissions: %s\n", 
+            fprintf(stderr,
+                    "ERROR: Can't set output file permissions: %s\n",
                     strerror(errno));
             return gHqxErr;
         }
@@ -1301,16 +1310,16 @@ static int hqxExtractFork(hqxFileHandle_t *hqxFile, const char *prefix)
     outBuf = calloc(gMaxBuf, sizeof(char));
     if (outBuf == NULL)
     {
-        fprintf(stderr, 
-                "ERROR: Can't allocate output buffer: %s\n", 
+        fprintf(stderr,
+                "ERROR: Can't allocate output buffer: %s\n",
                 strerror(errno));
         return gHqxErr;
     }
 
-    for (i = 0, j = 0; i < forkLen; i++, j++) 
+    for (i = 0, j = 0; i < forkLen; i++, j++)
     {
         /* read a byte from the binhex'ed file */
-        
+
         c = hqxGetByte(hqxFile);
         if (c == EOF)
         {
@@ -1321,7 +1330,7 @@ static int hqxExtractFork(hqxFileHandle_t *hqxFile, const char *prefix)
 
         /* while the output buffer is not full, store the
            byte we just read in the output buffer */
-           
+
         if (j < gMaxBuf)
         {
             outBuf[j] = c;
@@ -1333,42 +1342,42 @@ static int hqxExtractFork(hqxFileHandle_t *hqxFile, const char *prefix)
         err = write(outfd, outBuf, j);
         if (err < 0 || err != j)
         {
-            fprintf(stderr, 
-                    "ERROR: can't write to output file: %s!\n", 
+            fprintf(stderr,
+                    "ERROR: can't write to output file: %s!\n",
                     strerror(errno));
             break;
         }
 
         /* go back to the beginning of the output buffer
            and store the byte we just read */
-           
+
         j = 0;
         outBuf[j] = c;
     }
 
     /* if there was no error in the read / write loop above,
-       and there is data in the output buffer, write it to 
+       and there is data in the output buffer, write it to
        the output file */
 
     if (err >= 0 && j > 0 && j < gMaxBuf)
-    {        
+    {
         err = write(outfd, outBuf, j);
         if (err < 0)
         {
-            fprintf(stderr, 
-                    "ERROR: can't write to output file: %s!\n", 
+            fprintf(stderr,
+                    "ERROR: can't write to output file: %s!\n",
                     strerror(errno));
         }
 
 #ifdef HQXDEBUG
-        fprintf(stderr, 
-                "DEBUG: read=%ld, lastbuf=%ld, total=%ld, len=%ld\n", 
+        fprintf(stderr,
+                "DEBUG: read=%ld, lastbuf=%ld, total=%ld, len=%ld\n",
                 i, j, forkLen);
 #endif /* HQXDEBUG */
     }
 
     /* we don't need the output buffer anymore, so free it */
-    
+
     if (outBuf != NULL)
     {
         free(outBuf);
@@ -1376,26 +1385,26 @@ static int hqxExtractFork(hqxFileHandle_t *hqxFile, const char *prefix)
 
     /* we don't need the file descriptor for the output file anymore,
        so close it */
-       
+
     close(outfd);
 
-    /* if the prefix is null, check the the data fork's CRC 
+    /* if the prefix is null, check the the data fork's CRC
        and return */
 
     if (prefix == NULL)
     {
-        hqxFile->dataCRC = 
+        hqxFile->dataCRC =
             hqxGet2BytesWithOptions(hqxFile, OPT_EXCLUDE_FROM_CRC);
         if (hqxFile->dataCRC == gHqxErr)
         {
             fprintf(stderr, "ERROR: Can't read data fork crc!\n");
             return gHqxErr;
         }
-        
+
         if (hqxVerifyCRC(hqxFile->crc, hqxFile->dataCRC) == 0)
         {
-            fprintf(stderr, 
-                    "ERROR: data fork crc mismatch: 0x%x != 0x%x\n", 
+            fprintf(stderr,
+                    "ERROR: data fork crc mismatch: 0x%x != 0x%x\n",
                      hqxFile->dataCRC,
                      hqxFile->crc);
             return gHqxErr;
@@ -1403,7 +1412,7 @@ static int hqxExtractFork(hqxFileHandle_t *hqxFile, const char *prefix)
 
 #ifdef HQXDEBUG
         fprintf(stderr,
-                "DEBUG: data fork crc (0x%x) match.\n", 
+                "DEBUG: data fork crc (0x%x) match.\n",
                 hqxFile->crc);
 #endif /* HQXDEBUG */
 
@@ -1418,7 +1427,7 @@ static int hqxExtractFork(hqxFileHandle_t *hqxFile, const char *prefix)
     /* the prefix wasn't null, so we were dealing with the rsrc
        fork, check its crc and return */
 
-    hqxFile->rsrcCRC = 
+    hqxFile->rsrcCRC =
         hqxGet2BytesWithOptions(hqxFile, OPT_EXCLUDE_FROM_CRC);
     if (hqxFile->rsrcCRC == gHqxErr)
     {
@@ -1428,8 +1437,8 @@ static int hqxExtractFork(hqxFileHandle_t *hqxFile, const char *prefix)
 
     if (hqxVerifyCRC(hqxFile->crc, hqxFile->rsrcCRC) == 0)
     {
-        fprintf(stderr, 
-                "ERROR: rsrc fork crc mismatch: 0x%x != 0x%x\n", 
+        fprintf(stderr,
+                "ERROR: rsrc fork crc mismatch: 0x%x != 0x%x\n",
                  hqxFile->rsrcCRC,
                  hqxFile->crc);
         return gHqxErr;
@@ -1437,7 +1446,7 @@ static int hqxExtractFork(hqxFileHandle_t *hqxFile, const char *prefix)
 
 #ifdef HQXDEBUG
         fprintf(stderr,
-                "DEBUG: rsrc fork crc (0x%x) match.\n", 
+                "DEBUG: rsrc fork crc (0x%x) match.\n",
                 hqxFile->crc);
 #endif /* HQXDEBUG */
 
@@ -1449,8 +1458,8 @@ static int hqxExtractForks(hqxFileHandle_t *hqxFile)
 
     /* validate the file handle */
 
-    if (hqxFile == NULL || 
-        hqxFile->fd < 0 || 
+    if (hqxFile == NULL ||
+        hqxFile->fd < 0 ||
         hqxFile->hqxHeader.name[0] == '\0')
     {
         return gHqxErr;
@@ -1462,13 +1471,13 @@ static int hqxExtractForks(hqxFileHandle_t *hqxFile)
 
     if (hqxExtractFork(hqxFile, NULL) != gHqxOkay)
     {
-        fprintf(stderr, 
+        fprintf(stderr,
                 "ERROR: '%s': data fork not extracted correctly\n",
                 hqxFile->hqxHeader.name);
         return gHqxErr;
     }
 
-    fprintf(stderr, 
+    fprintf(stderr,
             "DEBUG: '%s': extracted data fork\n",
             hqxFile->hqxHeader.name);
 
@@ -1480,13 +1489,13 @@ static int hqxExtractForks(hqxFileHandle_t *hqxFile)
 
     if (hqxExtractFork(hqxFile, gRsrcForkPrefix) != gHqxOkay)
     {
-        fprintf(stderr, 
+        fprintf(stderr,
                 "ERROR: '%s': rsrc fork not extracted correctly\n",
                 hqxFile->hqxHeader.name);
         return gHqxErr;
     }
 
-    fprintf(stderr, 
+    fprintf(stderr,
             "DEBUG: '%s': extracted rsrc fork\n",
             hqxFile->hqxHeader.name);
 
@@ -1499,7 +1508,7 @@ static int hqxExtractForks(hqxFileHandle_t *hqxFile)
 
    TODO: add more flags from Tech Note 40:
    https://spinsidemacintosh.neocities.org/tn405.html#tn040 */
-   
+
 static void hqxInterpretFinderFlags(short flags)
 {
     if (flags == 0)
@@ -1508,7 +1517,7 @@ static void hqxInterpretFinderFlags(short flags)
     }
 
     fprintf (stderr, "DEBUG: flags are: ");
-    
+
     if ((flags ^ F_BUNDLE) == 0)
     {
         fprintf(stderr, "'locked' ");
@@ -1518,7 +1527,7 @@ static void hqxInterpretFinderFlags(short flags)
     {
         fprintf(stderr, "'bundle' ");
     }
-    
+
     fprintf (stderr, "\n");
 }
 #endif /* HQXDEBUG */
@@ -1527,10 +1536,10 @@ static void hqxInterpretFinderFlags(short flags)
 /* main */
 
 int main (int argc, char **argv)
-{    
+{
     hqxFileHandle_t hqxFile;
     int dontExtract = 0, fileIndex = 1, rc = 0;
-    
+
     /* print a usage message if no was specified */
 
     if (argc < 2 || argv[1] == NULL)
@@ -1538,13 +1547,13 @@ int main (int argc, char **argv)
         fprintf(stderr,"Usage: %s [-h] | [-n] [file]\n", argv[0]);
         return 1;
     }
-    
+
     /* at least one argument */
-    
+
     if (argc >= 2)
     {
         /* if the argument is -h for help, print a usage message */
-        
+
         if (isArg(argv[1], gStrModeHelpLong, gStrModeHelpShort) == 1)
         {
             fprintf(stderr,"Usage: %s [-h] | [-n] [file]\n", argv[0]);
@@ -1553,20 +1562,20 @@ int main (int argc, char **argv)
 
         /* if the argument is -n for don't extract, assume the next
            argument is the file */
-           
+
         if (isArg(argv[1], gStrDontExtract, NULL) == 1)
         {
             dontExtract = 1;
             fileIndex = 2;
         }
-    } 
+    }
 
     if (argc < (fileIndex+1) || argv[fileIndex] == NULL)
     {
         fprintf(stderr,"Usage: %s [-h] | [-n] [file]\n", argv[0]);
         return 1;
     }
-    
+
     if (hqxInitFileHandle(argv[fileIndex], &hqxFile) != gHqxOkay)
     {
         fprintf(stderr, "ERROR: could not initialize file handle\n");
@@ -1581,7 +1590,7 @@ int main (int argc, char **argv)
 
     /* print a summary of the contents of the file */
 
-    fprintf(stdout, 
+    fprintf(stdout,
             "%s: %s %s 0x%04x %ld B (data) %ld B (rsrc) %ld B (total)\n",
             hqxFile.hqxHeader.name,
             hqxFile.hqxHeader.type,
@@ -1589,7 +1598,7 @@ int main (int argc, char **argv)
             hqxFile.hqxHeader.flags,
             hqxFile.hqxHeader.dataLen,
             hqxFile.hqxHeader.rsrcLen,
-            hqxFile.hqxHeader.dataLen + 
+            hqxFile.hqxHeader.dataLen +
             hqxFile.hqxHeader.rsrcLen);
 
 #ifdef HQXDEBUG
@@ -1600,7 +1609,7 @@ int main (int argc, char **argv)
     {
         return 0;
     }
-        
+
     /* extract the data and rsrc forks */
 
     if (hqxExtractForks(&hqxFile) != gHqxOkay)

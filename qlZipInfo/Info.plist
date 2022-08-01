@@ -37,6 +37,8 @@
 				<string>com.redhat.rpm-archive</string>
 				<string>com.apple.binhex-archive</string>
 				<string>com.roxio.disk-image-toast</string>
+				<string>com.stuffit.archive.sit</string>
+				<string>com.allume.stuffit-archive</string>
 			</array>
 		</dict>
 	</array>

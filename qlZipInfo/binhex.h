@@ -1,5 +1,5 @@
 /*
-    binhex.c - decode a binhex file
+    binhex.h - decode a binhex file
  
     History:
  
@@ -25,7 +25,7 @@
     CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
     TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
     SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+*/
 
 #ifndef qlZipInfo_binhex_h
 #define qlZipInfo_binhex_h
@@ -49,7 +49,8 @@ enum
    
 typedef struct hqxHeader
 {
-    char name[HQXFNAMEMAX];
+    char name[HQXFNAMEMAX+1];
+    char asciiName[HQXFNAMEMAX+1];
     char type[5];
     char creator[5];
     short flags;

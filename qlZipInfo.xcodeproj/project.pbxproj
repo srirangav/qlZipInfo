@@ -124,6 +124,8 @@
 		26909FB4267C89A8000272C5 /* archive_write_disk_set_standard_lookup.c in Sources */ = {isa = PBXBuildFile; fileRef = 26909FA2267C08F4000272C5 /* archive_write_disk_set_standard_lookup.c */; settings = {COMPILER_FLAGS = "-D HAVE_CONFIG_H"; }; };
 		26909FB7267D2BCA000272C5 /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 26909FB6267D2BCA000272C5 /* libbz2.tbd */; };
 		26909FB9267D2CF0000272C5 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 26909FB8267D2CF0000272C5 /* libz.tbd */; };
+		26A629D12897B40200713E91 /* macosroman2ascii.h in Headers */ = {isa = PBXBuildFile; fileRef = 26A629CF2897B40200713E91 /* macosroman2ascii.h */; };
+		26A629D22897B40200713E91 /* macosroman2ascii.c in Sources */ = {isa = PBXBuildFile; fileRef = 26A629D02897B40200713E91 /* macosroman2ascii.c */; };
 		26BC4AB126807928005C136F /* lzma.h in Headers */ = {isa = PBXBuildFile; fileRef = 26BC4AB026807928005C136F /* lzma.h */; };
 		26CA45D91B8461BA00B08F29 /* GenerateThumbnailForURL.m in Sources */ = {isa = PBXBuildFile; fileRef = 26CA45D81B8461BA00B08F29 /* GenerateThumbnailForURL.m */; };
 		26CA45DB1B8461BA00B08F29 /* GeneratePreviewForURL.m in Sources */ = {isa = PBXBuildFile; fileRef = 26CA45DA1B8461BA00B08F29 /* GeneratePreviewForURL.m */; };
@@ -131,6 +133,8 @@
 		26D414431BA9E23200216180 /* GTMDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 26D414401BA9E23200216180 /* GTMDefines.h */; };
 		26D414441BA9E23200216180 /* GTMNSString+HTML.h in Headers */ = {isa = PBXBuildFile; fileRef = 26D414411BA9E23200216180 /* GTMNSString+HTML.h */; };
 		26D414451BA9E23200216180 /* GTMNSString+HTML.m in Sources */ = {isa = PBXBuildFile; fileRef = 26D414421BA9E23200216180 /* GTMNSString+HTML.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		26D60C462895056300713E91 /* sit.c in Sources */ = {isa = PBXBuildFile; fileRef = 26D60C442895056300713E91 /* sit.c */; };
+		26D60C472895056300713E91 /* sit.h in Headers */ = {isa = PBXBuildFile; fileRef = 26D60C452895056300713E91 /* sit.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -261,6 +265,8 @@
 		26909FB8267D2CF0000272C5 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		26909FC0267D3B1A000272C5 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		26909FC1267D3B1A000272C5 /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
+		26A629CF2897B40200713E91 /* macosroman2ascii.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macosroman2ascii.h; sourceTree = "<group>"; };
+		26A629D02897B40200713E91 /* macosroman2ascii.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = macosroman2ascii.c; sourceTree = "<group>"; };
 		26BC4AB026807928005C136F /* lzma.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzma.h; sourceTree = "<group>"; };
 		26BC4AB5268079A8005C136F /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
 		26BC4AB7268079F3005C136F /* lzma12.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzma12.h; sourceTree = "<group>"; };
@@ -284,6 +290,8 @@
 		26D414401BA9E23200216180 /* GTMDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTMDefines.h; sourceTree = "<group>"; };
 		26D414411BA9E23200216180 /* GTMNSString+HTML.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "GTMNSString+HTML.h"; sourceTree = "<group>"; };
 		26D414421BA9E23200216180 /* GTMNSString+HTML.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "GTMNSString+HTML.m"; sourceTree = "<group>"; };
+		26D60C442895056300713E91 /* sit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sit.c; sourceTree = "<group>"; };
+		26D60C452895056300713E91 /* sit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sit.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -499,8 +507,12 @@
 				261D47E126A94A0800028CA3 /* GeneratePreviewForURL.h */,
 				26CA45DA1B8461BA00B08F29 /* GeneratePreviewForURL.m */,
 				26CA45D81B8461BA00B08F29 /* GenerateThumbnailForURL.m */,
-				26546104274054D600713E91 /* binhex.c */,
 				265461062740557400713E91 /* binhex.h */,
+				26546104274054D600713E91 /* binhex.c */,
+				26D60C452895056300713E91 /* sit.h */,
+				26D60C442895056300713E91 /* sit.c */,
+				26A629CF2897B40200713E91 /* macosroman2ascii.h */,
+				26A629D02897B40200713E91 /* macosroman2ascii.c */,
 				26CA45DC1B8461BA00B08F29 /* main.c */,
 				26CA45D61B8461BA00B08F29 /* Supporting Files */,
 			);
@@ -547,10 +559,12 @@
 			files = (
 				26BC4AB126807928005C136F /* lzma.h in Headers */,
 				26909F9A267C07FA000272C5 /* archive_pathmatch.h in Headers */,
+				26A629D12897B40200713E91 /* macosroman2ascii.h in Headers */,
 				26909F59267B429D000272C5 /* archive_hmac_private.h in Headers */,
 				26909FB3267C0AB4000272C5 /* archive_getdate.h in Headers */,
 				26909EDD267B37E5000272C5 /* archive_entry.h in Headers */,
 				26D414441BA9E23200216180 /* GTMNSString+HTML.h in Headers */,
+				26D60C472895056300713E91 /* sit.h in Headers */,
 				26909F9C267C07FA000272C5 /* archive_platform_xattr.h in Headers */,
 				26909EEF267B39AD000272C5 /* archive_entry_private.h in Headers */,
 				26909ED5267B374C000272C5 /* archive.h in Headers */,
@@ -696,6 +710,7 @@
 				26909F6E267B4410000272C5 /* filter_fork_posix.c in Sources */,
 				26909EFD267B3EDA000272C5 /* archive_read_open_filename.c in Sources */,
 				26909F35267B407B000272C5 /* archive_read_support_format_cpio.c in Sources */,
+				26D60C462895056300713E91 /* sit.c in Sources */,
 				26909F51267B4194000272C5 /* archive_cryptor.c in Sources */,
 				26909F34267B407B000272C5 /* archive_read_support_filter_program.c in Sources */,
 				26909FB2267C0AB4000272C5 /* archive_getdate.c in Sources */,
@@ -703,6 +718,7 @@
 				26909FAD267C0A52000272C5 /* archive_options.c in Sources */,
 				26909F7F267BE461000272C5 /* archive_read_add_passphrase.c in Sources */,
 				26909F65267B433C000272C5 /* archive_blake2sp_ref.c in Sources */,
+				26A629D22897B40200713E91 /* macosroman2ascii.c in Sources */,
 				26909EF9267B3DA1000272C5 /* archive_entry_sparse.c in Sources */,
 				26909FAF267C0A89000272C5 /* archive_match.c in Sources */,
 				26909F9B267C07FA000272C5 /* archive_pathmatch.c in Sources */,
@@ -856,7 +872,7 @@
 				INFOPLIST_FILE = qlZipInfo/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 1.1.10;
+				MARKETING_VERSION = 1.1.11;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.calalum.ranga.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -875,7 +891,7 @@
 				INFOPLIST_FILE = qlZipInfo/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
-				MARKETING_VERSION = 1.1.10;
+				MARKETING_VERSION = 1.1.11;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.calalum.ranga.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

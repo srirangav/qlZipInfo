@@ -1,8 +1,7 @@
 README
 ------
 
-qlZipInfo v1.1.10
-By Sriranga Veeraraghavan <ranga@calalum.org>
+qlZipInfo v1.1.11
 
 Homepage:
 
@@ -14,8 +13,8 @@ Overview:
     tar.gz (.tgz), tar.bz2 (.tbz2/.tbz), tar.Z (.tZ), xar 
     (.xar, .pkg), debian (.deb), Redhat Package Manager 
     (.rpm), 7zip (.7z), xz, Microsoft cabinet (.cab), gzip 
-    (.gz), lha, and Binhex 4.0 (.hqx) archives and ISO9660
-    (.iso, .cdr, .toast) images.
+    (.gz), lha, Binhex 4.0 (.hqx), and StuffIf (.sit)
+    archives and ISO9660 (.iso, .cdr, .toast) images.
 
     qlZipInfo relies on libarchive (https://libarchive.org/).
     
@@ -80,6 +79,7 @@ Known Issues:
     
 History:
 
+    v1.1.11 - add support for some Stuffit files
     v1.1.10 - update to libarchive v.3.6.1 and lzma headers from
               xz v.5.2.5
     v1.1.9  - add support for (some?) CD/DVD images created by

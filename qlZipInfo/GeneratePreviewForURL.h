@@ -1,13 +1,14 @@
 /*
     GeneratePreviewForURL.h - constants for qlZipInfo
- 
+
     History:
- 
+
     v. 0.1.0 (07/22/2021) - initial release
     v. 0.2.0 (11/13/2021) - add binhex support
- 
-    Copyright (c) 2021 Sriranga R. Veeraraghavan <ranga@calalum.org>
- 
+    v. 0.3.0 (08/01/2022) - add stuffit support
+    
+    Copyright (c) 2015-2022 Sriranga R. Veeraraghavan <ranga@calalum.org>
+
     Permission is hereby granted, free of charge, to any person obtaining
     a copy of this software and associated documentation files (the
     "Software") to deal in the Software without restriction, including
@@ -15,10 +16,10 @@
     distribute, sublicense, and/or sell copies of the Software, and to
     permit persons to whom the Software is furnished to do so, subject
     to the following conditions:
- 
+
     The above copyright notice and this permission notice shall be
     included in all copies or substantial portions of the Software.
- 
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
     MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -112,6 +113,8 @@ static const NSString *gFilePkgIcon       = @"&#x1F4E6";
 /* unknown file name */
 
 static const char *gFileNameUnavilable = "[Unavailable]";
+static const NSString *gFileNameUnavilableStr =
+                                         @"[Unavailable]";
 
 /* default font style - sans serif */
 
@@ -132,7 +135,9 @@ static const char *gMacFileTypeSIT5 = "SIT5";
 /* UTIs for files that may require special handling */
 
 static const CFStringRef gUTIGZip = CFSTR("org.gnu.gnu-zip-archive");
-static const CFStringRef gUITBinHex = CFSTR("com.apple.binhex-archive");
+static const CFStringRef gUTIBinHex = CFSTR("com.apple.binhex-archive");
+static const CFStringRef gUTISIT1 = CFSTR("com.stuffit.archive.sit");
+static const CFStringRef gUTISIT2 = CFSTR("com.allume.stuffit-archive");
 
 /* structs */
 
@@ -150,6 +155,11 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                                CFStringRef contentTypeUTI,
                                CFDictionaryRef options);
 static OSStatus GeneratePreviewForHQX(void *thisInterface,
+                                      QLPreviewRequestRef preview,
+                                      CFURLRef url,
+                                      CFStringRef contentTypeUTI,
+                                      CFDictionaryRef options);
+static OSStatus GeneratePreviewForSIT(void *thisInterface,
                                       QLPreviewRequestRef preview,
                                       CFURLRef url,
                                       CFStringRef contentTypeUTI,
