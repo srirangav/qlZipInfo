@@ -13,7 +13,7 @@ Overview:
     tar.gz (.tgz), tar.bz2 (.tbz2/.tbz), tar.Z (.tZ), xar
     (.xar, .pkg), debian (.deb), Redhat Package Manager
     (.rpm), 7zip (.7z), xz, Microsoft cabinet (.cab), gzip
-    (.gz), lha, Binhex 4.0 (.hqx), and StuffIf (.sit)
+    (.gz), lha, Binhex 4.0 (.hqx), and Stuffit (.sit)
     archives and ISO9660 (.iso, .cdr, .toast) images.
 
     qlZipInfo relies on libarchive (https://libarchive.org/).
