@@ -1,22 +1,31 @@
 # Makefile for qlZipInfo
 
+# project settings
+
 PROJNAME   = qlZipInfo
 PROJEXT    = qlgenerator
-PROJVERS   = 1.1.10
+PROJVERS   = 1.1.11
 BUNDLEID   = "org.calalum.ranga.$(PROJNAME)"
+
+# extra files to include in the package
+
+SUPPORT_FILES = README.txt LICENSE.txt
 
 # code signing information
 
-include sign.mk
+include ../sign.mk
 
 # build and packaging tools
 
 XCODEBUILD = /usr/bin/xcodebuild
 XCRUN      = /usr/bin/xcrun
+HIUTIL     = /usr/bin/hiutil
 ALTOOL     = $(XCRUN) altool
+NOTARYTOOL = xcrun notarytool
 STAPLER    = $(XCRUN) stapler
 HDIUTIL    = /usr/bin/hdiutil
 CODESIGN   = /usr/bin/codesign
+GPG        = /opt/local/bin/gpg
 
 # code sign arguments
 # based on:
@@ -30,20 +39,28 @@ CODESIGN_ARGS = --force \
                 --options runtime \
                 --sign $(SIGNID)
 
-# extra files to include in the package
+# build results directory
 
-SUPPORT_FILES = README.txt LICENSE.txt
+BUILD_RESULTS_DIR = build/Release/$(PROJNAME).$(PROJEXT)
+BUILD_RESULTS_FRAMEWORKS_DIR = $(BUILD_RESULTS_DIR)/Contents/Frameworks/
 
 # build the app
 
 all:
 	$(XCODEBUILD) -project $(PROJNAME).xcodeproj -configuration Release
 
-sign: all
-	$(CODESIGN) $(CODESIGN_ARGS) build/Release/$(PROJNAME).$(PROJEXT)
-	if [ -d build/Release/$(PROJNAME).$(PROJEXT)/Contents/Frameworks/ ] ; then \
+# sign the app, if frameworks are included, then sign_frameworks should
+# be the pre-requisite target instead of "all"
+
+sign: sign_frameworks
+	$(CODESIGN) $(CODESIGN_ARGS) $(BUILD_RESULTS_DIR)
+
+# sign any included frameworks (not always needed)
+
+sign_frameworks: all
+	if [ -d $(BUILD_RESULTS_FRAMEWORKS_DIR) ] ; then \
         $(CODESIGN) $(CODESIGN_ARGS) \
-                build/Release/$(PROJNAME).$(PROJEXT)/Contents/Frameworks/* ; \
+                    $(BUILD_RESULTS_FRAMEWORKS_DIR) ; \
     fi
 
 # sign the disk image
@@ -51,7 +68,9 @@ sign: all
 sign_dmg: dmg
 	$(CODESIGN) $(CODESIGN_ARGS) $(PROJNAME)-$(PROJVERS).dmg
 
-dmg: clean all sign
+# create a disk image with the signed app
+
+dmg: all sign
 	/bin/mkdir $(PROJNAME)-$(PROJVERS)
 	/bin/mv build/Release/$(PROJNAME).$(PROJEXT) $(PROJNAME)-$(PROJVERS)
 	/bin/cp $(SUPPORT_FILES) $(PROJNAME)-$(PROJVERS)
@@ -60,7 +79,19 @@ dmg: clean all sign
 
 # notarize the signed disk image
 
+# Xcode13 notarization
+# See: https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow?preferredLanguage=occ
+#      https://scriptingosx.com/2021/07/notarize-a-command-line-tool-with-notarytool/
+#      https://indiespark.top/programming/new-xcode-13-notarization/
+
 notarize: sign_dmg
+	$(NOTARYTOOL) submit $(PROJNAME)-$(PROJVERS).dmg \
+                  --apple-id $(USERID) --team-id $(TEAMID) \
+                  --wait
+
+# Pre-Xcode13 notarization
+
+notarize_old: sign_dmg
 	$(ALTOOL) --notarize-app \
               --primary-bundle-id $(BUNDLEID) \
               --username $(USERID) \
@@ -69,9 +100,14 @@ notarize: sign_dmg
 # staple the ticket to the dmg, but notarize needs to complete first,
 # so we can't list notarize as a pre-requisite target
 
-staple: 
+staple: notarize
 	$(STAPLER) staple $(PROJNAME)-$(PROJVERS).dmg
 	$(STAPLER) validate $(PROJNAME)-$(PROJVERS).dmg
+
+# sign the dmg with a gpg public key
+
+clear_sign: staple
+	$(GPG) -asb $(PROJNAME)-$(PROJVERS).dmg
 
 clean:
 	/bin/rm -rf ./build $(PROJNAME)-$(PROJVERS) $(PROJNAME)-$(PROJVERS).dmg
