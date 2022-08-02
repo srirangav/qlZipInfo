@@ -77,6 +77,8 @@ Known Issues:
 
     4. Only BinHex 4.0 files are supported
 
+    5. Stuffit 5 files are not currently supported
+
 History:
 
     v1.1.11 - add support for some Stuffit files
