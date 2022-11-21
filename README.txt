@@ -53,6 +53,8 @@ Install:
 
     4. Wait a minute or two for QuickLook to properly load
        or reload qlZipInfo.qlgenerator
+       
+    Alternatively, you can install via brew using `iloveitaly/tap/qlzipinfo`
 
 Supported MacOSX versions:
 
