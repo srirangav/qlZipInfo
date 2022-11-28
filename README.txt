@@ -1,7 +1,7 @@
 README
 ------
 
-qlZipInfo v1.1.11
+qlZipInfo v1.2.0
 
 Homepage:
 
@@ -56,7 +56,8 @@ Install:
 
 Supported MacOSX versions:
 
-    v. 1.0.9 onwards     - 10.9+
+    v. 1.2.0 and onwards - 10.13+
+    v. 1.0.9 - 1.1.11    - 10.9+
     v. 1.0.8 and earlier - 10.6+
 
 Known Issues:
@@ -81,6 +82,7 @@ Known Issues:
 
 History:
 
+    v1.2.0  - Updates for Xcode 14.1
     v1.1.11 - add support for some Stuffit files
     v1.1.10 - update to libarchive v.3.6.1 and lzma headers from
               xz v.5.2.5
@@ -125,4 +127,3 @@ History:
 License:
 
     Please see LICENSE.txt
-
