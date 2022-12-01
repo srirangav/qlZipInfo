@@ -39,15 +39,19 @@ CODESIGN_ARGS = --force \
                 --options runtime \
                 --sign $(SIGNID)
 
+# Xcode build target
+
+BUILD_CONFIG = Release
+
 # build results directory
 
-BUILD_RESULTS_DIR = build/Release/$(PROJNAME).$(PROJEXT)
+BUILD_RESULTS_DIR = build/$(BUILD_CONFIG)/$(PROJNAME).$(PROJEXT)
 BUILD_RESULTS_FRAMEWORKS_DIR = $(BUILD_RESULTS_DIR)/Contents/Frameworks/
 
 # build the app
 
 all:
-	$(XCODEBUILD) -project $(PROJNAME).xcodeproj -configuration Release
+	$(XCODEBUILD) -project $(PROJNAME).xcodeproj -configuration $(BUILD_CONFIG)
 
 # sign the app, if frameworks are included, then sign_frameworks should
 # be the pre-requisite target instead of "all"
@@ -63,11 +67,6 @@ sign_frameworks: all
                     $(BUILD_RESULTS_FRAMEWORKS_DIR) ; \
     fi
 
-# sign the disk image
-
-sign_dmg: dmg
-	$(CODESIGN) $(CODESIGN_ARGS) $(PROJNAME)-$(PROJVERS).dmg
-
 # create a disk image with the signed app
 
 dmg: all sign
@@ -76,6 +75,11 @@ dmg: all sign
 	/bin/cp $(SUPPORT_FILES) $(PROJNAME)-$(PROJVERS)
 	$(HDIUTIL) create -srcfolder $(PROJNAME)-$(PROJVERS) \
                       -format UDBZ $(PROJNAME)-$(PROJVERS).dmg
+
+# sign the disk image
+
+sign_dmg: dmg
+	$(CODESIGN) $(CODESIGN_ARGS) $(PROJNAME)-$(PROJVERS).dmg
 
 # notarize the signed disk image
 
@@ -97,8 +101,7 @@ notarize_old: sign_dmg
               --username $(USERID) \
               --file $(PROJNAME)-$(PROJVERS).dmg
 
-# staple the ticket to the dmg, but notarize needs to complete first,
-# so we can't list notarize as a pre-requisite target
+# staple the ticket to the dmg
 
 staple: notarize
 	$(STAPLER) staple $(PROJNAME)-$(PROJVERS).dmg
