@@ -54,7 +54,8 @@ Install:
     4. Wait a minute or two for QuickLook to properly load
        or reload qlZipInfo.qlgenerator
        
-    Alternatively, you can install via brew using `iloveitaly/tap/qlzipinfo`
+    Homebrew (https://brew.sh/) users can install qlZipInfo
+    using `iloveitaly/tap/qlzipinfo`.
 
 Supported MacOSX versions:
 
@@ -84,7 +85,8 @@ Known Issues:
 
 History:
 
-    v1.2.0  - Updates for Xcode 14.1
+    v1.2.0  - Updates for Xcode 14.1, add instructions for
+              installation through Homebrew
     v1.1.11 - add support for some Stuffit files
     v1.1.10 - update to libarchive v.3.6.1 and lzma headers from
               xz v.5.2.5
