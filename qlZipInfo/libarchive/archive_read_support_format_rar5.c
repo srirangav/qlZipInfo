@@ -2475,7 +2475,7 @@ static void update_crc(struct rar5* rar, const uint8_t* p, size_t to_read) {
 		 * `stored_crc32` info filled in. */
 		if(rar->file.stored_crc32 > 0) {
 			rar->file.calculated_crc32 =
-				(uInt)crc32(rar->file.calculated_crc32, p, (uInt)to_read);
+				(uint32_t)crc32(rar->file.calculated_crc32, p, (uInt)to_read);
 		}
 
 		/* Check if the file uses an optional BLAKE2sp checksum
@@ -2821,11 +2821,13 @@ static int parse_block_header(struct archive_read* a, const uint8_t* p,
 	    ^ (uint8_t) (*block_size >> 16);
 
 	if(calculated_cksum != hdr->block_cksum) {
+#ifndef DONT_FAIL_ON_CRC_ERROR
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
 		    "Block checksum error: got 0x%x, expected 0x%x",
 		    hdr->block_cksum, calculated_cksum);
 
 		return ARCHIVE_FATAL;
+#endif
 	}
 
 	return ARCHIVE_OK;
@@ -3911,6 +3913,13 @@ static int do_unpack(struct archive_read* a, struct rar5* rar,
 			case GOOD:
 				/* fallthrough */
 			case BEST:
+				/* No data is returned here. But because a sparse-file aware
+				 * caller (like archive_read_data_into_fd) may treat zero-size
+				 * as a sparse file block, we need to update the offset
+				 * accordingly. At this point the decoder doesn't have any
+				 * pending uncompressed data blocks, so the current position in
+				 * the output file should be last_write_ptr. */
+				if (offset) *offset = rar->cstate.last_write_ptr;
 				return uncompress_file(a);
 			default:
 				archive_set_error(&a->archive,

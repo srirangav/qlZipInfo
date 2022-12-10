@@ -568,6 +568,13 @@ archive_entry_nlink(struct archive_entry *entry)
 	return (entry->ae_stat.aest_nlink);
 }
 
+/* Instead, our caller could have chosen a specific encoding
+ * (archive_mstring_get_mbs, archive_mstring_get_utf8,
+ * archive_mstring_get_wcs).  So we should try multiple
+ * encodings.  Try mbs first because of history, even though
+ * utf8 might be better for pathname portability.
+ * Also omit wcs because of type mismatch (char * versus wchar *)
+ */
 const char *
 archive_entry_pathname(struct archive_entry *entry)
 {
@@ -575,6 +582,13 @@ archive_entry_pathname(struct archive_entry *entry)
 	if (archive_mstring_get_mbs(
 	    entry->archive, &entry->ae_pathname, &p) == 0)
 		return (p);
+#if HAVE_EILSEQ  /*{*/
+    if (errno == EILSEQ) {
+	    if (archive_mstring_get_utf8(
+	        entry->archive, &entry->ae_pathname, &p) == 0)
+		    return (p);
+    }
+#endif  /*}*/
 	if (errno == ENOMEM)
 		__archive_errx(1, "No memory");
 	return (NULL);
@@ -984,7 +998,7 @@ archive_entry_set_atime(struct archive_entry *entry, time_t t, long ns)
 	entry->stat_valid = 0;
 	entry->ae_set |= AE_SET_ATIME;
 	entry->ae_stat.aest_atime = t;
-	entry->ae_stat.aest_atime_nsec = (unsigned int)ns;
+	entry->ae_stat.aest_atime_nsec = (uint32_t)ns;
 }
 
 void
@@ -1001,7 +1015,7 @@ archive_entry_set_birthtime(struct archive_entry *entry, time_t t, long ns)
 	entry->stat_valid = 0;
 	entry->ae_set |= AE_SET_BIRTHTIME;
 	entry->ae_stat.aest_birthtime = t;
-	entry->ae_stat.aest_birthtime_nsec = (unsigned int)ns;
+	entry->ae_stat.aest_birthtime_nsec = (uint32_t)ns;
 }
 
 void
@@ -1018,7 +1032,7 @@ archive_entry_set_ctime(struct archive_entry *entry, time_t t, long ns)
 	entry->stat_valid = 0;
 	entry->ae_set |= AE_SET_CTIME;
 	entry->ae_stat.aest_ctime = t;
-	entry->ae_stat.aest_ctime_nsec = (unsigned int)ns;
+	entry->ae_stat.aest_ctime_nsec = (uint32_t)ns;
 }
 
 void
@@ -1140,7 +1154,7 @@ archive_entry_set_mtime(struct archive_entry *entry, time_t t, long ns)
 	entry->stat_valid = 0;
 	entry->ae_set |= AE_SET_MTIME;
 	entry->ae_stat.aest_mtime = t;
-	entry->ae_stat.aest_mtime_nsec = (unsigned int)ns;
+	entry->ae_stat.aest_mtime_nsec = (uint32_t)ns;
 }
 
 void

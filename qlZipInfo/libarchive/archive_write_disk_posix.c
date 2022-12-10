@@ -1996,6 +1996,8 @@ archive_write_disk_new(void)
 		free(a);
 		return (NULL);
 	}
+	a->path_safe.s[0] = 0;
+
 #ifdef HAVE_ZLIB_H
 	a->decmpfs_compression_level = 5;
 #endif
@@ -2793,7 +2795,7 @@ check_symlinks_fsobj(char *path, int *a_eno, struct archive_string *a_estr,
 	char *tail;
 	char *head;
 	int last;
-	char c = 0;
+	char c = '\0';
 	int r;
 	struct stat st;
 	int chdir_fd;
@@ -3514,9 +3516,9 @@ set_time(int fd, int mode, const char *name,
 	struct timeval times[2];
 
 	times[0].tv_sec = atime;
-	times[0].tv_usec = (int)(atime_nsec / 1000);
+	times[0].tv_usec = atime_nsec / 1000;
 	times[1].tv_sec = mtime;
-	times[1].tv_usec = (int)(mtime_nsec / 1000);
+	times[1].tv_usec = mtime_nsec / 1000;
 
 #ifdef HAVE_FUTIMES
 	if (fd >= 0)

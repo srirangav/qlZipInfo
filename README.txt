@@ -1,7 +1,7 @@
 README
 ------
 
-qlZipInfo v1.2.0
+qlZipInfo v1.2.1
 
 Homepage:
 
@@ -85,7 +85,8 @@ Known Issues:
 
 History:
 
-    v1.2.0  - Updates for Xcode 14.1, add instructions for
+    v1.2.1  - update to libarchive v.3.6.2
+    v1.2.0  - updates for Xcode 14.1, add instructions for
               installation through Homebrew
     v1.1.11 - add support for some Stuffit files
     v1.1.10 - update to libarchive v.3.6.1 and lzma headers from
