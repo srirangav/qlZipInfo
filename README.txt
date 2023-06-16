@@ -53,7 +53,7 @@ Install:
 
     4. Wait a minute or two for QuickLook to properly load
        or reload qlZipInfo.qlgenerator
-       
+
     Homebrew (https://brew.sh/) users can install qlZipInfo
     using `iloveitaly/tap/qlzipinfo`.
 
@@ -70,7 +70,9 @@ Known Issues:
        preview for zip files because Quicklook always prefers
        generators that are included in an application and
        there is no way to override this behavior without
-       editing WinZip.  See:
+       editing WinZip.  Similarly, if Suspicious Package is
+       installed, this quicklook generator will not produce a
+       preview for .pkg files. See:
 
        https://stackoverflow.com/questions/11705425
 
