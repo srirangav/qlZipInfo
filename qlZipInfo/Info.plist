@@ -39,6 +39,7 @@
 				<string>com.roxio.disk-image-toast</string>
 				<string>com.stuffit.archive.sit</string>
 				<string>com.allume.stuffit-archive</string>
+				<string>org.idpf.epub-container</string>
 			</array>
 		</dict>
 	</array>
