@@ -1127,7 +1127,7 @@ atohex(unsigned char *b, size_t bsize, const char *p, size_t psize)
 			x |= p[1] - '0';
 		else
 			return (-1);
-		
+
 		*b++ = x;
 		bsize--;
 		p += 2;
@@ -1139,11 +1139,11 @@ atohex(unsigned char *b, size_t bsize, const char *p, size_t psize)
 static time_t
 time_from_tm(struct tm *t)
 {
-#if HAVE_TIMEGM
+#if HAVE__MKGMTIME
+        return _mkgmtime(t);
+#elif HAVE_TIMEGM
         /* Use platform timegm() if available. */
         return (timegm(t));
-#elif HAVE__MKGMTIME64
-        return (_mkgmtime64(t));
 #else
         /* Else use direct calculation using POSIX assumptions. */
         /* First, fix up tm_yday based on the year/month/day. */
@@ -1636,9 +1636,9 @@ decompress(struct archive_read *a, const void **buff, size_t *outbytes,
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
 	case BZIP2:
 		xar->bzstream.next_in = (char *)(uintptr_t)b;
-		xar->bzstream.avail_in = (unsigned int)avail_in;
+		xar->bzstream.avail_in = (uInt)avail_in;
 		xar->bzstream.next_out = (char *)outbuff;
-		xar->bzstream.avail_out = (unsigned int)avail_out;
+		xar->bzstream.avail_out = (uInt)avail_out;
 		r = BZ2_bzDecompress(&(xar->bzstream));
 		switch (r) {
 		case BZ_STREAM_END: /* Found end of stream. */

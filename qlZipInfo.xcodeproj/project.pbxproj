@@ -143,13 +143,8 @@
 		261D47E226A95ADA00028CA3 /* getUTI.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = getUTI.sh; sourceTree = SOURCE_ROOT; };
 		26314C5B267DEE0600F17EF9 /* liblzma.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = liblzma.tbd; path = usr/lib/liblzma.tbd; sourceTree = SDKROOT; };
 		26314C5D267DF1E100F17EF9 /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
-		264233162801342400713E91 /* libarchive-3.6.1.tar.gz.asc */ = {isa = PBXFileReference; lastKnownFileType = text; name = "libarchive-3.6.1.tar.gz.asc"; path = "Sources/libarchive-3.6.1.tar.gz.asc"; sourceTree = "<group>"; };
-		264233172801342400713E91 /* libarchive-3.6.1.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; name = "libarchive-3.6.1.tar.gz"; path = "Sources/libarchive-3.6.1.tar.gz"; sourceTree = "<group>"; };
-		26423318280165C400713E91 /* xz-5.2.5.tar.gz.sig */ = {isa = PBXFileReference; lastKnownFileType = file; name = "xz-5.2.5.tar.gz.sig"; path = "Sources/xz-5.2.5.tar.gz.sig"; sourceTree = "<group>"; };
-		26423319280165C400713E91 /* xz-5.2.5.tar.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; name = "xz-5.2.5.tar.gz"; path = "Sources/xz-5.2.5.tar.gz"; sourceTree = "<group>"; };
 		26546104274054D600713E91 /* binhex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = binhex.c; sourceTree = "<group>"; };
 		265461062740557400713E91 /* binhex.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = binhex.h; sourceTree = "<group>"; };
-		265F0DD52726B12E00713E91 /* google-toolbox-for-mac-2.3.1.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = "google-toolbox-for-mac-2.3.1.zip"; path = "Sources/google-toolbox-for-mac-2.3.1.zip"; sourceTree = "<group>"; };
 		26909ED4267B374C000272C5 /* archive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = archive.h; sourceTree = "<group>"; };
 		26909ED6267B3797000272C5 /* archive_read.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = archive_read.c; sourceTree = "<group>"; };
 		26909ED8267B37BB000272C5 /* archive_platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = archive_platform.h; sourceTree = "<group>"; };
@@ -485,7 +480,6 @@
 				26CA45D51B8461BA00B08F29 /* qlZipInfo */,
 				26909FB5267D2BCA000272C5 /* Frameworks */,
 				26909FBF267D3B09000272C5 /* Docs */,
-				26CA45F11B84630200B08F29 /* Sources */,
 				26CA45D41B8461BA00B08F29 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -526,18 +520,6 @@
 				26CA45D71B8461BA00B08F29 /* Info.plist */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		26CA45F11B84630200B08F29 /* Sources */ = {
-			isa = PBXGroup;
-			children = (
-				265F0DD52726B12E00713E91 /* google-toolbox-for-mac-2.3.1.zip */,
-				264233172801342400713E91 /* libarchive-3.6.1.tar.gz */,
-				264233162801342400713E91 /* libarchive-3.6.1.tar.gz.asc */,
-				26423319280165C400713E91 /* xz-5.2.5.tar.gz */,
-				26423318280165C400713E91 /* xz-5.2.5.tar.gz.sig */,
-			);
-			name = Sources;
 			sourceTree = "<group>";
 		};
 		26D4143F1BA9E23200216180 /* GTM */ = {
@@ -875,7 +857,7 @@
 				INFOPLIST_FILE = qlZipInfo/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 1.2.2;
+				MARKETING_VERSION = 1.2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.calalum.ranga.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -895,7 +877,7 @@
 				INFOPLIST_FILE = qlZipInfo/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MARKETING_VERSION = 1.2.2;
+				MARKETING_VERSION = 1.2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.calalum.ranga.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

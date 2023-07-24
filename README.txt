@@ -1,7 +1,7 @@
 README
 ------
 
-qlZipInfo v1.2.2
+qlZipInfo v1.2.3
 
 Homepage:
 
@@ -87,6 +87,8 @@ Known Issues:
 
 History:
 
+    v1.2.3  - update to libarchive v.3.7.0 and Google Toolbox
+              for Mac v.3.0.0
     v1.2.2  - add support for ePub files
     v1.2.1  - update to libarchive v.3.6.2
     v1.2.0  - updates for Xcode 14.1, add instructions for
