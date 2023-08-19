@@ -87,7 +87,8 @@ Known Issues:
 
 History:
 
-    v1.2.4  - update lzma headers from xz v.5.4.3
+    v1.2.4  - update to libarchive v.3.7.1 and update lzma
+              headers from xz v.5.4.3
     v1.2.3  - update to libarchive v.3.7.0 and Google Toolbox
               for Mac v.3.0.0
     v1.2.2  - add support for ePub files
