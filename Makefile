@@ -4,7 +4,7 @@
 
 PROJNAME   = qlZipInfo
 PROJEXT    = qlgenerator
-PROJVERS   = 1.2.4
+PROJVERS   = 1.2.5
 BUNDLEID   = "org.calalum.ranga.$(PROJNAME)"
 
 # extra files to include in the package
