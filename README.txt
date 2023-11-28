@@ -1,7 +1,7 @@
 README
 ------
 
-qlZipInfo v1.2.5
+qlZipInfo v1.2.6
 
 Homepage:
 
@@ -14,8 +14,8 @@ Overview:
     (.xar, .pkg), debian (.deb), Redhat Package Manager
     (.rpm), 7zip (.7z), xz, Microsoft cabinet (.cab), gzip
     (.gz), lha, Binhex 4.0 (.hqx), Stuffit (.sit), and
-    CrossOvers (.cxarchive) archives and ISO9660 (.iso,
-    .cdr, .toast) images.
+    CrossOvers (.cxarchive) archives, IPSW files, and
+    ISO9660 (.iso, .cdr, .toast) images.
 
     qlZipInfo relies on libarchive (https://libarchive.org/).
 
@@ -88,6 +88,9 @@ Known Issues:
 
 History:
 
+    v1.2.6  - update to Google Toolbox for Mac v.4.0.0 and
+              libarchive 3.7.2; add support for some ipsw
+              files
     v1.2.5  - add support for some CrossOvers archives
     v1.2.4  - update to libarchive v.3.7.1 and update lzma
               headers from xz v.5.4.3
