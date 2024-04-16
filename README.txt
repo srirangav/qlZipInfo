@@ -1,12 +1,12 @@
 README
 ------
 
-qlZipInfo v1.2.6
+qlZipInfo v1.3
 
 Homepage:
 
     https://github.com/srirangav/qlZipInfo
-
+    
 Overview:
 
     qlZipInfo is a QuickLook generator for zip, jar, tar,
@@ -22,7 +22,7 @@ Overview:
     Information for each file in an archive is displayed in
     the following format:
 
-        Icon | Filename | Size | Date Modified
+        Icon | Filename | Size | Permissions | Date Modified
 
     A folder icon is shown for folders / directories, a file
     icon is shown for regular files, and a lock icon is shown
@@ -88,6 +88,11 @@ Known Issues:
 
 History:
 
+    v1.3    - modernized the generated preview to more closely
+              match the Finder
+            - added modern svg icons from icons8.com (see LICENSE.txt)
+            - added a column to show file permissions
+            - increased the size of the preview window
     v1.2.6  - update to Google Toolbox for Mac v.4.0.0 and
               libarchive 3.7.2; add support for some ipsw
               files
