@@ -613,6 +613,7 @@
 				TargetAttributes = {
 					26CA45D21B8461BA00B08F29 = {
 						CreatedOnToolsVersion = 6.4;
+						DevelopmentTeam = CLN8R9E6QM;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -853,7 +854,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = 4YD6U8PZLA;
+				DEVELOPMENT_TEAM = CLN8R9E6QM;
 				INFOPLIST_FILE = qlZipInfo/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
@@ -874,7 +875,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = 4YD6U8PZLA;
+				DEVELOPMENT_TEAM = CLN8R9E6QM;
 				INFOPLIST_FILE = qlZipInfo/Info.plist;
 				INSTALL_PATH = /Library/QuickLook;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
