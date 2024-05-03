@@ -78,13 +78,13 @@
 	<key>CFPlugInUnloadFunction</key>
 	<string></string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Portions Copyright © 2015-2022 Sriranga Veeraraghavan. All rights reserved.</string>
+	<string>Portions Copyright © 2015-2024 Sriranga Veeraraghavan. All rights reserved.</string>
 	<key>QLNeedsToBeRunInMainThread</key>
 	<false/>
 	<key>QLPreviewHeight</key>
-	<integer>320</integer>
+	<integer>800</integer>
 	<key>QLPreviewWidth</key>
-	<integer>640</integer>
+	<integer>1000</integer>
 	<key>QLSupportsConcurrentRequests</key>
 	<false/>
 	<key>QLThumbnailMinimumSize</key>

@@ -1,7 +1,7 @@
 qlZipInfo Licenses
 ------------------
 
-Portions Copyright (c) 2015-2022 Sriranga Veeraraghavan <ranga@calalum.org>.
+Portions Copyright (c) 2015-2024 Sriranga Veeraraghavan <ranga@calalum.org>.
 All rights reserved.
  
 For those portions Copyright (c) Sriranga Veeraraghavan, the following license
@@ -165,3 +165,33 @@ lzma:
     7-Zip <http://7-zip.org/>, which has a modified version of the public
     domain SHA-256 code found from Crypto++ <http://www.cryptopp.com/>.
     The SHA-256 code in Crypto++ was written by Kevin Springle and Wei Dai.
+
+SVG icons from icons8.com:
+
+    Contribution by Manuel Brotz, https://github.com/mbrotz/qlZipInfo
+    
+    I asked for and received permission from icons8 to use their icons in this
+    project. Please note that these icons were purchased using a subscription
+    to icons8 and you are not allowed to use them in your own projects whithout
+    purchasing them from icons8 yourself!
+    
+    This question was posted to the questions section at
+    https://icons8.com/pricing on 04/09/2024.
+ 
+    Manuel Brotz 04/09/2024
+
+        Hi. I paid for one month and downloaded 6 icons in svg format. I now
+        cancelled my subscription. Am i allowed to use these 6 icons in an open
+        source project, where the svg source would be accessible in a public
+        source code repository on github? I can include the a link to icon8.
+
+    Alex 04/10/2024
+
+        You can use the downloaded icons in your open-source project. However, you
+        must inform your users that they're not allowed to use our icons as is in
+        their own projects.
+
+    Manuel Brotz 04/11/2024
+
+        That is great! Thank you so much! I will add a disclaimer and a link to
+        icons8 in the source code and the readme!

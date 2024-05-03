@@ -30,8 +30,22 @@
     v. 0.2.5 (10/26/2021) - add support for uu encoded archives and rpms
     v. 0.3.0 (11/13/2021) - add support for binhex archives
     v. 0.4.0 (08/01/2022) - add support for stuffit archives
+ 
+    v. 0.5.0 (04/16/2024) - modernized the appearance of the generated
+                            preview, imitating the Finder more closely.
+                          - Changed the calculation of compression ratio
+                            to indicate an increase in filesize as a
+                            negative percentage.
+                          - Added a column showing a files permissions.
+                          - Increased the read buffer for libarchive from
+                            10KB to 1MB to increase performance.
+                          - Switched to using library provided functions
+                            to activate all filters and formats supported
+                            by libarchive.
+                          - Contribution by Manuel Brotz
+                            https://github.com/mbrotz/qlZipInfo
 
-    Copyright (c) 2015-2022 Sriranga R. Veeraraghavan <ranga@calalum.org>
+    Copyright (c) 2015-2024 Sriranga R. Veeraraghavan <ranga@calalum.org>
 
     Permission is hereby granted, free of charge, to any person obtaining
     a copy of this software and associated documentation files (the
@@ -103,10 +117,15 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     off_t totalSize = 0;
     off_t totalCompressedSize = 0;
     off_t fileCompressedSize = 0;
-    bool isFolder = FALSE;
+    bool isFolder = false;
     bool isGZFile = false;
+    bool isLink = false;
+    bool isSpecial = false;
+    bool isEncrypted = false;
+    mode_t mode;
+    char permissions[10];
     fileSizeSpec_t fileSizeSpecInZip;
-
+    
     if (url == NULL)
     {
         fprintf(stderr, "qlZipInfo: ERROR: url is null\n");
@@ -207,32 +226,14 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
     a = archive_read_new();
 
-    /* enable filters */
-
-    archive_read_support_filter_compress(a);
-    archive_read_support_filter_gzip(a);
-    archive_read_support_filter_bzip2(a);
-    archive_read_support_filter_xz(a);
-    archive_read_support_filter_uu(a);
-    archive_read_support_filter_rpm(a);
-
-    /* enable archive formats */
-
-    archive_read_support_format_cpio(a);
-    archive_read_support_format_tar(a);
-    archive_read_support_format_zip(a);
-    archive_read_support_format_xar(a);
-    archive_read_support_format_iso9660(a);
-    archive_read_support_format_rar(a);
-    archive_read_support_format_rar5(a);
-    archive_read_support_format_lha(a);
-    archive_read_support_format_ar(a);
-    archive_read_support_format_7zip(a);
-    archive_read_support_format_cab(a);
+    /* enable formats/filters */
+    
+    archive_read_support_format_all(a);
+    archive_read_support_filter_all(a);
 
     /* open the archive for reading */
 
-    r = archive_read_open_filename(a, zipFileNameStr, 10240);
+    r = archive_read_open_filename(a, zipFileNameStr, 1048576); // blocksize 1048576 = 1MB
 
     /* return an error if the file couldn't be opened */
 
@@ -310,29 +311,18 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
        based on: http://www.w3.org/TR/html4/struct/tables.html
      */
 
-    [qlHtml appendFormat: @"<table align=\"center\" cellpadding=\"%d\">\n",
-                          (gColPadding/2)];
-    [qlHtml appendFormat: @"<colgroup width=\"%d\" />\n",
-                          (gColFileType + gColPadding)];
-    [qlHtml appendFormat: @"<colgroup width=\"%d\" />\n",
-                          (gColFileName + gColPadding)];
-    [qlHtml appendFormat: @"<colgroup width=\"%d\" />\n",
-                          (gColFileSize + gColPadding)];
-    [qlHtml appendFormat: @"<colgroup width=\"%d\" />\n",
-                          (gColFileCompress + gColPadding)];
-    [qlHtml appendFormat: @"<colgroup width=\"%d\" />\n",
-                          (gColFileModDate + gColPadding)];
-    [qlHtml appendFormat: @"<colgroup width=\"%d\" />\n",
-                          (gColFileModTime + gColPadding)];
+    [qlHtml appendString: @"<table>\n"];
 
     /* add the table header */
-
-    [qlHtml appendString: @"<thead><tr class=\"border-bottom\">"];
-    [qlHtml appendFormat: @"<th class=\"border-side\" colspan=\"2\">%@</th>",
+    [qlHtml appendString: @"<thead><tr>"];
+    [qlHtml appendString: @"<th class=\"icon\">&nbsp;</th>"];
+    [qlHtml appendFormat: @"<th class=\"name\">%@</th>",
                           gTableHeaderName];
-    [qlHtml appendFormat: @"<th class=\"border-side\" colspan=\"2\">%@</th>",
+    [qlHtml appendFormat: @"<th class=\"size\">%@</th>",
                           gTableHeaderSize];
-    [qlHtml appendFormat: @"<th colspan=\"2\">%@</th>",
+    [qlHtml appendFormat: @"<th class=\"mode\">%@</th>",
+                          gTableHeaderMode];
+    [qlHtml appendFormat: @"<th class=\"date\">%@</th>",
                           gTableHeaderDate];
     [qlHtml appendString: @"</tr></thead>\n"];
 
@@ -368,7 +358,8 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
         /*  stop listing files if the user canceled the preview */
 
-        if (QLPreviewRequestIsCancelled(preview)) {
+        if (QLPreviewRequestIsCancelled(preview))
+        {
             break;
         }
 
@@ -382,17 +373,16 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         {
             fileNameInZip = gFileNameUnavilable;
         }
-
-        if (isGZFile == true)
+        
+        if (isGZFile == false)
         {
-            isFolder = FALSE;
+            int fileType = archive_entry_filetype(entry);
+            isFolder = (fileType == AE_IFDIR ? TRUE : FALSE);
+            isLink = (fileType == AE_IFLNK ? TRUE : FALSE);
+            isSpecial = (fileType == AE_IFREG ? FALSE : TRUE);
+            isEncrypted = (archive_entry_is_encrypted(entry) ? TRUE : FALSE);
         }
-        else
-        {
-            isFolder =
-                (archive_entry_filetype(entry) == AE_IFDIR ? TRUE : FALSE);
-        }
-
+        
         /* start the table row for this entry */
 
         [qlHtml appendFormat: @"<tr>"];
@@ -411,26 +401,25 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
         if (isGZFile != true)
         {
-            if (isFolder == TRUE)
+            if (isFolder)
             {
                 qlEntryIcon = (NSString *)gFolderIcon;
             }
-            else if (archive_entry_is_encrypted(entry))
-            {
-                qlEntryIcon = (NSString *)gFileEncyrptedIcon;
-            }
-            else if (archive_entry_filetype(entry) == AE_IFLNK)
+            else if (isLink)
             {
                 qlEntryIcon = (NSString *)gFileLinkIcon;
             }
-            else if (archive_entry_filetype(entry) != AE_IFREG)
+            else if (isSpecial)
             {
                 qlEntryIcon = (NSString *)gFileSpecialIcon;
             }
+            else if (isEncrypted)
+            {
+                qlEntryIcon = (NSString *)gFileEncyrptedIcon;
+            }
         }
 
-        [qlHtml appendFormat: @"<td align=\"center\">%@</td>",
-                              qlEntryIcon];
+        [qlHtml appendFormat: @"<td class=\"icon\">%@</svg></td>", qlEntryIcon];
 
         /* output the filename with HTML escaping */
 
@@ -441,22 +430,32 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         {
             fileNameInZipEscaped = (NSString *)gFileNameUnavilableStr;
         }
-
-        [qlHtml appendString: @"<td><div style=\"display: block; "];
-
-        [qlHtml appendFormat: @"word-wrap: break-word;\">%@</div></td>",
-                              fileNameInZipEscaped];
-
+        
         /*
-            if the entry is a folder, don't print out its size,
+            insert zero width white space characters to improve word breaking behavior
+            based on: https://stackoverflow.com/questions/15841109/optional-line-breaking-html-entity-that-is-always-invisible
+         */
+        fileNameInZipEscaped = [fileNameInZipEscaped stringByReplacingOccurrencesOfString:@"/" withString:@"/&#8203;"];
+
+        NSString* nameClass = @"file";
+        if (isFolder)
+        {
+            nameClass = @"folder";
+        } else if (isLink)
+        {
+            nameClass = @"link";
+        }
+        [qlHtml appendFormat: @"<td class=\"name %@\">%@</td>", nameClass, fileNameInZipEscaped];
+        
+        /*
+            if the entry is a folder or a symbolic link, don't print out its size,
             which is always 0
          */
-
-        if (isFolder == TRUE) {
+        if (isFolder || isLink)
+        {
             [qlHtml appendString:
-                    @"<td align=\"center\" colspan=\"2\"><pre>--</pre></td>"];
+                    @"<td class=\"size\">&nbsp;</td>"];
         } else {
-
             if (isGZFile == true)
             {
                 fileCompressedSize = getGZExpandedFileSize(zipFileNameStr);
@@ -478,16 +477,18 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
             /* print out the file's size in B, K, M, G, or T */
 
             [qlHtml appendFormat:
-                    @"<td align=\"right\">%-.1f %-1s</td>",
+                    @"<td class=\"size\">%-.1f %-1s</td>",
                     fileSizeSpecInZip.size,
                     fileSizeSpecInZip.spec];
-
-            [qlHtml appendString:
-                    @"<td align=\"right\">&nbsp;</td>"];
-
-            //[qlHtml appendString: @"</td>"];
         }
 
+        /* output the files permissions */
+        
+        mode = archive_entry_perm(entry);
+        getPermissions(mode, permissions);
+        
+        [qlHtml appendFormat: @"<td class=\"mode\">%s</td>", permissions];
+        
         /*
             print out the modified date and time for the file in the local
             format. based on: https://stackoverflow.com/questions/9676435/how-do-i-format-the-current-date-for-the-users-locale
@@ -497,10 +498,12 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
         /* init the date string (if needed) and clear it */
 
-        if (fileDateStringInZip == nil) {
+        if (fileDateStringInZip == nil)
+        {
             fileDateStringInZip =
                 [[NSMutableString alloc] initWithString: @""];
-        } else {
+        } else
+        {
             [fileDateStringInZip setString: @""];
         }
 
@@ -509,14 +512,16 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
             date, as stored in the zip file
          */
 
-        if (fileDateFormatterInZip == nil) {
+        if (fileDateFormatterInZip == nil)
+        {
             fileDateFormatterInZip = [[NSDateFormatter alloc] init];
             [fileDateFormatterInZip setDateFormat: @"MM-dd-yy HH:mm"];
         }
 
         /* initialize the date formatter for the local date format */
 
-        if (fileLocalDateFormatterInZip == nil) {
+        if (fileLocalDateFormatterInZip == nil)
+        {
             fileLocalDateFormatterInZip = [[NSDateFormatter alloc] init];
         }
 
@@ -533,7 +538,8 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
             use a default format
          */
 
-        if (fileDateInZip != nil) {
+        if (fileDateInZip != nil)
+        {
 
             /*
                 Make sure the days and months are zero prefixed.
@@ -550,18 +556,19 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                 setLocalizedDateFormatFromTemplate: @"MM-dd-yyyy"];
 
             [qlHtml appendFormat:
-                @"<td align=\"right\">%@</td>",
+                @"<td class=\"date\">%@",
                 [fileLocalDateFormatterInZip stringFromDate: fileDateInZip]];
 
             [fileLocalDateFormatterInZip
                 setLocalizedDateFormatFromTemplate: @"HH:mm"];
 
             [qlHtml appendFormat:
-                @"<td align=\"right\">%@</td>",
+                @" %@</td>",
                 [fileLocalDateFormatterInZip stringFromDate: fileDateInZip]];
-        } else {
+        } else
+        {
             [qlHtml appendFormat:
-                @"<td align=\"center\">&nbsp;</td>"];
+                @"<td class=\"date\">&nbsp;</td>"];
         }
 
         /* close the row */
@@ -594,16 +601,18 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         [# files] [expanded size / compressed size] [% compression]
      */
 
-    [qlHtml appendString: @"<tbody>\n<tr>\n"];
+    [qlHtml appendString: @"<tfoot>\n<tr>\n"];
 
     /* print out the total number of files in the zip file */
 
     fileCount = archive_file_count(a);
 
     [qlHtml appendString:
-        @"<td align=\"center\" colspan=\"2\" class=\"border-top\">"];
+        @"<td class=\"footer\">&nbsp;</td>"];
+    [qlHtml appendString:
+        @"<td class=\"footer\" id=\"footer\" colspan=\"4\">"];
 
-    [qlHtml appendFormat: @"%lu item%s</td>\n",
+    [qlHtml appendFormat: @"%lu item%s",
                           fileCount,
                           (fileCount > 1 ? "s" : "")];
 
@@ -618,9 +627,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
     /* print out the zip file's total size in B, K, M, G, or T */
 
-    [qlHtml appendString:
-        @"<td align=\"right\" colspan=\"3\" class=\"border-top\">"];
-    [qlHtml appendFormat: @"%-.1f&nbsp;%-1s",
+    [qlHtml appendFormat: @" | %-.1f %-1s",
                           fileSizeSpecInZip.size,
                           fileSizeSpecInZip.spec];
 
@@ -639,7 +646,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
             getFileSizeSpec(totalCompressedSize,
                             &fileSizeSpecInZip);
 
-            [qlHtml appendFormat: @" / %-.1f&nbsp;%-1s",
+            [qlHtml appendFormat: @" | %-.1f %-1s",
                                   fileSizeSpecInZip.size,
                                   fileSizeSpecInZip.spec];
         }
@@ -649,15 +656,11 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
     if (totalSize > 0 && totalCompressedSize > 0)
     {
-        [qlHtml appendFormat: @" (%3.0f%%)",
-                              getCompression(totalSize,
-                                             totalCompressedSize)];
+        [qlHtml appendFormat: @" | %.0f%%",
+                              getCompression(totalSize, totalCompressedSize)];
     }
 
     [qlHtml appendString: @"</td>"];
-
-    [qlHtml appendString:
-        @"<td class=\"border-top\"><pre>&nbsp;</pre></td>\n"];
 
     /* close the summary row */
 
@@ -665,12 +668,12 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
     /* close the table body */
 
-    [qlHtml appendString: @"</tbody>\n"];
+    [qlHtml appendString: @"</tfoot>\n"];
 
     /* close the table */
 
     [qlHtml appendString: @"</table>\n"];
-
+    
     /* close the html */
 
     endOutputBody(qlHtml);
@@ -832,14 +835,14 @@ static OSStatus GeneratePreviewForHQX(void *thisInterface,
 
     /* add the table header */
 
-    [qlHtml appendString: @"<thead><tr class=\"border-bottom\">"];
-    [qlHtml appendFormat: @"<th class=\"border-side\" colspan=\"2\">%@</th>",
+    [qlHtml appendString: @"<thead><tr>"];
+    [qlHtml appendFormat: @"<th colspan=\"2\">%@</th>",
                           gTableHeaderName];
-    [qlHtml appendFormat: @"<th class=\"border-side\">%@</th>",
+    [qlHtml appendFormat: @"<th>%@</th>",
                           gTableHeaderSize];
-    [qlHtml appendFormat: @"<th class=\"border-side\">%@</th>",
+    [qlHtml appendFormat: @"<th>%@</th>",
                           gTableHeaderType];
-    [qlHtml appendFormat: @"<th class=\"border-side\">%@</th>",
+    [qlHtml appendFormat: @"<th>%@</th>",
                           gTableHeaderCreator];
     [qlHtml appendString: @"</tr></thead>\n"];
 
@@ -1099,10 +1102,10 @@ static OSStatus GeneratePreviewForSIT(void *thisInterface,
 
     /* add the table header */
 
-    [qlHtml appendString: @"<thead><tr class=\"border-bottom\">"];
-    [qlHtml appendFormat: @"<th class=\"border-side\" colspan=\"2\">%@</th>",
+    [qlHtml appendString: @"<thead><tr>"];
+    [qlHtml appendFormat: @"<th colspan=\"2\">%@</th>",
                           gTableHeaderName];
-    [qlHtml appendFormat: @"<th class=\"border-side\" colspan=\"2\">%@</th>",
+    [qlHtml appendFormat: @"<th colspan=\"2\">%@</th>",
                           gTableHeaderSize];
     [qlHtml appendFormat: @"<th colspan=\"2\">%@</th>",
                           gTableHeaderDate];
@@ -1444,122 +1447,129 @@ static bool formatOutputHeader(NSMutableString *qlHtml)
 
     [qlHtml appendString: @"@media (prefers-color-scheme: dark) { "];
 
-    /* set darkmode background and foreground colors */
+        /* set darkmode background and foreground colors */
 
-    [qlHtml appendFormat:
-        @"body { background-color: %@; color: %@; }\n",
-        gDarkModeBackground,
-        gDarkModeForeground];
+        [qlHtml appendFormat:
+         @"body { background-color: %@; color: %@; }\n",
+         gDarkModeBackground,
+         gDarkModeForeground];
 
-    /*
-        put a border around the table only, but make it the same color
-        as the background to better match the BigSur finder
-        based on: https://stackoverflow.com/questions/10131729/removing-border-from-table-cell
+        /*
+            put a border around the table only, but make it the same color
+            as the background to better match the BigSur finder
+            based on: https://stackoverflow.com/questions/10131729/removing-border-from-table-cell
+         */
+        
+        [qlHtml appendFormat:
+         @"table { border: %dpx solid %@; }\n",
+         gBorder,
+         gDarkModeTableBorderColor];
 
-        set y-direction overflow to auto to support a fixed header
-        based on:
-            https://www.w3docs.com/snippets/html/how-to-create-a-table-with-a-fixed-header-and-scrollable-body.html
-            https://stackoverflow.com/questions/50361698/border-style-do-not-work-with-sticky-position-element
-     */
+        [qlHtml appendFormat:
+         @"th { border-bottom: %dpx solid %@; background-color: %@ }\n",
+         gBorder,
+         gDarkModeTableHeaderBorderColor,
+         gDarkModeBackground];
 
-    [qlHtml appendFormat: @"table { width: 100%%; border: %dpx solid %@; ",
-                          gBorder,
-                          gDarkModeTableBorderColor];
-    [qlHtml appendString: @"table-layout: fixed; overflow-y: auto;"];
-    [qlHtml appendString:
-        @"border-collapse: separate; border-spacing: 0; }\n"];
+        /* colors for the even rows */
 
-    /* set the darkmode colors for the even rows of the table */
+        [qlHtml appendFormat:
+         @"tr:nth-child(even) { background-color: %@ ; color: %@; }\n",
+         gDarkModeTableRowEvenBackground,
+         gDarkModeTableRowEvenForeground];
 
-    [qlHtml appendFormat:
-        @"tr:nth-child(even) { background-color: %@ ; color: %@; }\n",
-        gDarkModeTableRowEvenBackgroundColor,
-        gDarkModeTableRowEvenForegroundColor];
+        /* top border for table cells in the summary row */
 
-    /*
-        add a bottom border for the header row items only, to better
-        match the BigSur finder, and make the header fixed.
-        based on:
-            https://www.w3docs.com/snippets/html/how-to-create-a-table-with-a-fixed-header-and-scrollable-body.html
-     */
-
-    [qlHtml appendFormat:
-        @"th { border-bottom: %dpx solid %@; ",
-        gBorder,
-        gDarkModeTableHeaderBorderColor];
-    [qlHtml appendString: @" position: sticky; position: -webkit-sticky; "];
-    [qlHtml appendFormat: @"top: 0; z-index: 3; background-color: %@ ;}\n",
-                          gDarkModeBackground];
-
-    /* disable internal borders for table cells */
-
-    [qlHtml appendString: @"td { border: none; z-index: 1; }\n"];
-
-    /* top border for table cells in the summary row */
-
-    [qlHtml appendFormat:
-            @"td.border-top { border-top: %dpx solid %@; }\n",
-            gBorder,
-            gDarkModeTableHeaderBorderColor];
-
-    /* close darkmode styles */
+        [qlHtml appendFormat:
+         @"td.footer { border-top: %dpx solid %@; }\n",
+         gBorder,
+         gDarkModeTableHeaderBorderColor];
+        
+        /* icon colors */
+        [qlHtml appendFormat: @"svg > g { fill: %@; }\n", gDarkModeForeground];
+        [qlHtml appendFormat: @"svg > g.folder-icon { fill: %@; }\n", gDarkModeFolderColor];
+    
+        /* close darkmode styles */
 
     [qlHtml appendString: @"}\n"];
 
     /* light mode styles */
 
     [qlHtml appendString:
-        @"@media (prefers-color-scheme: light) { "];
+     @"@media (prefers-color-scheme: light) { "];
 
-    /* light mode background and foreground colors */
+        /* light mode background and foreground colors */
 
-    [qlHtml appendFormat:
-        @"body { background-color: %@; color: %@; }\n",
-        gLightModeBackground,
-        gLightModeForeground];
+        [qlHtml appendFormat:
+         @"body { background-color: %@; color: %@; }\n",
+         gLightModeBackground,
+         gLightModeForeground];
+
+        /*
+            put a border around the table only, but make it the same color
+            as the background to better match the BigSur finder
+            based on: https://stackoverflow.com/questions/10131729/removing-border-from-table-cell
+         */
+        
+        [qlHtml appendFormat:
+         @"table { border: %dpx solid %@; }\n",
+         gBorder,
+         gLightModeTableBorderColor];
+
+        [qlHtml appendFormat:
+         @"th { border-bottom: %dpx solid %@; background-color: %@ }\n",
+         gBorder,
+         gLightModeTableHeaderBorderColor,
+         gLightModeBackground];
+
+        /* colors for the even rows */
+
+        [qlHtml appendFormat:
+         @"tr:nth-child(even) { background-color: %@ ; color: %@; }\n",
+         gLightModeTableRowEvenBackground,
+         gLightModeTableRowEvenForeground];
+
+        /* top border for table cells in the summary row */
+
+        [qlHtml appendFormat:
+         @"td.footer { border-top: %dpx solid %@; }\n",
+         gBorder,
+         gLightModeTableHeaderBorderColor];
+
+        /* icon colors */
+        [qlHtml appendFormat: @"svg > g { fill: %@; }\n", gLightModeForeground];
+        [qlHtml appendFormat: @"svg > g.folder-icon { fill: %@; }\n", gLightModeFolderColor];
+
+        /* close light mode styles */
+
+    [qlHtml appendString: @"}\n"];
 
     /*
-        put a border around the table only
-        based on: https://stackoverflow.com/questions/10131729/removing-border-from-table-cell
+        make the header fixed.
+        based on:
+            https://www.w3docs.com/snippets/html/how-to-create-a-table-with-a-fixed-header-and-scrollable-body.html
      */
+    [qlHtml appendString: @"th { position: sticky; position: -webkit-sticky; top: 0; z-index: 3; }\n"];
 
-    [qlHtml appendFormat: @"table { width: 100%%; border: %dpx solid %@; ",
-                          gBorder,
-                          gLightModeTableBorderColor];
+    /*
+        set y-direction overflow to auto to support a fixed header
+        based on:
+            https://www.w3docs.com/snippets/html/how-to-create-a-table-with-a-fixed-header-and-scrollable-body.html
+            https://stackoverflow.com/questions/50361698/border-style-do-not-work-with-sticky-position-element
+     */
+    [qlHtml appendString: @"table {"];
+    [qlHtml appendString: @"width: 100%;"];
     [qlHtml appendString: @"table-layout: fixed; overflow-y: auto;"];
-    [qlHtml appendString:
-        @"border-collapse: separate; border-spacing: 0; }\n"];
+    [qlHtml appendString: @"border-collapse: separate; border-spacing: 0;"];
+    [qlHtml appendString: @"}\n"];
 
-    /* make the header sticky */
-
-    [qlHtml appendFormat: @"th { border-bottom: %dpx solid %@; ",
-                          gBorder,
-                          gLightModeTableHeaderBorderColor];
-    [qlHtml appendString: @" position: sticky; position: -webkit-sticky; "];
-    [qlHtml appendFormat: @"top: 0; z-index: 3; background-color: %@ ;}\n",
-                          gLightModeBackground];
-
-    /* colors for the even rows */
-
-    [qlHtml appendFormat:
-        @"tr:nth-child(even) { background-color: %@ ; color: %@; }\n",
-        gLightModeTableRowEvenBackgroundColor,
-        gLightModeTableRowEvenForegroundColor];
+    /* font settings */
+    
+    [qlHtml appendString: @"body, td, th { font-family: \"Lucida Grande\"; font-size: 11px; }\n"];
 
     /* no internal borders */
 
     [qlHtml appendString: @"td { border: none; z-index: 1; }\n"];
-
-    /* top border for table cells in the summary row */
-
-    [qlHtml appendFormat:
-            @"td.border-top { border-top: %dpx solid %@; }\n",
-            gBorder,
-            gLightModeTableHeaderBorderColor];
-
-    /* close light mode styles */
-
-    [qlHtml appendString: @"}\n"];
 
     /*
         style for preventing wrapping in table cells, based on:
@@ -1567,7 +1577,19 @@ static bool formatOutputHeader(NSMutableString *qlHtml)
      */
 
     [qlHtml appendString: @".nowrap { white-space: nowrap; }\n"];
+    
+    [qlHtml appendFormat: @".icon { width: %dpx; height: %dpx; }\n", gIconWidth, gIconHeight];
+    
+    [qlHtml appendString: @".name { word-wrap: break-word; text-align: left; width: 70%; }\n"];
+    [qlHtml appendString: @".file { }\n"];
+    [qlHtml appendString: @".folder { }\n"];
+    [qlHtml appendString: @".link { font-style: italic; }\n"];
+    [qlHtml appendString: @".size { white-space: nowrap; text-align: right; width: 10%; }\n"];
+    [qlHtml appendString: @".mode { white-space: nowrap; text-align: right; width: 65px; }\n"];
+    [qlHtml appendString: @".date { white-space: nowrap; text-align: right; width: 110px; }\n"];
 
+    [qlHtml appendString: @"td.footer { white-space: nowrap; text-align: left; }\n"];
+    
     /* close the style sheet */
 
     [qlHtml appendString: @"</style>\n"];
@@ -1588,8 +1610,7 @@ static bool startOutputBody(NSMutableString *qlHtml)
     }
 
     [qlHtml appendFormat: @"<body>\n"];
-    [qlHtml appendFormat: @"<font face=\"%@\">\n", gFontFace];
-
+    
     return true;
 }
 
@@ -1599,7 +1620,7 @@ static bool endOutputBody(NSMutableString *qlHtml)
         return false;
     }
 
-    [qlHtml appendString: @"</font>\n</body>\n</html>\n"];
+    [qlHtml appendString: @"</body>\n</html>\n"];
 
     return true;
 }
@@ -1722,22 +1743,38 @@ static int getFileSizeSpec(off_t fileSizeInBytes,
 static float getCompression(off_t uncompressedSize,
                             off_t compressedSize)
 {
-    Float64 compression = 0.0;
-
-    if (uncompressedSize > 0)
+    if (compressedSize < 0 || uncompressedSize < 0)
     {
-        compression = uncompressedSize / (Float64)(compressedSize);
-        if (compression >= 1.0)
+        return 0.0;
+    }
+    if (compressedSize < uncompressedSize)
+    {
+        Float64 ratio = compressedSize / (Float64)(uncompressedSize);
+        return 100.0 * (1.0 - ratio);
+    } else if (compressedSize > uncompressedSize)
+    {
+        Float64 ratio = compressedSize / (Float64)(uncompressedSize);
+        Float64 bloat = -100.0 * (ratio - 1.0);
+        if (bloat < 1.0)
         {
-            compression = 1.0 / compression;
+            return 0.0;
         }
-        compression = 100.0 * (1.0 - compression);
+        return bloat;
     }
+    return 0.0;
+}
 
-    if (compression <= 0 || compression >= 99.9)
-    {
-        compression = 0.0;
-    }
+/*
+    convert permission bits to string
+    based on: https://jameshfisher.com/2017/02/24/what-is-mode_t/
+ */
 
-    return compression;
+// buf must have at least 10 bytes
+static void getPermissions(mode_t mode, char *buf)
+{
+  const char chars[] = "rwxrwxrwx";
+  for (size_t i = 0; i < 9; i++) {
+    buf[i] = (mode & (1 << (8-i))) ? chars[i] : '-';
+  }
+  buf[9] = '\0';
 }
