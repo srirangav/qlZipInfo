@@ -1467,7 +1467,7 @@ cab_read_ahead_cfdata_deflate(struct archive_read *a, ssize_t *avail)
 		cab->stream.next_out =
 		    cab->uncompressed_buffer + cab->stream.total_out;
 		cab->stream.avail_out =
-		    cfdata->uncompressed_size - (uInt)cab->stream.total_out;
+		    (uInt)(cfdata->uncompressed_size - cab->stream.total_out);
 
 		d = __archive_read_ahead(a, 1, &bytes_avail);
 		if (bytes_avail <= 0) {

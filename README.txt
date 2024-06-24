@@ -1,7 +1,7 @@
 README
 ------
 
-qlZipInfo v1.2.6
+qlZipInfo v1.2.7
 
 Homepage:
 
@@ -88,6 +88,7 @@ Known Issues:
 
 History:
 
+    v1.2.7  - update to libarchive 3.7.4
     v1.2.6  - update to Google Toolbox for Mac v.4.0.0 and
               libarchive 3.7.2; add support for some ipsw
               files

@@ -26,7 +26,6 @@
  */
 
 #include "archive_platform.h"
-__FBSDID("$FreeBSD$");
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 
@@ -1611,12 +1610,12 @@ hfs_write_data_block(struct archive_write_disk *a, const char *buff,
 			    "Seek failed");
 			return (ARCHIVE_FATAL);
 		} else if (a->offset > a->fd_offset) {
-			int64_t skip = a->offset - a->fd_offset;
+			uint64_t skip = a->offset - a->fd_offset;
 			char nullblock[1024];
 
 			memset(nullblock, 0, sizeof(nullblock));
 			while (skip > 0) {
-				if (skip > (int64_t)sizeof(nullblock))
+				if (skip > sizeof(nullblock))
 					bytes_written = hfs_write_decmpfs_block(
 					    a, nullblock, sizeof(nullblock));
 				else
@@ -1731,9 +1730,10 @@ _archive_write_disk_finish_entry(struct archive *_a)
 			else
 				r = hfs_write_data_block(
 				    a, null_d, a->file_remaining_bytes);
-			if (r < 0)
+			if (r < 0) {
 				close_file_descriptor(a);
 				return ((int)r);
+			}
 		}
 #endif
 	} else {
@@ -4427,7 +4427,8 @@ fixup_appledouble(struct archive_write_disk *a, const char *pathname)
 #else
 		la_stat(datafork.s, &st) == -1 ||
 #endif
-	    (st.st_mode & AE_IFMT) != AE_IFREG)
+	    (((st.st_mode & AE_IFMT) != AE_IFREG) &&
+		((st.st_mode & AE_IFMT) != AE_IFDIR)))
 		goto skip_appledouble;
 
 	/*
