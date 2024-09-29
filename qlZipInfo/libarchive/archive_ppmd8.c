@@ -1145,7 +1145,7 @@ static void RangeDec_Decode(CPpmd8 *p, UInt32 start, UInt32 size)
   p->Range *= size;
 
   while ((p->Low ^ (p->Low + p->Range)) < kTop ||
-      (p->Range < kBot && ((void)((p->Range = (0 - p->Low) & (kBot - 1))), 1)))
+         (p->Range < kBot && ((void)((p->Range = (0 - p->Low) & (kBot - 1))), 1)))
   {
     p->Code = (p->Code << 8) | p->Stream.In->Read(p->Stream.In);
     p->Range <<= 8;

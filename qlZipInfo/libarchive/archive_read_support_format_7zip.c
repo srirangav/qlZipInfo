@@ -24,7 +24,6 @@
  */
 
 #include "archive_platform.h"
-__FBSDID("$FreeBSD$");
 
 #ifdef HAVE_ERRNO_H
 #include <errno.h>
@@ -2038,6 +2037,8 @@ read_Folder(struct archive_read *a, struct _7z_folder *f)
 			if (parse_7zip_uint64(
 			    a, &(f->coders[i].propertiesSize)) < 0)
 				return (-1);
+			if (UMAX_ENTRY < f->coders[i].propertiesSize)
+				return (-1);
 			if ((p = header_bytes(
 			    a, (size_t)f->coders[i].propertiesSize)) == NULL)
 				return (-1);
@@ -3051,8 +3052,8 @@ slurp_central_directory(struct archive_read *a, struct _7zip *zip,
 
 		/* Check the EncodedHeader CRC.*/
 		if (r == 0 && zip->header_crc32 != next_header_crc) {
-			archive_set_error(&a->archive, -1,
 #ifndef DONT_FAIL_ON_CRC_ERROR
+			archive_set_error(&a->archive, -1,
 			    "Damaged 7-Zip archive");
 			r = -1;
 #endif
