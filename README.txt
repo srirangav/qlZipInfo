@@ -26,7 +26,7 @@ Overview:
 
     A folder icon is shown for folders / directories, a file
     icon is shown for regular files, and a lock icon is shown
-    for encypted files.  In addition, for BinHex 4.0 archives,
+    for encrypted files.  In addition, for Binhex 4.0 archives,
     a package icon is shown if the file stored in the archive
     is a Stuffit archive and an application icon is shown if
     the file stored in the archive is an application.
@@ -36,7 +36,7 @@ Overview:
     archive, the archive's total uncompressed size, the
     archive's total compressed size and the % compression.
 
-    For BinHex 4.0 files, the date modified and the summary
+    For Binhex 4.0 files, the date modified and the summary
     row are omitted. Instead the MacOS type and creator are
     shown.
 
@@ -60,37 +60,44 @@ Install:
 
 Supported MacOSX versions:
 
-    v. 1.2.0 and onwards - 10.13+
-    v. 1.0.9 - 1.1.11    - 10.9+
-    v. 1.0.8 and earlier - 10.6+
+    v. 1.2.0 and onwards - MacOSX 10.13 through MacOSX 14
+    v. 1.0.9 - 1.1.11    - MacOSX 10.9+
+    v. 1.0.8 and earlier - MacOSX 10.6+
 
 Known Issues:
 
     1. If WinZip is installed (for example, as part of Roxio
-       Toast), this quicklook generator will not produce a
+       Toast), this Quicklook generator will not produce a
        preview for zip files because Quicklook always prefers
        generators that are included in an application and
        there is no way to override this behavior without
        editing WinZip.  Similarly, if Suspicious Package is
-       installed, this quicklook generator will not produce a
+       installed, this Quicklook generator will not produce a
        preview for .pkg files. See:
 
        https://stackoverflow.com/questions/11705425
 
     2. Unix Compress'ed tar files with the extension .tz or
-       .tZ cannot be reliabily detected and previewed
+       .tZ cannot be reliably detected and previewed
 
     3. InstallSheild CAB files are not currently supported
 
-    4. Only BinHex 4.0 files are supported
+    4. Only Binhex 4.0 files are supported
 
     5. Stuffit 5 files are not currently supported
 
+    6. MacOS X Sequoia (15.x) and newer are not supported
+       because they no longer support the Quicklook generator
+       framework.  See:
+
+       https://eclecticlight.co/2024/10/31/how-sequoia-has-changed-quicklook-and-its-thumbnails/
+
 History:
 
-    v1.2.7  - update to libarchive 3.7.4
+    v1.2.7  - update color scheme based on pull request #2;
+              update to libarchive 3.7.7
     v1.2.6  - update to Google Toolbox for Mac v.4.0.0 and
-              libarchive 3.7.2; add support for some ipsw
+              libarchive 3.7.2; add support for some IPSW
               files
     v1.2.5  - add support for some CrossOvers archives
     v1.2.4  - update to libarchive v.3.7.1 and update lzma
@@ -107,7 +114,7 @@ History:
     v1.1.9  - add support for (some?) CD/DVD images created by
               Roxio Toast
     v1.1.8  - upgrade to libarchive v.3.6.0
-    v1.1.7  - add support for BinHex 4.0 files
+    v1.1.7  - add support for Binhex 4.0 files
     v1.1.6  - fix to detect .tgz files as tar-gzip'ed archives and
               .tbz files as tar-bzip2'ed archives, disable preview
               of 1Password backups

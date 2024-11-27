@@ -416,7 +416,7 @@ static void	unknowntag_end(struct xar *, const char *);
 static int	xml_start(struct archive_read *,
     const char *, struct xmlattr_list *);
 static void	xml_end(void *, const char *);
-static void	xml_data(void *, const char *, int);
+static void	xml_data(void *, const char *, size_t);
 static int	xml_parse_file_flags(struct xar *, const char *);
 static int	xml_parse_file_ext2(struct xar *, const char *);
 #if defined(HAVE_LIBXML_XMLREADER_H)
@@ -450,7 +450,7 @@ archive_read_support_format_xar(struct archive *_a)
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
 	    ARCHIVE_STATE_NEW, "archive_read_support_format_xar");
 
-	xar = (struct xar *)calloc(1, sizeof(*xar));
+	xar = calloc(1, sizeof(*xar));
 	if (xar == NULL) {
 		archive_set_error(&a->archive, ENOMEM,
 		    "Can't allocate xar data");
@@ -1242,7 +1242,7 @@ heap_add_entry(struct archive_read *a,
 			return (ARCHIVE_FATAL);
 		}
 		new_pending_files = (struct xar_file **)
-		    malloc(new_size * sizeof(new_pending_files[0]));
+		    calloc(new_size, sizeof(new_pending_files[0]));
 		if (new_pending_files == NULL) {
 			archive_set_error(&a->archive,
 			    ENOMEM, "Out of memory");
@@ -2055,9 +2055,10 @@ xml_start(struct archive_read *a, const char *name, struct xmlattr_list *list)
 			    attr = attr->next) {
 				if (strcmp(attr->name, "link") != 0)
 					continue;
-				if (xar->file->hdnext != NULL || xar->file->link != 0) {
+				if (xar->file->hdnext != NULL || xar->file->link != 0 ||
+				    xar->file == xar->hdlink_orgs) {
 					archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-					    "File with multiple link targets");
+					    "File with multiple link attributes");
 					return (ARCHIVE_FATAL);
 				}
 				if (strcmp(attr->value, "original") == 0) {
@@ -2673,7 +2674,7 @@ is_string(const char *known, const char *data, size_t len)
 }
 
 static void
-xml_data(void *userData, const char *s, int len)
+xml_data(void *userData, const char *s, size_t len)
 {
 	struct archive_read *a;
 	struct xar *xar;
@@ -2688,7 +2689,7 @@ xml_data(void *userData, const char *s, int len)
 			len = (int)(sizeof(buff)-1);
 		strncpy(buff, s, len);
 		buff[len] = 0;
-		fprintf(stderr, "\tlen=%d:\"%s\"\n", len, buff);
+        fprintf(stderr, "\tlen=%zu:\"%s\"\n", len, buff);
 	}
 #endif
 	switch (xar->xmlsts) {
@@ -2706,6 +2707,9 @@ xml_data(void *userData, const char *s, int len)
 
 	switch (xar->xmlsts) {
 	case FILE_NAME:
+		if (xar->file->has & HAS_PATHNAME)
+			break;
+
 		if (xar->file->parent != NULL) {
 			archive_string_concat(&(xar->file->pathname),
 			    &(xar->file->parent->pathname));
@@ -3189,8 +3193,11 @@ xml2_read_toc(struct archive_read *a)
 			if (r == ARCHIVE_OK)
 				r = xml_start(a, name, &list);
 			xmlattr_cleanup(&list);
-			if (r != ARCHIVE_OK)
+			if (r != ARCHIVE_OK) {
+				xmlFreeTextReader(reader);
+				xmlCleanupParser();
 				return (r);
+			}
 			if (empty)
 				xml_end(a, name);
 			break;
@@ -3199,7 +3206,7 @@ xml2_read_toc(struct archive_read *a)
 			break;
 		case XML_READER_TYPE_TEXT:
 			value = (const char *)xmlTextReaderConstValue(reader);
-			xml_data(a, value, (int)strlen(value));
+			xml_data(a, value, strlen(value));
 			break;
 		case XML_READER_TYPE_SIGNIFICANT_WHITESPACE:
 		default:
@@ -3256,6 +3263,9 @@ expat_start_cb(void *userData, const XML_Char *name, const XML_Char **atts)
 	struct xmlattr_list list;
 	int r;
 
+	if (ud->state != ARCHIVE_OK)
+		return;
+
 	r = expat_xmlattr_setup(a, &list, atts);
 	if (r == ARCHIVE_OK)
 		r = xml_start(a, (const char *)name, &list);
@@ -3276,7 +3286,7 @@ expat_data_cb(void *userData, const XML_Char *s, int len)
 {
 	struct expat_userData *ud = (struct expat_userData *)userData;
 
-	xml_data(ud->archive, s, len);
+	xml_data(ud->archive, s, (size_t)len);
 }
 
 static int
@@ -3312,14 +3322,16 @@ expat_read_toc(struct archive_read *a)
 
 		d = NULL;
 		r = rd_contents(a, &d, &outbytes, &used, xar->toc_remaining);
-		if (r != ARCHIVE_OK)
+		if (r != ARCHIVE_OK) {
+			XML_ParserFree(parser);
 			return (r);
+		}
 		xar->toc_remaining -= used;
 		xar->offset += used;
 		xar->toc_total += outbytes;
 		PRINT_TOC(d, outbytes);
 
-		xr = XML_Parse(parser, d, outbytes, xar->toc_remaining == 0);
+		xr = XML_Parse(parser, d, (int)outbytes, xar->toc_remaining == 0);
 		__archive_read_consume(a, used);
 		if (xr == XML_STATUS_ERROR) {
 			XML_ParserFree(parser);

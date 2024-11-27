@@ -6,8 +6,9 @@
     v. 0.1.0 (07/22/2021) - initial release
     v. 0.2.0 (11/13/2021) - add binhex support
     v. 0.3.0 (08/01/2022) - add stuffit support
-    
-    Copyright (c) 2015-2022 Sriranga R. Veeraraghavan <ranga@calalum.org>
+    v. 0.4.0 (10/13/2024) - update color scheme based on PR#2
+ 
+    Copyright (c) 2015-2022, 2024 Sriranga R. Veeraraghavan <ranga@calalum.org>
 
     Permission is hereby granted, free of charge, to any person obtaining
     a copy of this software and associated documentation files (the
@@ -50,19 +51,19 @@ enum
 
 enum
 {
-    gBorder          = 1,
-    gFontSize        = 2,
-    gIconHeight      = 16,
-    gIconWidth       = 16,
-    gColPadding      = 8,
-    gColFileSize     = 72,
-    gColFileCompress = 46,
-    gColFileModDate  = 58,
-    gColFileModTime  = 56,
-    gColFileType     = 24,
-    gColFileName     = 288,
-    gColFileMacType  = 58,
-    gColFileMacCreator = 58,
+    gBorder             = 1,
+    //gFontSize           = 2,
+    gIconHeight         = 16,
+    gIconWidth          = 16,
+    gColPadding         = 8,
+    gColFileSize        = 72,
+    gColFileCompress    = 46,
+    gColFileModDate     = 58,
+    gColFileModTime     = 56,
+    gColFileType        = 24,
+    gColFileName        = 288,
+    gColFileMacType     = 58,
+    gColFileMacCreator  = 58,
     gColFileMacFileName = 356,
 };
 
@@ -70,34 +71,35 @@ enum
 
 static const NSString *gTableHeaderName = @"Name";
 static const NSString *gTableHeaderSize = @"Size";
+static const NSString *gTableHeaderMode = @"Perms.";
 static const NSString *gTableHeaderDate = @"Modified";
 static const NSString *gTableHeaderType = @"Type";
 static const NSString *gTableHeaderCreator = @"Creator";
 
 /* darkmode styles */
 
-static const NSString *gDarkModeBackground = @"#232323";
-static const NSString *gDarkModeForeground = @"lightgrey";
+static const NSString *gDarkModeBackground = @"#231D2D";
+static const NSString *gDarkModeForeground = @"#DDDDDD";
 static const NSString *gDarkModeTableRowEvenBackgroundColor
-                                           = @"#313131";
+                                           = @"#2F2A39";
 static const NSString *gDarkModeTableRowEvenForegroundColor
-                                           = @"white";
+                                           = @"DEDEDE";
 static const NSString *gDarkModeTableBorderColor
-                                           = @"#232323";
+                                           = @"#231D2D";
 static const NSString *gDarkModeTableHeaderBorderColor
-                                           = @"#555555";
+                                           = @"#403B47";
 /* light mode styles */
 
 static const NSString *gLightModeBackground = @"white";
-static const NSString *gLightModeForeground = @"black";
+static const NSString *gLightModeForeground = @"6e6b6d";
 static const NSString *gLightModeTableRowEvenBackgroundColor
-                                            = @"#F5F5F5";
+                                            = @"#F4F5F5";
 static const NSString *gLightModeTableRowEvenForegroundColor
-                                            = @"black";
+                                            = @"6e6b6d";
 static const NSString *gLightModeTableBorderColor
                                             = @"white";
 static const NSString *gLightModeTableHeaderBorderColor
-                                            = @"#E7E7E7";
+                                            = @"#DDDDDD";
 
 /* icons */
 
@@ -116,9 +118,14 @@ static const char *gFileNameUnavilable = "[Unavailable]";
 static const NSString *gFileNameUnavilableStr =
                                          @"[Unavailable]";
 
-/* default font style - sans serif */
+/*
+    font style
+    see: https://stackoverflow.com/questions/32660748
+ */
 
-static const NSString *gFontFace = @"sans-serif";
+static const NSString *gFontFace =
+    @"-apple-system, system-ui, 'Helvetica Neue', 'Lucida Grande', sans-serif";
+static const NSString *gFontSize = @"small";
 
 /* filesize abbreviations */
 
@@ -129,15 +136,15 @@ static const char *gFileSizeGigaBytes = "G";
 static const char *gFileSizeTeraBytes = "T";
 
 static const char *gMacFileTypeApplication = "APPL";
-static const char *gMacFileTypeSIT = "SITD";
-static const char *gMacFileTypeSIT5 = "SIT5";
+static const char *gMacFileTypeSIT         = "SITD";
+static const char *gMacFileTypeSIT5        = "SIT5";
 
 /* UTIs for files that may require special handling */
 
-static const CFStringRef gUTIGZip = CFSTR("org.gnu.gnu-zip-archive");
+static const CFStringRef gUTIGZip   = CFSTR("org.gnu.gnu-zip-archive");
 static const CFStringRef gUTIBinHex = CFSTR("com.apple.binhex-archive");
-static const CFStringRef gUTISIT1 = CFSTR("com.stuffit.archive.sit");
-static const CFStringRef gUTISIT2 = CFSTR("com.allume.stuffit-archive");
+static const CFStringRef gUTISIT1   = CFSTR("com.stuffit.archive.sit");
+static const CFStringRef gUTISIT2   = CFSTR("com.allume.stuffit-archive");
 
 /* structs */
 

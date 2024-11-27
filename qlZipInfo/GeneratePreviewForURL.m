@@ -30,8 +30,9 @@
     v. 0.2.5 (10/26/2021) - add support for uu encoded archives and rpms
     v. 0.3.0 (11/13/2021) - add support for binhex archives
     v. 0.4.0 (08/01/2022) - add support for stuffit archives
+    v. 0.5.0 (10/13/2024) - update color scheme based on PR#2
 
-    Copyright (c) 2015-2022 Sriranga R. Veeraraghavan <ranga@calalum.org>
+    Copyright (c) 2015-2022, 2024 Sriranga R. Veeraraghavan <ranga@calalum.org>
 
     Permission is hereby granted, free of charge, to any person obtaining
     a copy of this software and associated documentation files (the
@@ -1440,6 +1441,17 @@ static bool formatOutputHeader(NSMutableString *qlHtml)
 
     [qlHtml appendString: @"<style>\n"];
 
+    /*
+        set the font for all items
+        see: https://stackoverflow.com/a/42928750
+
+     */
+
+    [qlHtml appendFormat:
+            @"*{ font-family: %@; font-size: %@; }",
+            gFontFace,
+            gFontSize];
+
     /* darkmode styles */
 
     [qlHtml appendString: @"@media (prefers-color-scheme: dark) { "];
@@ -1588,7 +1600,6 @@ static bool startOutputBody(NSMutableString *qlHtml)
     }
 
     [qlHtml appendFormat: @"<body>\n"];
-    [qlHtml appendFormat: @"<font face=\"%@\">\n", gFontFace];
 
     return true;
 }

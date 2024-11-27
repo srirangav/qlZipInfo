@@ -254,7 +254,7 @@ archive_read_disk_entry_from_file(struct archive *_a,
 	if (S_ISLNK(st->st_mode)) {
 		size_t linkbuffer_len = st->st_size;
 		char *linkbuffer;
-		int lnklen;
+		ssize_t lnklen;
 
 		linkbuffer = malloc(linkbuffer_len + 1);
 		if (linkbuffer == NULL) {
@@ -264,7 +264,7 @@ archive_read_disk_entry_from_file(struct archive *_a,
 		}
 		if (a->tree != NULL) {
 #ifdef HAVE_READLINKAT
-			lnklen = (int)readlinkat(a->tree_current_dir_fd(a->tree),
+			lnklen = readlinkat(a->tree_current_dir_fd(a->tree),
 			    path, linkbuffer, linkbuffer_len);
 #else
 			if (a->tree_enter_working_dir(a->tree) != 0) {
@@ -276,7 +276,7 @@ archive_read_disk_entry_from_file(struct archive *_a,
 			lnklen = readlink(path, linkbuffer, linkbuffer_len);
 #endif /* HAVE_READLINKAT */
 		} else
-			lnklen = (int)readlink(path, linkbuffer, linkbuffer_len);
+			lnklen = readlink(path, linkbuffer, linkbuffer_len);
 		if (lnklen < 0) {
 			archive_set_error(&a->archive, errno,
 			    "Couldn't read link data");
@@ -520,6 +520,7 @@ setup_xattr(struct archive_read_disk *a,
 	if (size == -1) {
 		archive_set_error(&a->archive, errno,
 		    "Couldn't read extended attribute");
+		free(value);
 		return (ARCHIVE_WARN);
 	}
 
