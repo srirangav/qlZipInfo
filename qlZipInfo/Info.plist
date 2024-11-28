@@ -25,24 +25,25 @@
 				<string>public.tar-bzip2-archive</string>
 				<string>com.apple.installer-package-archive</string>
 				<string>com.apple.xar-archive</string>
+				<string>com.apple.xip-archive</string>
 				<string>com.apple.disk-image-cdr</string>
+				<string>com.apple.binhex-archive</string>
+				<string>com.apple.itunes.ipsw</string>
 				<string>public.iso-image</string>
 				<string>com.rarlab.rar-archive</string>
 				<string>org.debian.deb-archive</string>
+				<string>dyn.ah62d4rv4ge80k3pc</string>
 				<string>cx.c3.lha-archive</string>
 				<string>org.7-zip.7-zip-archive</string>
 				<string>org.tukaani.xz-archive</string>
 				<string>com.microsoft.cab</string>
 				<string>public.uuencoded-archive</string>
 				<string>com.redhat.rpm-archive</string>
-				<string>com.apple.binhex-archive</string>
 				<string>com.roxio.disk-image-toast</string>
 				<string>com.stuffit.archive.sit</string>
 				<string>com.allume.stuffit-archive</string>
 				<string>org.idpf.epub-container</string>
 				<string>dyn.ah62d4rv4ge80g8dbsmv0u4p0qy</string>
-				<string>com.apple.itunes.ipsw</string>
-				<string>dyn.ah62d4rv4ge80k3pc</string>
 			</array>
 		</dict>
 	</array>

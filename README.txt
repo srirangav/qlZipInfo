@@ -1,7 +1,7 @@
 README
 ------
 
-qlZipInfo v1.2.7
+qlZipInfo v1.2.8
 
 Homepage:
 
@@ -11,7 +11,7 @@ Overview:
 
     qlZipInfo is a QuickLook generator for zip, jar, tar,
     tar.gz (.tgz), tar.bz2 (.tbz2/.tbz), tar.Z (.tZ), xar
-    (.xar, .pkg), debian (.deb), Redhat Package Manager
+    (.xar, .xip, .pkg), debian (.deb), Redhat Package Manager
     (.rpm), 7zip (.7z), xz, Microsoft cabinet (.cab), gzip
     (.gz), lha, Binhex 4.0 (.hqx), Stuffit (.sit), and
     CrossOvers (.cxarchive) archives, IPSW files, and
@@ -94,6 +94,7 @@ Known Issues:
 
 History:
 
+    v1.2.8  - add support for some .xip files
     v1.2.7  - update color scheme based on pull request #2;
               update to libarchive 3.7.7
     v1.2.6  - update to Google Toolbox for Mac v.4.0.0 and
