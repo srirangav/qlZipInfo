@@ -76,13 +76,7 @@
 
 /* GeneratePreviewForURL - generate an archives preview */
 
-OSStatus GeneratePreviewForURL(void *thisInterface,
-                               QLPreviewRequestRef preview,
-                               CFURLRef url,
-                               CFStringRef contentTypeUTI,
-                               CFDictionaryRef options)
-{
-    NSMutableDictionary *qlHtmlProps = nil;
+NSString* GeneratePreviewForURL(CFURLRef url, CFStringRef contentTypeUTI) {
     NSString *qlEntryIcon = nil;
     NSMutableString *qlHtml = nil;
     NSMutableString *fileDateStringInZip = nil;
@@ -111,18 +105,14 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     if (url == NULL)
     {
         fprintf(stderr, "qlZipInfo: ERROR: url is null\n");
-        return zipQLFailed;
+        return nil;
     }
 
     /* binhex file */
 
     if (CFEqual(contentTypeUTI, gUTIBinHex) == true)
     {
-        return GeneratePreviewForHQX(thisInterface,
-                                     preview,
-                                     url,
-                                     contentTypeUTI,
-                                     options);
+        return GeneratePreviewForHQX(url, contentTypeUTI);
     }
 
     /* stuffit archive */
@@ -130,11 +120,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     if (CFEqual(contentTypeUTI, gUTISIT1) == true ||
         CFEqual(contentTypeUTI, gUTISIT2) == true)
     {
-        return GeneratePreviewForSIT(thisInterface,
-                                     preview,
-                                     url,
-                                     contentTypeUTI,
-                                     options);
+        return GeneratePreviewForSIT(url, contentTypeUTI);
     }
 
     /* get the local file system path for the specified file */
@@ -145,7 +131,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
     if (zipFileName == NULL)
     {
         fprintf(stderr, "qlZipInfo: ERROR: file name is null\n");
-        return zipQLFailed;
+        return nil;
     }
 
     /* normalize the file name */
@@ -174,7 +160,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
         {
             fprintf(stderr,
                     "qlZipInfo: ERROR: can't get filename\n");
-            return zipQLFailed;
+            return nil;
         }
 
         zipFileNameStr = zipFileNameCStr;
@@ -182,10 +168,10 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
     /*  exit if the user canceled the preview */
 
-    if (QLPreviewRequestIsCancelled(preview))
-    {
-        return noErr;
-    }
+//    if (QLPreviewRequestIsCancelled(preview))
+//    {
+//        return noErr;
+//    }
 
     /*
         set the locale to UTF-8 to decode non-ASCII filenames:
@@ -255,7 +241,7 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
         if (CFEqual(contentTypeUTI, gUTIGZip) != true)
         {
-            return r;
+            return nil;
         }
 
         isGZFile = true;
@@ -275,26 +261,20 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
                     archive_error_string(a));
             archive_read_close(a);
             archive_read_free(a);
-            return zipQLFailed;
+            return nil;
         }
     }
 
     /*  exit if the user canceled the preview */
 
-    if (QLPreviewRequestIsCancelled(preview))
-    {
-        archive_read_close(a);
-        archive_read_free(a);
-        return noErr;
-    }
+//    if (QLPreviewRequestIsCancelled(preview))
+//    {
+//        archive_read_close(a);
+//        archive_read_free(a);
+//        return noErr;
+//    }
 
     /* initialize the HTML output */
-
-    qlHtmlProps = [[NSMutableDictionary alloc] init];
-    [qlHtmlProps setObject: @"UTF-8"
-                 forKey: (NSString *)kQLPreviewPropertyTextEncodingNameKey];
-    [qlHtmlProps setObject: @"text/html"
-                 forKey: (NSString*)kQLPreviewPropertyMIMETypeKey];
 
     qlHtml = [[NSMutableString alloc] init];
 
@@ -369,9 +349,9 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
         /*  stop listing files if the user canceled the preview */
 
-        if (QLPreviewRequestIsCancelled(preview)) {
-            break;
-        }
+//        if (QLPreviewRequestIsCancelled(preview)) {
+//            break;
+//        }
 
         fileNameInZip = archive_entry_pathname(entry);
         if (fileNameInZip == NULL)
@@ -676,26 +656,13 @@ OSStatus GeneratePreviewForURL(void *thisInterface,
 
     endOutputBody(qlHtml);
 
-    QLPreviewRequestSetDataRepresentation(preview,
-                                          (__bridge CFDataRef)[qlHtml dataUsingEncoding:
-                                                NSUTF8StringEncoding],
-                                          kUTTypeHTML,
-                                          (__bridge CFDictionaryRef)qlHtmlProps);
-
-    return (zipErr == 0 ? noErr : zipQLFailed);
+    return qlHtml;
 }
 
 /* GeneratePreviewForHQX - generate the preview for a binhex archive */
 
-static OSStatus GeneratePreviewForHQX(void *thisInterface,
-                                      QLPreviewRequestRef preview,
-                                      CFURLRef url,
-                                      CFStringRef contentTypeUTI,
-                                      CFDictionaryRef options)
-{
-    NSMutableDictionary *qlHtmlProps = nil;
+static NSString* GeneratePreviewForHQX(CFURLRef url, CFStringRef contentTypeUTI) {
     NSMutableString *qlHtml = nil;
-    int zipErr = 0;
     CFMutableStringRef zipFileName = NULL;
     const char *zipFileNameStr = NULL;
     char zipFileNameCStr[PATH_MAX];
@@ -706,14 +673,14 @@ static OSStatus GeneratePreviewForHQX(void *thisInterface,
     if (url == NULL)
     {
         fprintf(stderr, "qlZipInfo: ERROR: url is null\n");
-        return zipQLFailed;
+        return nil;
     }
 
     if (CFEqual(contentTypeUTI, gUTIBinHex) != true)
     {
         fprintf(stderr,
                 "qlZipInfo: ERROR: UTI is not binhex\n");
-        return zipQLFailed;
+        return nil;
     }
 
     /* get the local file system path for the specified file */
@@ -724,7 +691,7 @@ static OSStatus GeneratePreviewForHQX(void *thisInterface,
     if (zipFileName == NULL)
     {
         fprintf(stderr, "qlZipInfo: ERROR: file name is null\n");
-        return zipQLFailed;
+        return nil;
     }
 
     /* normalize the file name */
@@ -753,7 +720,7 @@ static OSStatus GeneratePreviewForHQX(void *thisInterface,
         {
             fprintf(stderr,
                     "qlZipInfo: ERROR: can't get filename\n");
-            return zipQLFailed;
+            return nil;
         }
 
         zipFileNameStr = zipFileNameCStr;
@@ -761,47 +728,41 @@ static OSStatus GeneratePreviewForHQX(void *thisInterface,
 
     /*  exit if the user canceled the preview */
 
-    if (QLPreviewRequestIsCancelled(preview))
-    {
-        return noErr;
-    }
+//    if (QLPreviewRequestIsCancelled(preview))
+//    {
+//        return noErr;
+//    }
 
     if (hqxInitFileHandle(zipFileNameStr, &hqxFile) != gHqxOkay)
     {
         fprintf(stderr,
                 "qlZipInfo: ERROR: could not initialize hqx file handle\n");
-        return zipQLFailed;
+        return nil;
     }
 
     /*  exit if the user canceled the preview */
 
-    if (QLPreviewRequestIsCancelled(preview))
-    {
-        hqxReleaseFileHandle(&hqxFile);
-        return noErr;
-    }
+//    if (QLPreviewRequestIsCancelled(preview))
+//    {
+//        hqxReleaseFileHandle(&hqxFile);
+//        return noErr;
+//    }
 
     if (hqxGetHeader(&hqxFile) != gHqxOkay)
     {
         fprintf(stderr,
                 "qlZipInfo: ERROR: could not read hqx handle\n");
         hqxReleaseFileHandle(&hqxFile);
-        return zipQLFailed;
+        return nil;
     }
 
-    if (QLPreviewRequestIsCancelled(preview))
-    {
-        hqxReleaseFileHandle(&hqxFile);
-        return noErr;
-    }
+//    if (QLPreviewRequestIsCancelled(preview))
+//    {
+//        hqxReleaseFileHandle(&hqxFile);
+//        return noErr;
+//    }
 
     /* initialize the HTML output */
-
-    qlHtmlProps = [[NSMutableDictionary alloc] init];
-    [qlHtmlProps setObject: @"UTF-8"
-                 forKey: (NSString *)kQLPreviewPropertyTextEncodingNameKey];
-    [qlHtmlProps setObject: @"text/html"
-                 forKey: (NSString*)kQLPreviewPropertyMIMETypeKey];
 
     qlHtml = [[NSMutableString alloc] init];
 
@@ -937,24 +898,12 @@ static OSStatus GeneratePreviewForHQX(void *thisInterface,
 
     hqxReleaseFileHandle(&hqxFile);
 
-    QLPreviewRequestSetDataRepresentation(preview,
-                                          (__bridge CFDataRef)[qlHtml dataUsingEncoding:
-                                                NSUTF8StringEncoding],
-                                          kUTTypeHTML,
-                                          (__bridge CFDictionaryRef)qlHtmlProps);
-
-    return (zipErr == 0 ? noErr : zipQLFailed);
+    return qlHtml;
 }
 
 /* GeneratePreviewForSIT - generate the preview for a stuffit archive */
 
-static OSStatus GeneratePreviewForSIT(void *thisInterface,
-                                      QLPreviewRequestRef preview,
-                                      CFURLRef url,
-                                      CFStringRef contentTypeUTI,
-                                      CFDictionaryRef options)
-{
-    NSMutableDictionary *qlHtmlProps = nil;
+static NSString* GeneratePreviewForSIT(CFURLRef url, CFStringRef contentTypeUTI) {
     NSMutableString *qlHtml = nil;
     NSString *qlEntryIcon = nil;
     NSMutableString *fileDateStringInZip = nil;
@@ -982,7 +931,7 @@ static OSStatus GeneratePreviewForSIT(void *thisInterface,
     if (url == NULL)
     {
         fprintf(stderr, "qlZipInfo: ERROR: url is null\n");
-        return zipQLFailed;
+        return nil;
     }
 
     if (CFEqual(contentTypeUTI, gUTISIT1) != true &&
@@ -992,7 +941,7 @@ static OSStatus GeneratePreviewForSIT(void *thisInterface,
                 "qlZipInfo: ERROR: UTI is not SIT = '%s'\n",
                 CFStringGetCStringPtr(contentTypeUTI,
                                       kCFStringEncodingMacRoman));
-        return zipQLFailed;
+        return nil;
     }
 
     /* get the local file system path for the specified file */
@@ -1003,7 +952,7 @@ static OSStatus GeneratePreviewForSIT(void *thisInterface,
     if (zipFileName == NULL)
     {
         fprintf(stderr, "qlZipInfo: ERROR: file name is null\n");
-        return zipQLFailed;
+        return nil;
     }
 
     /* normalize the file name */
@@ -1032,7 +981,7 @@ static OSStatus GeneratePreviewForSIT(void *thisInterface,
         {
             fprintf(stderr,
                     "qlZipInfo: ERROR: can't get filename\n");
-            return zipQLFailed;
+            return nil;
         }
 
         zipFileNameStr = zipFileNameCStr;
@@ -1040,33 +989,27 @@ static OSStatus GeneratePreviewForSIT(void *thisInterface,
 
     /*  exit if the user canceled the preview */
 
-    if (QLPreviewRequestIsCancelled(preview))
-    {
-        return noErr;
-    }
+//    if (QLPreviewRequestIsCancelled(preview))
+//    {
+//        return noErr;
+//    }
 
     if (sitInitFileHandle(zipFileNameStr, &sitFile) != gHqxOkay)
     {
         fprintf(stderr,
                 "qlZipInfo: ERROR: could not initialize sit file handle\n");
-        return zipQLFailed;
+        return nil;
     }
 
     /*  exit if the user canceled the preview */
 
-    if (QLPreviewRequestIsCancelled(preview))
-    {
-        sitReleaseFileHandle(&sitFile);
-        return noErr;
-    }
+//    if (QLPreviewRequestIsCancelled(preview))
+//    {
+//        sitReleaseFileHandle(&sitFile);
+//        return noErr;
+//    }
 
     /* initialize the HTML output */
-
-    qlHtmlProps = [[NSMutableDictionary alloc] init];
-    [qlHtmlProps setObject: @"UTF-8"
-                 forKey: (NSString *)kQLPreviewPropertyTextEncodingNameKey];
-    [qlHtmlProps setObject: @"text/html"
-                 forKey: (NSString*)kQLPreviewPropertyMIMETypeKey];
 
     qlHtml = [[NSMutableString alloc] init];
 
@@ -1121,9 +1064,9 @@ static OSStatus GeneratePreviewForSIT(void *thisInterface,
             break;
         }
 
-        if (QLPreviewRequestIsCancelled(preview)) {
-            break;
-        }
+//        if (QLPreviewRequestIsCancelled(preview)) {
+//            break;
+//        }
 
         if (sitIsEntryFolder(&eHdr) == SitEntryFolderEnd)
         {
@@ -1400,13 +1343,7 @@ static OSStatus GeneratePreviewForSIT(void *thisInterface,
 
     endOutputBody(qlHtml);
 
-    QLPreviewRequestSetDataRepresentation(preview,
-                                          (__bridge CFDataRef)[qlHtml dataUsingEncoding:
-                                                NSUTF8StringEncoding],
-                                          kUTTypeHTML,
-                                          (__bridge CFDictionaryRef)qlHtmlProps);
-
-    return (zipErr == 0 ? noErr : zipQLFailed);
+    return qlHtml;
 }
 
 

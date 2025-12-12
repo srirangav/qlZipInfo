@@ -156,23 +156,10 @@ typedef struct fileSizeSpec
 
 /* prototypes */
 
-OSStatus GeneratePreviewForURL(void *thisInterface,
-                               QLPreviewRequestRef preview,
-                               CFURLRef url,
-                               CFStringRef contentTypeUTI,
-                               CFDictionaryRef options);
-static OSStatus GeneratePreviewForHQX(void *thisInterface,
-                                      QLPreviewRequestRef preview,
-                                      CFURLRef url,
-                                      CFStringRef contentTypeUTI,
-                                      CFDictionaryRef options);
-static OSStatus GeneratePreviewForSIT(void *thisInterface,
-                                      QLPreviewRequestRef preview,
-                                      CFURLRef url,
-                                      CFStringRef contentTypeUTI,
-                                      CFDictionaryRef options);
-void CancelPreviewGeneration(void *thisInterface,
-                             QLPreviewRequestRef preview);
+NSString* GeneratePreviewForURL(CFURLRef url, CFStringRef contentTypeUTI);
+static NSString* GeneratePreviewForHQX(CFURLRef url, CFStringRef contentTypeUTI);
+static NSString* GeneratePreviewForSIT(CFURLRef url, CFStringRef contentTypeUTI);
+
 static off_t getGZExpandedFileSize(const char *zipFileNameStr);
 static int getFileSizeSpec(off_t fileSizeInBytes,
                            fileSizeSpec_t *fileSpec);

@@ -2,14 +2,13 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
-	<key>CFBundleDocumentTypes</key>
-	<array>
+	<key>NSExtension</key>
+	<dict>
+		<key>NSExtensionAttributes</key>
 		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>QLGenerator</string>
-			<key>LSItemContentTypes</key>
+			<key>QLIsDataBasedPreview</key>
+			<false/>
+			<key>QLSupportedContentTypes</key>
 			<array>
 				<string>com.pkware.zip-archive</string>
 				<string>com.sun.java-archive</string>
@@ -45,51 +44,13 @@
 				<string>org.idpf.epub-container</string>
 				<string>dyn.ah62d4rv4ge80g8dbsmv0u4p0qy</string>
 			</array>
+			<key>QLSupportsSearchableItems</key>
+			<false/>
 		</dict>
-	</array>
-	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleName</key>
-	<string>$(PRODUCT_NAME)</string>
-	<key>CFBundleShortVersionString</key>
-	<string>$(MARKETING_VERSION)</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
-	<key>CFPlugInDynamicRegisterFunction</key>
-	<string></string>
-	<key>CFPlugInDynamicRegistration</key>
-	<string>NO</string>
-	<key>CFPlugInFactories</key>
-	<dict>
-		<key>35007463-8B2B-4759-A3E6-49A74EA453EA</key>
-		<string>QuickLookGeneratorPluginFactory</string>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.quicklook.preview</string>
+		<key>NSExtensionPrincipalClass</key>
+		<string>PreviewViewController</string>
 	</dict>
-	<key>CFPlugInTypes</key>
-	<dict>
-		<key>5E2D9680-5022-40FA-B806-43349622E5B9</key>
-		<array>
-			<string>35007463-8B2B-4759-A3E6-49A74EA453EA</string>
-		</array>
-	</dict>
-	<key>CFPlugInUnloadFunction</key>
-	<string></string>
-	<key>NSHumanReadableCopyright</key>
-	<string>Portions Copyright © 2015-2022 Sriranga Veeraraghavan. All rights reserved.</string>
-	<key>QLNeedsToBeRunInMainThread</key>
-	<false/>
-	<key>QLPreviewHeight</key>
-	<integer>320</integer>
-	<key>QLPreviewWidth</key>
-	<integer>640</integer>
-	<key>QLSupportsConcurrentRequests</key>
-	<false/>
-	<key>QLThumbnailMinimumSize</key>
-	<real>17</real>
 </dict>
 </plist>
